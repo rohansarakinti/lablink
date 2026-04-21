@@ -70,13 +70,30 @@ capture what is currently live in the codebase.
   - posting creation page at `/labs/[labId]/postings/new`
   - applicant review at `/labs/[labId]/postings/[postingId]/applicants`
     (single status updates, reviewer notes, bulk move/reject)
+- Student dashboard baseline is implemented at `/dashboard/student` with top-tab navigation:
+  - Feed (placeholder shell)
+  - Discover (open postings list)
+  - Applications (student applications list + status chips)
+  - My Labs (accepted lab memberships list)
+- Student apply flow baseline is implemented at `/postings/[id]`:
+  - posting detail + application form
+  - resume/transcript URL and file upload support
+  - statement + custom question response capture
+  - submit inserts into `applications`
+  - submit inserts manager notifications (`application_submitted`) when notifications table exists
+  - discover list excludes postings the student has already applied to
 - Global navigation is applied through root layout navbar across app routes.
+- Vector matching groundwork is implemented: `pgvector` embeddings (gte-small, 384-dim) on `student_profiles` and `open` `role_postings`, `vector_match_role_postings` RPC, `match_cache` table, edge function `generate-embedding`, and DB webhooks to refresh vectors.
+- **Stage 1 + Stage 2 matching** — `lib/matching.ts` `rankMatchesForStudent`:
+  - Stage 1: top-50 shortlist from `vector_match_role_postings`
+  - Stage 2: `gemini-2.0-flash` JSON re-rank with student + lab/posting context (requires `GOOGLE_AI_STUDIO_API_KEY`); heuristic skill-overlap + vector ordering fallback if the key is missing or the LLM call fails
+  - Students can refresh their own `match_cache` rows (RLS policy in `20260421_match_cache_student_writes.sql`).
 
 ### Not implemented yet (still roadmap)
 
-- Vector embedding + match cache pipeline, RPC matching functions, and ranking feed.
-- Student dashboard baseline (discover/applications/my labs) and apply flow details.
-- Social lab posts feed, analytics dashboards, notifications, cron reminder/email automation.
+- `vector_match_lab_posts` + recommended lab-posts feed, mixed with followed-lab content.
+- Student feed ranking/mix, profile completeness scoring banner, and advanced discover filtering/search.
+- Social lab posts feed, analytics dashboards, cron reminder/email automation, richer notification UX (beyond application-submit inserts).
 
 ### Milestone snapshot
 
@@ -84,15 +101,15 @@ capture what is currently live in the codebase.
 - **Onboarding UX polish (tags, shared multiselects, sizing, required/optional cues):** Implemented
 - **Resume/CV AI autofill path:** Implemented (with heuristic fallback)
 - **Lab lifecycle (create lab, postings, applications, memberships):** Implemented
-- **Vector matching + feed ranking:** Planned
-- **Notifications/analytics/automation:** Planned
+- **Student dashboard baseline + apply flow baseline:** Implemented
+- **Vector matching (stage 1 shortlist + stage 2 Gemini re-rank) + `match_cache`:** Implemented
+- **Notifications/analytics/automation:** Partial (application-submit notifications; rest planned)
 
 ### Next recommended implementation order
 
-1. Implement student dashboard baseline (discover + applications + my labs).
-2. Add student apply flow completion (`/postings/[id]` modal + materials + custom questions).
-3. Add vector matching pipeline and ranking cache.
-4. Add notifications, analytics, and cron/email automation.
+1. Enrich student Discover/Feed UX: use `llm_rank` / `llm_reason` in UI consistently, profile completeness banner, and optional search/filter.
+2. Implement `vector_match_lab_posts` + `getRecommendedPosts` + Feed tab mixed stream.
+3. Add social lab posts feed, analytics, and cron/email automation.
 
 ---
 

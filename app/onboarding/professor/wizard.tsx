@@ -1,6 +1,7 @@
 "use client";
 
-import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { completeProfessorOnboarding } from "./actions";
 import { parseResumeWithLlm } from "../autofill-actions";
 import { MultiSelectDropdown } from "@/components/multi-select-dropdown";
@@ -56,8 +57,39 @@ const initialDraft: ProfessorDraft = {
 const storageKey = "lablink_professor_onboarding_draft";
 const steps = ["Upload CV", "Profile", "Research", "Mentorship", "Preferences"];
 
+const stepHeaders = [
+  {
+    title: "CV Upload",
+    description:
+      "Upload your CV to pre-fill your lab profile and research details. You can still edit any field before publishing.",
+  },
+  {
+    title: "Academic and Lab Profile",
+    description:
+      "Share who you are and where you work so students and collaborators can find and recognize your lab on LabLink.",
+  },
+  {
+    title: "Research Focus",
+    description:
+      "Define your areas of expertise and keywords so we can match you with students aligned with your science.",
+  },
+  {
+    title: "Mentorship and Culture",
+    description:
+      "Set expectations for how you guide trainees and what your team environment is like for prospective members.",
+  },
+  {
+    title: "Hiring and Notifications",
+    description:
+      "Choose who you are looking for and how you want to hear about applications and activity on the platform.",
+  },
+];
+
 export function ProfessorOnboardingWizard() {
   const [step, setStep] = useState(1);
+  const maxStep = steps.length;
+  const cvInputRef = useRef<HTMLInputElement>(null);
+  const activeHeader = stepHeaders[step - 1];
   const [draft, setDraft] = useState<ProfessorDraft>(() => {
     if (typeof window === "undefined") return initialDraft;
     const saved = window.sessionStorage.getItem(storageKey);
@@ -74,6 +106,10 @@ export function ProfessorOnboardingWizard() {
     window.sessionStorage.setItem(storageKey, JSON.stringify(draft));
   }, [draft]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
   const canContinue = useMemo(() => {
     if (step === 1) return true;
     if (step === 2) return Boolean(draft.full_name && draft.university);
@@ -83,6 +119,10 @@ export function ProfessorOnboardingWizard() {
   }, [draft, step]);
 
   async function handleCvUpload(file: File) {
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadStatus("File is too large. Please upload a file under 10MB.");
+      return;
+    }
     setUploadStatus("Parsing CV...");
     try {
       const text = await extractTextFromFile(file);
@@ -117,30 +157,35 @@ export function ProfessorOnboardingWizard() {
   }
 
   return (
-    <form action={completeProfessorOnboarding} className="mt-8 rounded-xl border border-zinc-200 bg-white p-6">
+    <form action={completeProfessorOnboarding} className="mt-2 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+      <div className="mb-8 space-y-3">
+        <h2 className="text-5xl font-semibold tracking-tight text-ll-navy">{activeHeader.title}</h2>
+        <p className="max-w-3xl text-xl leading-relaxed text-zinc-600">{activeHeader.description}</p>
+      </div>
       <div className="hidden">
         {Object.entries(draft).map(([key, value]) => (
           <input key={key} type="hidden" name={key} value={value} />
         ))}
       </div>
-      <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+      <div className="mb-5 h-3 w-full overflow-hidden rounded-full bg-zinc-100">
         <div
           className="h-full bg-ll-navy transition-all"
           style={{ width: `${(step / steps.length) * 100}%` }}
         />
       </div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-ll-gray">
-        Step {step} of 4 - {steps[step - 1]}
+      <p className="text-sm font-semibold uppercase tracking-wider text-ll-gray">
+        Step {step} of {steps.length} - {steps[step - 1]}
       </p>
 
       {step === 1 ? (
-        <div className="mt-4 grid gap-4">
-          <div className="space-y-2">
-            <label htmlFor="cv_upload" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+        <div className="mt-6 grid gap-5">
+          <div className="space-y-3">
+            <label htmlFor="cv_upload" className="flex items-center gap-2 text-base font-semibold text-ll-navy">
               Upload CV
-              <span className="text-xs text-zinc-500">(optional but recommended)</span>
+              <span className="text-sm font-normal text-zinc-500">(optional but recommended)</span>
             </label>
             <input
+              ref={cvInputRef}
               id="cv_upload"
               name="cv_upload"
               type="file"
@@ -149,21 +194,35 @@ export function ProfessorOnboardingWizard() {
                 const file = event.target.files?.[0];
                 if (file) void handleCvUpload(file);
               }}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="hidden"
             />
-            <p className="text-xs text-ll-gray">
+            <button
+              type="button"
+              onClick={() => cvInputRef.current?.click()}
+              className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center transition hover:bg-zinc-100"
+            >
+              <span className="rounded-lg border border-zinc-300 bg-white p-3 text-zinc-500">
+                <Upload className="h-7 w-7" />
+              </span>
+              <span className="text-3xl font-semibold text-zinc-800">Upload your CV</span>
+              <span className="text-xl text-zinc-500">PDF or TXT (Max 10MB)</span>
+              <span className="rounded-xl bg-[#0f3441] px-8 py-3 text-xl font-semibold uppercase tracking-widest text-white">
+                Choose File
+              </span>
+            </button>
+            <p className="text-sm text-ll-gray">
               Uploading a CV will auto-populate as many fields as possible.
             </p>
             {draft.cv_file_name ? (
-              <p className="text-xs font-medium text-zinc-700">Uploaded: {draft.cv_file_name}</p>
+              <p className="text-sm font-medium text-zinc-700">Uploaded: {draft.cv_file_name}</p>
             ) : null}
-            {uploadStatus ? <p className="text-xs text-ll-gray">{uploadStatus}</p> : null}
+            {uploadStatus ? <p className="text-sm text-ll-gray">{uploadStatus}</p> : null}
           </div>
         </div>
       ) : null}
 
       {step === 2 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <Field label="Full name" name="full_name" value={draft.full_name} onChange={setDraft} required />
           <Field
             label="Title"
@@ -194,7 +253,7 @@ export function ProfessorOnboardingWizard() {
       ) : null}
 
       {step === 3 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <TagField
             label="Research fields"
             name="research_fields"
@@ -213,9 +272,9 @@ export function ProfessorOnboardingWizard() {
             hint="Technique and topic tags."
           />
           <div className="space-y-2">
-            <label htmlFor="research_summary" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="research_summary" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               Research summary
-              <span className="text-xs text-zinc-500">(optional)</span>
+              <span className="text-sm text-zinc-500">(optional)</span>
             </label>
             <textarea
               id="research_summary"
@@ -225,13 +284,13 @@ export function ProfessorOnboardingWizard() {
                 setDraft((prev) => ({ ...prev, research_summary: event.target.value }))
               }
               rows={4}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full min-h-[120px] rounded-xl border border-zinc-300 px-4 py-3 text-base"
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="preferred_experience_level" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="preferred_experience_level" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               Preferred experience level
-              <span className="text-xs text-zinc-500">(optional)</span>
+              <span className="text-sm text-zinc-500">(optional)</span>
             </label>
             <select
               id="preferred_experience_level"
@@ -240,7 +299,7 @@ export function ProfessorOnboardingWizard() {
               onChange={(event) =>
                 setDraft((prev) => ({ ...prev, preferred_experience_level: event.target.value }))
               }
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
             >
               <option value="">Select one</option>
               <option value="none">No experience needed</option>
@@ -252,11 +311,11 @@ export function ProfessorOnboardingWizard() {
       ) : null}
 
       {step === 4 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <div className="space-y-2">
-            <label htmlFor="mentorship_style" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="mentorship_style" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               Mentorship style
-              <span className="text-xs text-zinc-500">(optional)</span>
+              <span className="text-sm text-zinc-500">(optional)</span>
             </label>
             <select
               id="mentorship_style"
@@ -265,7 +324,7 @@ export function ProfessorOnboardingWizard() {
               onChange={(event) =>
                 setDraft((prev) => ({ ...prev, mentorship_style: event.target.value }))
               }
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
             >
               <option value="">Select one</option>
               <option value="hands_on">Hands-on guidance</option>
@@ -274,16 +333,16 @@ export function ProfessorOnboardingWizard() {
             </select>
           </div>
           <div className="space-y-2">
-            <label htmlFor="lab_culture" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="lab_culture" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               Lab culture
-              <span className="text-xs text-zinc-500">(optional)</span>
+              <span className="text-sm text-zinc-500">(optional)</span>
             </label>
             <select
               id="lab_culture"
               name="lab_culture"
               value={draft.lab_culture}
               onChange={(event) => setDraft((prev) => ({ ...prev, lab_culture: event.target.value }))}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
             >
               <option value="">Select one</option>
               <option value="fast_paced">Fast-paced</option>
@@ -297,7 +356,7 @@ export function ProfessorOnboardingWizard() {
       ) : null}
 
       {step === 5 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <MultiSelectDropdown
             label="Preferred student year"
             values={splitValues(draft.preferred_student_year)}
@@ -331,9 +390,9 @@ export function ProfessorOnboardingWizard() {
             placeholder="Select majors"
           />
           <div className="space-y-2">
-            <label htmlFor="profile_visibility" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="profile_visibility" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               Profile visibility
-              <span className="text-xs text-zinc-500">(optional)</span>
+              <span className="text-sm text-zinc-500">(optional)</span>
             </label>
             <select
               id="profile_visibility"
@@ -342,17 +401,17 @@ export function ProfessorOnboardingWizard() {
               onChange={(event) =>
                 setDraft((prev) => ({ ...prev, profile_visibility: event.target.value }))
               }
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
             >
               <option value="public">Public</option>
               <option value="university_only">University only</option>
             </select>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">
-              <label htmlFor="notify_new_applications" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+              <label htmlFor="notify_new_applications" className="flex items-center gap-2 text-base font-medium text-ll-navy">
                 Notify new applications
-                <span className="text-xs text-zinc-500">(optional)</span>
+                <span className="text-sm text-zinc-500">(optional)</span>
               </label>
               <select
                 id="notify_new_applications"
@@ -361,16 +420,16 @@ export function ProfessorOnboardingWizard() {
                 onChange={(event) =>
                   setDraft((prev) => ({ ...prev, notify_new_applications: event.target.value }))
                 }
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
               >
                 <option value="true">Yes</option>
                 <option value="false">No</option>
               </select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="notify_weekly_digest" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+              <label htmlFor="notify_weekly_digest" className="flex items-center gap-2 text-base font-medium text-ll-navy">
                 Notify weekly digest
-                <span className="text-xs text-zinc-500">(optional)</span>
+                <span className="text-sm text-zinc-500">(optional)</span>
               </label>
               <select
                 id="notify_weekly_digest"
@@ -379,7 +438,7 @@ export function ProfessorOnboardingWizard() {
                 onChange={(event) =>
                   setDraft((prev) => ({ ...prev, notify_weekly_digest: event.target.value }))
                 }
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
               >
                 <option value="true">Yes</option>
                 <option value="false">No</option>
@@ -389,34 +448,36 @@ export function ProfessorOnboardingWizard() {
         </div>
       ) : null}
 
-      <div className="mt-6 flex items-center justify-between">
+      <div className="mt-8 flex items-center justify-between">
         <button
           type="button"
           onClick={() => setStep((current) => Math.max(1, current - 1))}
           disabled={step === 1}
-          className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-300 px-6 py-3 text-base font-medium text-zinc-700 disabled:opacity-50"
         >
+          <ArrowLeft className="h-5 w-5 shrink-0" aria-hidden />
           Back
         </button>
 
-        {step < 5 ? (
+        {step < maxStep ? (
           <div className="flex flex-col items-end gap-2">
             {!canContinue ? (
-              <p className="text-xs text-red-600">Fill required fields before continuing.</p>
+              <p className="text-sm text-red-600">Fill required fields before continuing.</p>
             ) : null}
             <button
               type="button"
-              onClick={() => setStep((current) => Math.min(5, current + 1))}
+              onClick={() => setStep((current) => Math.min(maxStep, current + 1))}
               disabled={!canContinue}
-              className="rounded-full bg-ll-navy px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-ll-navy px-6 py-3 text-base font-medium text-white disabled:opacity-60"
             >
               Continue
+              <ArrowRight className="h-5 w-5 shrink-0" aria-hidden />
             </button>
           </div>
         ) : (
           <button
             type="submit"
-            className="rounded-full bg-ll-navy px-4 py-2 text-sm font-medium text-white"
+            className="rounded-full bg-ll-navy px-6 py-3 text-base font-medium text-white"
           >
             Complete onboarding
           </button>
@@ -480,12 +541,12 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <label htmlFor={name} className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+      <label htmlFor={name} className="flex items-center gap-2 text-base font-medium text-ll-navy">
         {label}
         {required ? (
-          <span className="text-xs font-semibold text-red-600">(required)</span>
+          <span className="text-sm font-semibold text-red-600">(required)</span>
         ) : (
-          <span className="text-xs text-zinc-500">(optional)</span>
+          <span className="text-sm text-zinc-500">(optional)</span>
         )}
       </label>
       <input
@@ -495,9 +556,9 @@ function Field({
         onChange={(event) => onChange((prev) => ({ ...prev, [name]: event.target.value }))}
         placeholder={placeholder}
         required={required}
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+        className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
       />
-      {hint ? <p className="text-xs text-ll-gray">{hint}</p> : null}
+      {hint ? <p className="text-sm text-ll-gray">{hint}</p> : null}
     </div>
   );
 }
@@ -540,12 +601,12 @@ function TagField({
 
   return (
     <div className="space-y-2">
-      <label htmlFor={name} className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+      <label htmlFor={name} className="flex items-center gap-2 text-base font-medium text-ll-navy">
         {label}
         {required ? (
-          <span className="text-xs font-semibold text-red-600">(required)</span>
+          <span className="text-sm font-semibold text-red-600">(required)</span>
         ) : (
-          <span className="text-xs text-zinc-500">(optional)</span>
+          <span className="text-sm text-zinc-500">(optional)</span>
         )}
       </label>
       <input
@@ -562,14 +623,14 @@ function TagField({
         }}
         placeholder={placeholder}
         required={required && tags.length === 0}
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+        className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
       />
       {tags.length > 0 ? (
         <div className="flex flex-wrap gap-2 pt-1">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700"
+              className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700"
             >
               {tag}
               <button
@@ -584,10 +645,15 @@ function TagField({
           ))}
         </div>
       ) : null}
-      <p className="text-xs text-ll-gray">
-        {hint ? `${hint} ` : ""}
-        Type a value and press Enter or comma to add a tag. Click x to remove.
-      </p>
+      {hint ? (
+        <p className="text-sm text-ll-gray">
+          {hint} Type a value and press Enter or comma to add a tag. Click x to remove.
+        </p>
+      ) : (
+        <p className="text-sm text-ll-gray">
+          Type a value and press Enter or comma to add a tag. Click x to remove.
+        </p>
+      )}
     </div>
   );
 }

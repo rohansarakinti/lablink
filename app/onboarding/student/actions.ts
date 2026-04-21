@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requestEmbeddingRefresh } from "@/lib/embeddings";
 
 function toList(value: FormDataEntryValue | null) {
   return String(value ?? "")
@@ -58,46 +59,46 @@ export async function completeStudentOnboarding(formData: FormData) {
     redirect("/onboarding/student?error=missing_fields");
   }
 
-  await supabase.from("student_profiles").upsert(
-    {
-      id: user.id,
-      full_name: fullName,
-      university,
-      year: year || null,
-      graduation_month:
-        graduationMonthRaw >= 1 && graduationMonthRaw <= 12 ? graduationMonthRaw : null,
-      graduation_year: graduationYearRaw > 0 ? graduationYearRaw : null,
-      gpa: gpaRaw > 0 ? gpaRaw : null,
-      major,
-      minor,
-      research_fields: researchFields,
-      research_topics: researchTopics,
-      ranked_interests: rankedInterests,
-      skills,
-      programming_languages: programmingLanguages,
-      lab_equipment: labEquipment,
-      software_tools: softwareTools,
-      prior_experience: priorExperience,
-      experience_details: experienceDetails || null,
-      transcript_url: transcriptUrl || null,
-      resume_url: resumeUrl || null,
-      experience_types: experienceTypes,
-      priorities,
-      relevant_courses: relevantCourses,
-      honors_or_awards: honorsOrAwards || null,
-      publications: publications || null,
-      role_types_sought: roleTypesSought,
-      time_commitment: timeCommitment || null,
-      paid_preference: paidPreference || null,
-      motivations,
-      start_availability: startAvailability || null,
-      parsed_gpa: parsedGpaRaw > 0 ? parsedGpaRaw : null,
-      parsed_courses: parsedCourses || null,
-      is_gpa_visible: isGpaVisibleRaw !== "false",
-      willing_to_volunteer: volunteerRaw !== "false",
-    },
-    { onConflict: "id" },
-  );
+  const studentPayload = {
+    id: user.id,
+    full_name: fullName,
+    university,
+    year: year || null,
+    graduation_month:
+      graduationMonthRaw >= 1 && graduationMonthRaw <= 12 ? graduationMonthRaw : null,
+    graduation_year: graduationYearRaw > 0 ? graduationYearRaw : null,
+    gpa: gpaRaw > 0 ? gpaRaw : null,
+    major,
+    minor,
+    research_fields: researchFields,
+    research_topics: researchTopics,
+    ranked_interests: rankedInterests,
+    skills,
+    programming_languages: programmingLanguages,
+    lab_equipment: labEquipment,
+    software_tools: softwareTools,
+    prior_experience: priorExperience,
+    experience_details: experienceDetails || null,
+    transcript_url: transcriptUrl || null,
+    resume_url: resumeUrl || null,
+    experience_types: experienceTypes,
+    priorities,
+    relevant_courses: relevantCourses,
+    honors_or_awards: honorsOrAwards || null,
+    publications: publications || null,
+    role_types_sought: roleTypesSought,
+    time_commitment: timeCommitment || null,
+    paid_preference: paidPreference || null,
+    motivations,
+    start_availability: startAvailability || null,
+    parsed_gpa: parsedGpaRaw > 0 ? parsedGpaRaw : null,
+    parsed_courses: parsedCourses || null,
+    is_gpa_visible: isGpaVisibleRaw !== "false",
+    willing_to_volunteer: volunteerRaw !== "false",
+  };
+
+  await supabase.from("student_profiles").upsert(studentPayload, { onConflict: "id" });
+  await requestEmbeddingRefresh("student_profiles", studentPayload);
 
   await supabase
     .from("profiles")

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getLabContext } from "../../../../_lib";
+import { getLabContext } from "../../../_lib";
 import { ReviewTable } from "./review-table";
 
 type ApplicationRow = {

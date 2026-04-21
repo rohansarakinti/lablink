@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { bulkUpdateApplicationStatus, updateApplicationReviewerNotes, updateApplicationStatus } from "../../../../actions";
+import { bulkUpdateApplicationStatus, updateApplicationReviewerNotes, updateApplicationStatus } from "../../../actions";
 
 type ReviewRow = {
   id: string;

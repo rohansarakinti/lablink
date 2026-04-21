@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-full bg-[#f2f2f2]">
       <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-8">
         <section>
-          <h1 className="max-w-4xl text-5xl font-bold leading-tight text-black md:text-7xl">
+          <h1 className="whitespace-nowrap text-[clamp(1.4rem,5vw,4.5rem)] font-bold leading-tight text-black">
             The hub for elite academic collaboration.
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-ll-gray">

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requestEmbeddingRefresh } from "@/lib/embeddings";
 
 const memberRoles = [
   "pi",
@@ -160,7 +161,7 @@ export async function createRolePosting(formData: FormData) {
   const spotsAvailable = spotsRaw ? Number(spotsRaw) : null;
   const applicationDeadline = String(formData.get("application_deadline") ?? "").trim() || null;
 
-  const { error } = await supabase.from("role_postings").insert({
+  const postingPayload = {
     lab_id: labId,
     created_by: actorId,
     title,
@@ -184,9 +185,18 @@ export async function createRolePosting(formData: FormData) {
     priority_courses: toList(formData.get("priority_courses")),
     eval_methods: toList(formData.get("eval_methods")),
     custom_questions: [],
-  });
+  };
+
+  const { data: insertedPosting, error } = await supabase
+    .from("role_postings")
+    .insert(postingPayload)
+    .select("*")
+    .single<Record<string, unknown>>();
 
   if (error) throw new Error(error.message);
+  if (insertedPosting) {
+    await requestEmbeddingRefresh("role_postings", insertedPosting);
+  }
 
   revalidatePath(`/labs/${labId}/postings`);
   revalidatePath(`/labs/${labId}`);

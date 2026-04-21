@@ -1,6 +1,7 @@
 "use client";
 
-import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { completeStudentOnboarding } from "./actions";
 import { parseResumeWithLlm } from "../autofill-actions";
 import { MultiSelectDropdown } from "@/components/multi-select-dropdown";
@@ -89,6 +90,39 @@ const steps = [
   "Preferences",
 ];
 
+const stepHeaders = [
+  {
+    title: "Resume Upload",
+    description:
+      "Share your resume to auto-fill key details and speed up onboarding. You can still complete every field manually.",
+  },
+  {
+    title: "Academic Background",
+    description:
+      "Tell us about your current scholarly pursuits so we can surface labs and opportunities that match your training.",
+  },
+  {
+    title: "Research Interests",
+    description:
+      "Highlight the fields and topics you want to explore so your matches prioritize the work you care about most.",
+  },
+  {
+    title: "Skills and Experience",
+    description:
+      "Showcase your practical strengths, tools, and prior exposure so labs can quickly understand how you can contribute.",
+  },
+  {
+    title: "Goals and Priorities",
+    description:
+      "Describe what you are hoping to gain from research so we can tailor opportunities to your academic direction.",
+  },
+  {
+    title: "Availability and Preferences",
+    description:
+      "Set your weekly commitment and compensation preferences to receive matches that fit your schedule and needs.",
+  },
+];
+
 const roleTypesSoughtOptions = [
   { value: "undergrad_ra", label: "Undergraduate RA" },
   { value: "graduate_ra", label: "Graduate RA" },
@@ -122,6 +156,8 @@ const paidPreferenceOptions = [
 export function StudentOnboardingWizard() {
   const [step, setStep] = useState(1);
   const maxStep = steps.length;
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+  const activeHeader = stepHeaders[step - 1];
   const [draft, setDraft] = useState<StudentDraft>(() => {
     if (typeof window === "undefined") return initialDraft;
     const saved = window.sessionStorage.getItem(storageKey);
@@ -138,6 +174,10 @@ export function StudentOnboardingWizard() {
     window.sessionStorage.setItem(storageKey, JSON.stringify(draft));
   }, [draft]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
   const canContinue = useMemo(() => {
     if (step === 1) return true;
     if (step === 2) return Boolean(draft.full_name && draft.university);
@@ -149,6 +189,10 @@ export function StudentOnboardingWizard() {
   }, [draft, step]);
 
   async function handleResumeUpload(file: File) {
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadStatus("File is too large. Please upload a file under 10MB.");
+      return;
+    }
     setUploadStatus("Parsing resume...");
     try {
       const text = await extractTextFromFile(file);
@@ -193,30 +237,35 @@ export function StudentOnboardingWizard() {
   }
 
   return (
-    <form action={completeStudentOnboarding} className="mt-8 rounded-xl border border-zinc-200 bg-white p-6">
+    <form action={completeStudentOnboarding} className="mt-2 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+      <div className="mb-8 space-y-3">
+        <h2 className="text-5xl font-semibold tracking-tight text-ll-navy">{activeHeader.title}</h2>
+        <p className="max-w-3xl text-xl leading-relaxed text-zinc-600">{activeHeader.description}</p>
+      </div>
       <div className="hidden">
         {Object.entries(draft).map(([key, value]) => (
           <input key={key} type="hidden" name={key} value={value} />
         ))}
       </div>
-      <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+      <div className="mb-5 h-3 w-full overflow-hidden rounded-full bg-zinc-100">
         <div
           className="h-full bg-ll-purple transition-all"
           style={{ width: `${(step / steps.length) * 100}%` }}
         />
       </div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-ll-gray">
+      <p className="text-sm font-semibold uppercase tracking-wider text-ll-gray">
         Step {step} of {steps.length} - {steps[step - 1]}
       </p>
 
       {step === 1 ? (
-        <div className="mt-4 grid gap-4">
-          <div className="space-y-2">
-            <label htmlFor="resume_upload" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+        <div className="mt-6 grid gap-5">
+          <div className="space-y-3">
+            <label htmlFor="resume_upload" className="flex items-center gap-2 text-base font-semibold text-ll-navy">
               Upload resume
-              <span className="text-xs text-zinc-500">(optional but recommended)</span>
+              <span className="text-sm font-normal text-zinc-500">(optional but recommended)</span>
             </label>
             <input
+              ref={resumeInputRef}
               id="resume_upload"
               name="resume_upload"
               type="file"
@@ -225,25 +274,39 @@ export function StudentOnboardingWizard() {
                 const file = event.target.files?.[0];
                 if (file) void handleResumeUpload(file);
               }}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="hidden"
             />
-            <p className="text-xs text-ll-gray">
+            <button
+              type="button"
+              onClick={() => resumeInputRef.current?.click()}
+              className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center transition hover:bg-zinc-100"
+            >
+              <span className="rounded-lg border border-zinc-300 bg-white p-3 text-zinc-500">
+                <Upload className="h-7 w-7" />
+              </span>
+              <span className="text-3xl font-semibold text-zinc-800">Upload your Resume</span>
+              <span className="text-xl text-zinc-500">PDF or TXT (Max 10MB)</span>
+              <span className="rounded-xl bg-[#0f3441] px-8 py-3 text-xl font-semibold uppercase tracking-widest text-white">
+                Choose File
+              </span>
+            </button>
+            <p className="text-sm text-ll-gray">
               Uploading a resume will auto-populate as many fields as possible.
             </p>
             {draft.resume_file_name ? (
-              <p className="text-xs font-medium text-zinc-700">Uploaded: {draft.resume_file_name}</p>
+              <p className="text-sm font-medium text-zinc-700">Uploaded: {draft.resume_file_name}</p>
             ) : null}
-            {uploadStatus ? <p className="text-xs text-ll-gray">{uploadStatus}</p> : null}
+            {uploadStatus ? <p className="text-sm text-ll-gray">{uploadStatus}</p> : null}
           </div>
         </div>
       ) : null}
 
       {step === 2 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <Field label="Full name" name="full_name" value={draft.full_name} onChange={setDraft} required />
           <Field label="University" name="university" value={draft.university} onChange={setDraft} required />
           <div className="space-y-2">
-            <label htmlFor="year" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="year" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               Current year
               <span className="text-xs text-zinc-500">(optional)</span>
             </label>
@@ -252,7 +315,7 @@ export function StudentOnboardingWizard() {
               name="year"
               value={draft.year}
               onChange={(event) => setDraft((prev) => ({ ...prev, year: event.target.value }))}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
             >
               <option value="">Select a year</option>
               <option value="freshman">Freshman</option>
@@ -279,11 +342,11 @@ export function StudentOnboardingWizard() {
             placeholder="Chemistry"
             hint="Type a value and press Enter or comma to add a tag. Click x to remove."
           />
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             <div className="space-y-2">
               <label
                 htmlFor="graduation_month"
-                className="flex items-center gap-2 text-sm font-medium text-ll-navy"
+                className="flex items-center gap-2 text-base font-medium text-ll-navy"
               >
                 Graduation month
                 <span className="text-xs text-zinc-500">(optional)</span>
@@ -295,7 +358,7 @@ export function StudentOnboardingWizard() {
                 onChange={(event) =>
                   setDraft((prev) => ({ ...prev, graduation_month: event.target.value }))
                 }
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
               >
                 <option value="">Select a month</option>
                 <option value="1">January</option>
@@ -319,7 +382,7 @@ export function StudentOnboardingWizard() {
       ) : null}
 
       {step === 3 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <TagField
             label="Research fields"
             name="research_fields"
@@ -349,7 +412,7 @@ export function StudentOnboardingWizard() {
       ) : null}
 
       {step === 4 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <TagField
             label="Skills"
             name="skills"
@@ -360,7 +423,7 @@ export function StudentOnboardingWizard() {
             hint="Type a value and press Enter or comma to add a tag. Click x to remove."
           />
           <div className="space-y-2">
-            <label htmlFor="prior_experience" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="prior_experience" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               Prior experience
               <span className="text-xs text-zinc-500">(optional)</span>
             </label>
@@ -371,7 +434,7 @@ export function StudentOnboardingWizard() {
               onChange={(event) =>
                 setDraft((prev) => ({ ...prev, prior_experience: event.target.value }))
               }
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
             >
               <option value="">Select one</option>
               <option value="none">No prior experience</option>
@@ -425,7 +488,7 @@ export function StudentOnboardingWizard() {
       ) : null}
 
       {step === 5 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <MultiSelectDropdown
             label="Role types sought"
             values={splitValues(draft.role_types_sought)}
@@ -460,7 +523,7 @@ export function StudentOnboardingWizard() {
             placeholder="Select priorities"
           />
           <div className="space-y-2">
-            <label htmlFor="willing_to_volunteer" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="willing_to_volunteer" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               Willing to volunteer
               <span className="text-xs text-zinc-500">(optional)</span>
             </label>
@@ -471,14 +534,14 @@ export function StudentOnboardingWizard() {
               onChange={(event) =>
                 setDraft((prev) => ({ ...prev, willing_to_volunteer: event.target.value }))
               }
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
             >
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
           </div>
           <div className="space-y-2">
-            <label htmlFor="is_gpa_visible" className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+            <label htmlFor="is_gpa_visible" className="flex items-center gap-2 text-base font-medium text-ll-navy">
               GPA visible on profile
               <span className="text-xs text-zinc-500">(optional)</span>
             </label>
@@ -489,7 +552,7 @@ export function StudentOnboardingWizard() {
               onChange={(event) =>
                 setDraft((prev) => ({ ...prev, is_gpa_visible: event.target.value }))
               }
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
             >
               <option value="true">Yes</option>
               <option value="false">No</option>
@@ -499,7 +562,7 @@ export function StudentOnboardingWizard() {
       ) : null}
 
       {step === 6 ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-5">
           <Field
             label="Time commitment"
             name="time_commitment"
@@ -529,34 +592,36 @@ export function StudentOnboardingWizard() {
         </div>
       ) : null}
 
-      <div className="mt-6 flex items-center justify-between">
+      <div className="mt-8 flex items-center justify-between">
         <button
           type="button"
           onClick={() => setStep((current) => Math.max(1, current - 1))}
           disabled={step === 1}
-          className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-300 px-6 py-3 text-base font-medium text-zinc-700 disabled:opacity-50"
         >
+          <ArrowLeft className="h-5 w-5 shrink-0" aria-hidden />
           Back
         </button>
 
         {step < maxStep ? (
           <div className="flex flex-col items-end gap-2">
             {!canContinue ? (
-              <p className="text-xs text-red-600">Fill required fields before continuing.</p>
+              <p className="text-sm text-red-600">Fill required fields before continuing.</p>
             ) : null}
             <button
               type="button"
               onClick={() => setStep((current) => Math.min(maxStep, current + 1))}
               disabled={!canContinue}
-              className="rounded-full bg-ll-purple px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-ll-purple px-6 py-3 text-base font-medium text-white disabled:opacity-60"
             >
               Continue
+              <ArrowRight className="h-5 w-5 shrink-0" aria-hidden />
             </button>
           </div>
         ) : (
           <button
             type="submit"
-            className="rounded-full bg-ll-purple px-4 py-2 text-sm font-medium text-white"
+            className="rounded-full bg-ll-purple px-6 py-3 text-base font-medium text-white"
           >
             Complete onboarding
           </button>
@@ -585,12 +650,12 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <label htmlFor={name} className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+      <label htmlFor={name} className="flex items-center gap-2 text-base font-medium text-ll-navy">
         {label}
         {required ? (
-          <span className="text-xs font-semibold text-red-600">(required)</span>
+          <span className="text-sm font-semibold text-red-600">(required)</span>
         ) : (
-          <span className="text-xs text-zinc-500">(optional)</span>
+          <span className="text-sm text-zinc-500">(optional)</span>
         )}
       </label>
       <input
@@ -600,9 +665,9 @@ function Field({
         onChange={(event) => onChange((prev) => ({ ...prev, [name]: event.target.value }))}
         placeholder={placeholder}
         required={required}
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+        className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
       />
-      {hint ? <p className="text-xs text-ll-gray">{hint}</p> : null}
+      {hint ? <p className="text-sm text-ll-gray">{hint}</p> : null}
     </div>
   );
 }
@@ -680,12 +745,12 @@ function TagField({
 
   return (
     <div className="space-y-2">
-      <label htmlFor={name} className="flex items-center gap-2 text-sm font-medium text-ll-navy">
+      <label htmlFor={name} className="flex items-center gap-2 text-base font-medium text-ll-navy">
         {label}
         {required ? (
-          <span className="text-xs font-semibold text-red-600">(required)</span>
+          <span className="text-sm font-semibold text-red-600">(required)</span>
         ) : (
-          <span className="text-xs text-zinc-500">(optional)</span>
+          <span className="text-sm text-zinc-500">(optional)</span>
         )}
       </label>
       <input
@@ -702,15 +767,12 @@ function TagField({
         }}
         placeholder={placeholder}
         required={required && tags.length === 0}
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+        className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
       />
       {tags.length > 0 ? (
         <div className="flex flex-wrap gap-2 pt-1">
           {tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700"
-            >
+            <span key={tag} className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700">
               {tag}
               <button
                 type="button"
@@ -724,7 +786,7 @@ function TagField({
           ))}
         </div>
       ) : null}
-      {hint ? <p className="text-xs text-ll-gray">{hint}</p> : null}
+      {hint ? <p className="text-sm text-ll-gray">{hint}</p> : null}
     </div>
   );
 }
