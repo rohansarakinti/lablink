@@ -89,6 +89,17 @@ capture what is currently live in the codebase.
   - Stage 2: `gemini-2.0-flash` JSON re-rank with student + lab/posting context (requires `GOOGLE_AI_STUDIO_API_KEY`); heuristic skill-overlap + vector ordering fallback if the key is missing or the LLM call fails
   - Students can refresh their own `match_cache` rows (RLS policy in `20260421_match_cache_student_writes.sql`).
 
+- **Local development database seeding** (so dashboards and lab flows are not empty):
+  - `supabase/migrations/20260420_foundation_profiles.sql` defines `profiles`, `student_profiles`, and `professor_profiles` if they are missing (must run before lab tables that reference `public.profiles`).
+  - `supabase/seed.sql` populates a large, idempotent sample: auth users, profiles, 15 labs, 60 `role_postings`, memberships, applications, `lab_follows`, and `notifications`. Seeded users use emails `profNN@lablink-seed.test` and `studentNN@lablink-seed.test` (NN = zero-padded 01, 02, …); see the header comment in `seed.sql` for counts and exact format.
+  - **How to log in with a seed account:** after the seed has been applied, open the app at `/auth/sign-in`, enter the email and password below, submit. The seed sets `onboarding_complete` on `profiles`, so you should be sent through `/auth/post-login` to `/dashboard/student` or `/dashboard/professor` (matching the account’s `profiles.role`) without redoing onboarding.
+    - **Student:** e.g. `student01@lablink-seed.test` / `SeedPass123!` (up through `student24@…` if you ran the default seed).
+    - **Professor:** e.g. `prof01@lablink-seed.test` / `SeedPass123!` (up through `prof12@…`).
+    - If sign-in is rejected, confirm the seed script completed without errors, the user exists under **Auth → Users** in Supabase, and (on hosted projects) that **“Confirm email”** is not blocking logins for those addresses; the seed pre-confirms emails, but your Auth settings can still require a provider or extra confirmation.
+    - If the API returns **500** and **“Database error querying schema”** (often on password login for SQL-seeded users), the usual cause is **NULL** values in `auth.users` token columns that GoTrue expects as empty strings. Re-run the latest `supabase/seed.sql` (it sets `confirmation_token`, `email_change`, `email_change_token_new`, and `recovery_token` to `''` and includes an `UPDATE` for `*@lablink-seed.test`), or run the `UPDATE` block on `auth.users` in the top section of that file. See [supabase/auth#1940](https://github.com/supabase/auth/issues/1940).
+  - **How to run the seed SQL:** `supabase db reset` (local CLI) uses `supabase/config.toml` `[db.seed]` to run `seed.sql` after migrations; for a **hosted** Supabase project, paste the full `seed.sql` into the **SQL Editor** and execute once. A successful run often reports **“Success. No rows returned”** because the script is inserts/PL blocks without a final `SELECT`—that is expected.
+  - Re-running the seed on non-empty data may hit `ON CONFLICT` or duplicate auth emails; use a fresh project or clear conflicting rows if you need a clean re-seed.
+
 ### Not implemented yet (still roadmap)
 
 - `vector_match_lab_posts` + recommended lab-posts feed, mixed with followed-lab content.

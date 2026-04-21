@@ -3,7 +3,8 @@
 import { type Dispatch, type SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { completeStudentOnboarding } from "./actions";
-import { parseResumeWithLlm } from "../autofill-actions";
+import type { StudentAutofill } from "@/lib/onboarding/autofill";
+import { parseOnboardingFileForRole } from "@/lib/onboarding/parse-onboarding-file";
 import { MultiSelectDropdown } from "@/components/multi-select-dropdown";
 
 type StudentDraft = {
@@ -188,16 +189,16 @@ export function StudentOnboardingWizard() {
     return true;
   }, [draft, step]);
 
-  async function handleResumeUpload(file: File) {
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadStatus("File is too large. Please upload a file under 10MB.");
-      return;
-    }
-    setUploadStatus("Parsing resume...");
+  async function handleResumeUpload(file: File, fileInput: HTMLInputElement) {
+    setUploadStatus("Reading file and autofill…");
     try {
-      const text = await extractTextFromFile(file);
-      const result = await parseResumeWithLlm("student", text);
-      const parsed = result.data;
+      const out = await parseOnboardingFileForRole(file, "student");
+      if (!out.ok) {
+        setUploadStatus(out.message);
+        return;
+      }
+      const { result } = out;
+      const parsed = result.data as StudentAutofill;
       setDraft((prev) => ({
         ...prev,
         resume_file_name: file.name,
@@ -230,9 +231,13 @@ export function StudentOnboardingWizard() {
         priorities: prev.priorities || parsed.priorities || "",
         start_availability: prev.start_availability || parsed.start_availability || "",
       }));
-      setUploadStatus(result.message ?? "Resume parsed. Fields were auto-filled where possible.");
+      setUploadStatus(
+        result.message ?? "Resume parsed. Fields were auto-filled where possible.",
+      );
     } catch {
       setUploadStatus("Could not parse this file. You can continue filling manually.");
+    } finally {
+      fileInput.value = "";
     }
   }
 
@@ -272,7 +277,7 @@ export function StudentOnboardingWizard() {
               accept=".pdf,.txt,.md"
               onChange={(event) => {
                 const file = event.target.files?.[0];
-                if (file) void handleResumeUpload(file);
+                if (file) void handleResumeUpload(file, event.currentTarget);
               }}
               className="hidden"
             />
@@ -677,34 +682,6 @@ function splitValues(value: string): string[] {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
-}
-
-async function extractTextFromFile(file: File): Promise<string> {
-  const fileName = file.name.toLowerCase();
-  if (fileName.endsWith(".pdf")) {
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    try {
-      const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-        "pdfjs-dist/legacy/build/pdf.worker.mjs",
-        import.meta.url,
-      ).toString();
-      const doc = await pdfjs.getDocument({ data: bytes }).promise;
-      let text = "";
-      for (let page = 1; page <= doc.numPages; page += 1) {
-        const pageData = await doc.getPage(page);
-        const content = await pageData.getTextContent();
-        text += `${content.items
-          .map((item) => ("str" in item ? item.str : ""))
-          .join(" ")}\n`;
-      }
-      return text;
-    } catch {
-      // Fallback for malformed/scanned PDFs: return best-effort decoded text.
-      return new TextDecoder("utf-8").decode(bytes);
-    }
-  }
-  return file.text();
 }
 
 function TagField({

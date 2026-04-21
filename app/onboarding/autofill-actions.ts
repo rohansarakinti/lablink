@@ -9,7 +9,7 @@ import {
 
 type AutofillRole = "student" | "professor";
 
-type AutofillResult = {
+export type AutofillResult = {
   ok: boolean;
   source: "llm" | "heuristic";
   data: StudentAutofill | ProfessorAutofill;
@@ -18,6 +18,8 @@ type AutofillResult = {
 
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
+
+const LLM_FETCH_TIMEOUT_MS = 60_000;
 
 function safeJsonParse<T>(raw: string): T | null {
   try {
@@ -186,17 +188,25 @@ export async function parseResumeWithLlm(role: AutofillRole, rawText: string): P
   }
 
   try {
-    const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: buildPrompt(role, text) }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0,
-        },
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), LLM_FETCH_TIMEOUT_MS);
+    let response: Response;
+    try {
+      response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+        method: "POST",
+        signal: controller.signal,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: buildPrompt(role, text) }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0,
+          },
+        }),
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!response.ok) {
       return {
@@ -237,12 +247,15 @@ export async function parseResumeWithLlm(role: AutofillRole, rawText: string): P
       message:
         "AI auto-fill complete. Review all pre-filled fields and edit anything that looks off before submitting.",
     };
-  } catch {
+  } catch (error) {
+    const isAbort = error instanceof Error && error.name === "AbortError";
     return {
       ok: true,
       source: "heuristic",
       data: fallback,
-      message: "LLM unavailable, used heuristic parsing.",
+      message: isAbort
+        ? "AI autofill timed out, used best-effort parsing. You can edit fields manually."
+        : "LLM unavailable, used heuristic parsing.",
     };
   }
 }

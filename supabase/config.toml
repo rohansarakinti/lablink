@@ -1,0 +1,12 @@
+# Minimal Supabase config so `supabase db reset` runs migrations then seed.sql
+# (Extend with your project `project_id` and API settings when you link a remote project.)
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
