@@ -9,7 +9,90 @@ Labs are first-class entities. Professors create and own **lab groups**, post **
 from within those labs, and manage members with tiered privileges. Students discover and apply
 to role listings; upon acceptance they are added as members of the lab group.
 
-**Stack:** Next.js 16 (App Router) + Supabase (Postgres + pgvector + Auth + Storage + Edge Functions) + Tailwind CSS v4 + Vercel + Google AI Studio (Gemini 2.0 Flash)
+**Stack:** Next.js 16 (App Router) + Supabase (Postgres + Auth) + Tailwind CSS v4 + Vercel + Google AI Studio (Gemini 3 Flash Preview for onboarding autofill)
+
+## Current Implementation Status (Apr 2026)
+
+This document includes both implemented work and planned roadmap items. The sections below
+capture what is currently live in the codebase.
+
+### How to read this plan
+
+- `Implemented now` = already in the codebase and usable.
+- `Roadmap (not started / partial)` = still to build; retained intentionally.
+- Detailed sections later in this file are preserved as the source of truth for future work.
+
+### Implemented now
+
+- Landing page and global site navbar are implemented and shared across auth/onboarding pages.
+- Auth is role-directed from landing page CTAs (`?role=student` / `?role=professor`) with:
+  - `/auth/sign-up`
+  - `/auth/sign-in`
+  - `/auth/callback`
+  - `/auth/post-login` role-based redirect after login
+- `/auth/role-select` is removed from active flow.
+- Supabase client/server helpers and middleware/proxy-style session refresh are implemented.
+- Student onboarding and professor onboarding are implemented with Server Actions.
+- Resume/CV upload autofill is implemented:
+  - client-side text extraction for PDF/text
+  - server-side LLM parsing with Gemini (`gemini-3-flash-preview`)
+  - heuristic fallback when LLM is unavailable/rate-limited
+- Student onboarding currently uses a 6-step flow:
+  1. Upload resume
+  2. Basic info
+  3. Research interests
+  4. Skills (+ relevant courses moved here)
+  5. Goals
+  6. Preferences
+- Professor onboarding currently uses a 5-step flow:
+  1. Upload CV
+  2. Profile
+  3. Research
+  4. Mentorship
+  5. Preferences
+- Tag-input UX is implemented for tag-based fields (Enter/comma add, `x` remove).
+- Multi-select dropdown UX is standardized in shared component:
+  - `components/multi-select-dropdown.tsx`
+  - used across both onboarding flows.
+- Professor dashboard shell is implemented at `/dashboard/professor` with:
+  - welcome header
+  - "Your labs" grid
+  - create-lab CTA
+  - recent activity section
+- Lab creation flow is implemented at `/labs/new`:
+  - two-step form (identity + research/settings)
+  - tag-input UX for research tags/techniques
+  - creates `lab_groups` row + creator `lab_memberships` row (`pi`)
+- Lab management is implemented at `/labs/[labId]`:
+  - tabs: Overview, Members, Role postings, Applicants
+  - members role updates/removal/invite-link generation
+  - postings status quick actions (open/close/archive)
+  - posting creation page at `/labs/[labId]/postings/new`
+  - applicant review at `/labs/[labId]/postings/[postingId]/applicants`
+    (single status updates, reviewer notes, bulk move/reject)
+- Global navigation is applied through root layout navbar across app routes.
+
+### Not implemented yet (still roadmap)
+
+- Vector embedding + match cache pipeline, RPC matching functions, and ranking feed.
+- Student dashboard baseline (discover/applications/my labs) and apply flow details.
+- Social lab posts feed, analytics dashboards, notifications, cron reminder/email automation.
+
+### Milestone snapshot
+
+- **Auth + onboarding foundation:** Implemented
+- **Onboarding UX polish (tags, shared multiselects, sizing, required/optional cues):** Implemented
+- **Resume/CV AI autofill path:** Implemented (with heuristic fallback)
+- **Lab lifecycle (create lab, postings, applications, memberships):** Implemented
+- **Vector matching + feed ranking:** Planned
+- **Notifications/analytics/automation:** Planned
+
+### Next recommended implementation order
+
+1. Implement student dashboard baseline (discover + applications + my labs).
+2. Add student apply flow completion (`/postings/[id]` modal + materials + custom questions).
+3. Add vector matching pipeline and ranking cache.
+4. Add notifications, analytics, and cron/email automation.
 
 ---
 
@@ -126,6 +209,9 @@ export const config = {
 ```
 
 ### Role-Select & Auth Pages
+
+> Note: `role-select` remains documented below for historical plan context, but the active
+> implementation now routes users directly from landing page cards to role-specific sign-in/sign-up.
 
 **`/auth/role-select`** — shown before any credentials are entered. Two large clickable
 cards side by side:
@@ -2131,6 +2217,7 @@ export type FeedItem =
 ## 10. UI & Design System
 
 - **Tailwind CSS v4** + **shadcn/ui** as the primary component system
+- **Brand logo asset:** use `public/lablinkLogo.svg` for LabLink logo rendering
 
 ### Color Palette
 
