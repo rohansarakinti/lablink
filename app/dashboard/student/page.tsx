@@ -2,23 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { rankMatchesForStudent } from "@/lib/matching";
+import { CalendarDays, Compass, Sparkles } from "lucide-react";
 
-type StudentTab = "feed" | "discover" | "applications" | "labs";
+function pctFromScore(score: number) {
+  return Math.min(100, Math.max(0, Math.round(score * 100)));
+}
 
-const tabs: Array<{ id: StudentTab; label: string }> = [
-  { id: "feed", label: "Feed" },
-  { id: "discover", label: "Discover" },
-  { id: "applications", label: "Applications" },
-  { id: "labs", label: "My Labs" },
-];
-
-export default async function StudentDashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const query = await searchParams;
-  const activeTab = tabs.some((tab) => tab.id === query.tab) ? (query.tab as StudentTab) : "feed";
+export default async function StudentDashboardPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -26,20 +16,6 @@ export default async function StudentDashboardPage({
 
   if (!user) {
     redirect("/auth/sign-in?role=student");
-  }
-
-  const { data: profileGate } = await supabase
-    .from("profiles")
-    .select("role,onboarding_complete")
-    .eq("id", user.id)
-    .single<{ role: "student" | "professor"; onboarding_complete: boolean }>();
-
-  if (!profileGate || profileGate.role !== "student") {
-    redirect("/dashboard/professor");
-  }
-
-  if (!profileGate.onboarding_complete) {
-    redirect("/onboarding/student");
   }
 
   const { data: profile } = await supabase
@@ -119,42 +95,6 @@ export default async function StudentDashboardPage({
     .order("created_at", { ascending: false })
     .returns<Array<{ id: string; posting_id: string; status: string; created_at: string }>>();
 
-  const postingIds = Array.from(new Set((applications ?? []).map((application) => application.posting_id)));
-  const { data: appliedPostings } =
-    postingIds.length === 0
-      ? { data: [] as Array<{ id: string; title: string; application_deadline: string | null; lab_id: string }> }
-      : await supabase
-          .from("role_postings")
-          .select("id,title,application_deadline,lab_id")
-          .in("id", postingIds)
-          .returns<Array<{ id: string; title: string; application_deadline: string | null; lab_id: string }>>();
-
-  const appliedLabIds = Array.from(new Set((appliedPostings ?? []).map((posting) => posting.lab_id)));
-  const { data: appliedLabs } =
-    appliedLabIds.length === 0
-      ? { data: [] as Array<{ id: string; name: string; university: string; logo_url: string | null }> }
-      : await supabase
-          .from("lab_groups")
-          .select("id,name,university,logo_url")
-          .in("id", appliedLabIds)
-          .returns<Array<{ id: string; name: string; university: string; logo_url: string | null }>>();
-
-  const postingById = new Map((appliedPostings ?? []).map((posting) => [posting.id, posting]));
-  const appliedLabById = new Map((appliedLabs ?? []).map((lab) => [lab.id, lab]));
-  const appliedPostingIdSet = new Set((applications ?? []).map((application) => application.posting_id));
-  const discoverPool = (discoverPostings ?? []).filter((posting) => !appliedPostingIdSet.has(posting.id));
-  const discoverById = new Map(discoverPool.map((posting) => [posting.id, posting]));
-  const matchMetaByPostingId = new Map(
-    (cachedMatchesAfter ?? []).map((match) => [match.posting_id, match]),
-  );
-  const rankedItems = (cachedMatchesAfter ?? [])
-    .map((match) => discoverById.get(match.posting_id))
-    .filter((item): item is NonNullable<typeof item> => Boolean(item));
-  const fallbackItems = discoverPool.filter(
-    (posting) => !(cachedMatchesAfter ?? []).some((match) => match.posting_id === posting.id),
-  );
-  const discoverItems = [...rankedItems, ...fallbackItems];
-
   const { data: myLabs } = await supabase
     .from("lab_memberships")
     .select("id,joined_at,lab_role,lab_groups(id,name,logo_url,university)")
@@ -171,140 +111,127 @@ export default async function StudentDashboardPage({
       }>
     >();
 
+  const appliedPostingIdSet = new Set((applications ?? []).map((application) => application.posting_id));
+  const discoverPool = (discoverPostings ?? []).filter((posting) => !appliedPostingIdSet.has(posting.id));
+  const discoverById = new Map(discoverPool.map((posting) => [posting.id, posting]));
+  const matchMetaByPostingId = new Map(
+    (cachedMatchesAfter ?? []).map((match) => [match.posting_id, match]),
+  );
+  const rankedItems = (cachedMatchesAfter ?? [])
+    .map((match) => discoverById.get(match.posting_id))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+  const fallbackItems = discoverPool.filter(
+    (posting) => !(cachedMatchesAfter ?? []).some((match) => match.posting_id === posting.id),
+  );
+  const discoverItems = [...rankedItems, ...fallbackItems].slice(0, 20);
+
+  const firstName = (profile?.display_name ?? profile?.email ?? "there").split(/\s+/)[0] ?? "there";
+  const matchCount = (cachedMatchesAfter ?? []).length;
+  const appCount = (applications ?? []).length;
+  const labCount = (myLabs ?? []).filter((m) => m.lab_groups).length;
+
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-12">
-      <h1 className="text-3xl font-semibold text-ll-navy">Student dashboard</h1>
-      <p className="mt-2 text-sm text-ll-gray">
-        Welcome {profile?.display_name ?? profile?.email ?? "student"}.
-      </p>
+    <div className="w-full max-w-6xl">
+      <div className="mb-8 md:mb-10">
+        <h1 className="text-4xl font-bold tracking-tight text-ll-navy sm:text-5xl md:text-6xl">Welcome, {firstName}</h1>
+        <p className="mt-3 max-w-2xl text-base text-zinc-600 sm:text-lg">
+          Here is your LabLink home base — open roles chosen for you, and tools to run your research search.
+        </p>
+      </div>
 
-      <nav className="mt-6 flex flex-wrap gap-2">
-        {tabs.map((tab) => (
+      <div className="mb-8 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">AI matches in cache</p>
+          <p className="mt-1 text-2xl font-bold text-ll-navy">{matchCount}</p>
+        </div>
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Applications</p>
+          <p className="mt-1 text-2xl font-bold text-ll-navy">{appCount}</p>
+        </div>
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">My labs</p>
+          <p className="mt-1 text-2xl font-bold text-ll-navy">{labCount}</p>
+        </div>
+      </div>
+
+      <section className="mb-8">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-ll-navy">
+            <Sparkles className="size-5 text-ll-purple" aria-hidden />
+            Matched for you
+          </h2>
           <Link
-            key={tab.id}
-            href={`/dashboard/student?tab=${tab.id}`}
-            className={`rounded-full border px-4 py-2 text-sm font-medium ${
-              activeTab === tab.id
-                ? "border-ll-navy bg-ll-navy text-white"
-                : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50"
-            }`}
+            href="/dashboard/student/search"
+            className="text-sm font-medium text-ll-navy underline-offset-2 hover:underline"
           >
-            {tab.label}
+            Search all
           </Link>
-        ))}
-      </nav>
-
-      {activeTab === "feed" ? (
-        <section className="mt-6 rounded-2xl border border-zinc-200 bg-white p-6">
-          <h2 className="text-xl font-semibold text-ll-navy">Feed</h2>
-          <p className="mt-2 text-sm text-zinc-600">
-            Personalized feed is the next step. Use Discover and Applications tabs for now.
-          </p>
-        </section>
-      ) : null}
-
-      {activeTab === "discover" ? (
-        <section className="mt-6">
-          {discoverItems.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center text-sm text-zinc-600">
-              No open opportunities right now (or you already applied to all current listings).
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {discoverItems.map((posting) => (
-                <article key={posting.id} className="rounded-2xl border border-zinc-200 bg-white p-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                    {posting.lab_groups?.name ?? "Lab"} · {posting.lab_groups?.university ?? "University"}
-                  </p>
-                  <h3 className="mt-2 text-lg font-semibold text-ll-navy">{posting.title}</h3>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-zinc-600">
-                    {matchMetaByPostingId.get(posting.id)?.llm_rank ? (
-                      <span className="rounded-full bg-indigo-100 px-2 py-1 text-indigo-800">
-                        rank #{matchMetaByPostingId.get(posting.id)?.llm_rank}
-                      </span>
-                    ) : null}
-                    {matchMetaByPostingId.get(posting.id)?.vector_score != null ? (
-                      <span className="rounded-full bg-emerald-100 px-2 py-1 text-emerald-800">
-                        score {matchMetaByPostingId.get(posting.id)?.vector_score.toFixed(2)}
-                      </span>
-                    ) : null}
-                    <span className="rounded-full bg-zinc-100 px-2 py-1">{posting.is_paid ?? "unspecified pay"}</span>
-                    <span className="rounded-full bg-zinc-100 px-2 py-1">{posting.hours_per_week ?? "hours tbd"}</span>
-                    <span className="rounded-full bg-zinc-100 px-2 py-1">
-                      deadline:{" "}
-                      {posting.application_deadline
-                        ? new Date(posting.application_deadline).toLocaleDateString()
-                        : "none"}
-                    </span>
-                  </div>
-                  {matchMetaByPostingId.get(posting.id)?.llm_reason ? (
-                    <p className="mt-3 text-xs text-zinc-600">{matchMetaByPostingId.get(posting.id)?.llm_reason}</p>
-                  ) : null}
-                  <Link
-                    href={`/postings/${posting.id}`}
-                    className="mt-4 inline-block text-sm font-medium text-ll-navy underline"
-                  >
-                    View details and apply
-                  </Link>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-      ) : null}
-
-      {activeTab === "applications" ? (
-        <section className="mt-6 rounded-2xl border border-zinc-200 bg-white p-6">
-          <h2 className="text-xl font-semibold text-ll-navy">My applications</h2>
-          {(applications ?? []).length === 0 ? (
-            <p className="mt-3 text-sm text-zinc-600">No applications yet.</p>
-          ) : (
-            <ul className="mt-4 space-y-3">
-              {(applications ?? []).map((application) => {
-                const posting = postingById.get(application.posting_id);
-                const lab = posting ? appliedLabById.get(posting.lab_id) : null;
+        </div>
+        {discoverItems.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-sm text-zinc-600">
+            No open opportunities right now, or you have applied to every current listing. Check back soon.
+          </div>
+        ) : (
+          <div className="flex gap-4 overflow-x-auto scroll-smooth pb-2 pt-1 [mask-image:linear-gradient(to_right,black_92%,transparent)] md:grid md:grid-cols-2 md:overflow-visible md:[mask-image:none] lg:grid-cols-3">
+            {discoverItems.map((posting) => {
+                const meta = matchMetaByPostingId.get(posting.id);
+                const pct = meta?.vector_score != null ? pctFromScore(meta.vector_score) : null;
+                const topic =
+                  (posting.lab_groups?.research_fields && posting.lab_groups.research_fields[0]) || "Research";
                 return (
-                  <li key={application.id} className="rounded-xl border border-zinc-200 p-4">
-                    <p className="font-medium text-ll-navy">
-                      {posting?.title ?? "Role posting"} · {lab?.name ?? "Lab"}
-                    </p>
+                  <Link
+                    key={posting.id}
+                    href={`/postings/${posting.id}`}
+                    className="min-w-[280px] max-w-[320px] shrink-0 snap-start rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md md:max-w-none md:min-w-0"
+                  >
+                    {pct != null ? (
+                      <p className="text-xs font-bold text-ll-purple">{pct}% match</p>
+                    ) : (
+                      <p className="text-xs font-semibold text-zinc-500">Open role</p>
+                    )}
+                    <h3 className="mt-2 line-clamp-2 text-base font-bold text-ll-navy">{posting.title}</h3>
                     <p className="mt-1 text-sm text-zinc-600">
-                      Status: {application.status} · Applied {new Date(application.created_at).toLocaleDateString()}
+                      {posting.lab_groups?.name}
+                      <br />
+                      <span className="text-xs text-zinc-500">{posting.lab_groups?.university}</span>
                     </p>
-                  </li>
+                    <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-zinc-400">
+                      Topic: {String(topic).toUpperCase()}
+                    </p>
+                  </Link>
                 );
               })}
-            </ul>
-          )}
-        </section>
-      ) : null}
+          </div>
+        )}
+      </section>
 
-      {activeTab === "labs" ? (
-        <section className="mt-6">
-          {(myLabs ?? []).length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center text-sm text-zinc-600">
-              You have not joined any labs yet.
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {(myLabs ?? []).map((membership) =>
-                membership.lab_groups ? (
-                  <article key={membership.id} className="rounded-2xl border border-zinc-200 bg-white p-5">
-                    <h3 className="text-lg font-semibold text-ll-navy">{membership.lab_groups.name}</h3>
-                    <p className="mt-1 text-sm text-zinc-600">{membership.lab_groups.university}</p>
-                    <p className="mt-2 text-xs uppercase tracking-wide text-zinc-500">
-                      Role: {membership.lab_role.replaceAll("_", " ")}
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      Joined {new Date(membership.joined_at).toLocaleDateString()}
-                    </p>
-                  </article>
-                ) : null,
-              )}
-            </div>
-          )}
-        </section>
-      ) : null}
-    </main>
+      <section className="mb-10 rounded-2xl border-2 border-dashed border-ll-purple/30 bg-ll-bg/50 p-8 text-center">
+        <h2 className="flex items-center justify-center gap-2 text-lg font-bold text-ll-navy">
+          <Compass className="size-5" />
+          Discovery
+        </h2>
+        <p className="mx-auto mt-2 max-w-md text-sm text-zinc-600">
+          Browsing and recommendations beyond your profile matches are on the way. You will be able to explore labs by field,
+          university, and more.
+        </p>
+        <p className="mt-3 text-xs text-zinc-500">This section is a placeholder for upcoming discovery features.</p>
+      </section>
+
+      <section className="rounded-2xl border border-zinc-200 bg-gradient-to-br from-white to-zinc-50/80 p-6 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-base font-bold text-ll-navy">Upcoming deadlines</h2>
+            <p className="text-sm text-zinc-600">Track applications from the Applications page.</p>
+          </div>
+          <Link
+            href="/dashboard/student/applications"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-ll-navy px-4 py-2.5 text-sm font-semibold text-white"
+          >
+            <CalendarDays className="size-4" />
+            View applications
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 type Payload = {
@@ -5,6 +6,9 @@ type Payload = {
   record?: Record<string, unknown>;
   // Supabase DB webhooks may send `new`/`old` keys.
   new?: Record<string, unknown>;
+  /** Return a 384-dim embedding for arbitrary text (semantic search). */
+  mode?: "query_embed";
+  text?: string;
 };
 
 const corsHeaders = {
@@ -19,6 +23,31 @@ Deno.serve(async (req) => {
 
   try {
     const payload = (await req.json()) as Payload;
+    if (payload.mode === "query_embed" && typeof payload.text === "string") {
+      const q = payload.text.trim();
+      if (!q) {
+        return new Response(
+          JSON.stringify({ ok: false, reason: "empty_query" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
+        );
+      }
+      // Always HTTP 200 so clients can read JSON (invoke treats non-2xx as FunctionsHttpError).
+      try {
+        const vector = await computeEmbedding(q);
+        return new Response(
+          JSON.stringify({ ok: true, embedding: vector }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
+        );
+      } catch (embedErr) {
+        const msg = embedErr instanceof Error ? embedErr.message : String(embedErr);
+        console.error(JSON.stringify({ event: "query_embed_failed", error: msg }));
+        return new Response(
+          JSON.stringify({ ok: false, reason: "query_embed_failed", error: msg }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
+        );
+      }
+    }
+
     const table = payload.table;
     const record = payload.record ?? payload.new;
     console.log(

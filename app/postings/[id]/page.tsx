@@ -78,8 +78,8 @@ export default async function PostingDetailPage({
     return (
       <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-12">
         <p className="text-sm text-zinc-600">Posting not found or no longer open.</p>
-        <Link href="/dashboard/student?tab=discover" className="mt-3 inline-block text-sm text-ll-navy underline">
-          Back to discover
+        <Link href="/dashboard/student" className="mt-3 inline-block text-sm text-ll-navy underline">
+          Back to dashboard
         </Link>
       </main>
     );
@@ -112,8 +112,8 @@ export default async function PostingDetailPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-12">
-      <Link href="/dashboard/student?tab=discover" className="text-sm text-ll-navy underline">
-        ← Back to discover
+      <Link href="/dashboard/student" className="text-sm text-ll-navy underline">
+        ← Back to dashboard
       </Link>
 
       <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-6">
@@ -140,7 +140,7 @@ export default async function PostingDetailPage({
             Status: {existingApplication.status} · Submitted{" "}
             {new Date(existingApplication.created_at).toLocaleDateString()}
           </p>
-          <Link href="/dashboard/student?tab=applications" className="mt-3 inline-block text-sm text-ll-navy underline">
+          <Link href="/dashboard/student/applications" className="mt-3 inline-block text-sm text-ll-navy underline">
             View in applications tab
           </Link>
         </section>

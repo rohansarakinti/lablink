@@ -56,7 +56,7 @@ export async function submitApplication(formData: FormData) {
     .maybeSingle<{ id: string; resume_url: string | null }>();
 
   if (!studentProfile) {
-    redirect("/dashboard/student?tab=discover&error=missing_student_profile");
+    redirect("/dashboard/student?error=missing_student_profile");
   }
 
   const statement = String(formData.get("statement") ?? "").trim();
@@ -143,5 +143,5 @@ export async function submitApplication(formData: FormData) {
 
   revalidatePath("/dashboard/student");
   revalidatePath(`/postings/${postingId}`);
-  redirect("/dashboard/student?tab=applications&submitted=1");
+  redirect("/dashboard/student/applications?submitted=1");
 }
