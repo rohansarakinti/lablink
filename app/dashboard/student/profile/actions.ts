@@ -119,7 +119,6 @@ export async function saveStudentProfile(formData: FormData) {
     prior_experience: toList(formData.get("prior_experience")),
     experience_details: toNullableText(formData.get("experience_details")),
     transcript_url: transcriptUrl,
-    parsed_courses: toNullableText(formData.get("parsed_courses")),
     resume_url: resumeUrl,
     experience_types: toList(formData.get("experience_types")),
     priorities: toList(formData.get("priorities")),

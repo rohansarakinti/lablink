@@ -38,7 +38,6 @@ type StudentDraft = {
   priorities: string;
   start_availability: string;
   parsed_gpa: string;
-  parsed_courses: string;
   is_gpa_visible: string;
   willing_to_volunteer: string;
   resume_file_name: string;
@@ -75,7 +74,6 @@ const initialDraft: StudentDraft = {
   priorities: "",
   start_availability: "",
   parsed_gpa: "",
-  parsed_courses: "",
   is_gpa_visible: "true",
   willing_to_volunteer: "true",
   resume_file_name: "",
@@ -594,6 +592,23 @@ export function StudentOnboardingWizard() {
             placeholder="med_school_prep"
             hint="Type a value and press Enter or comma to add a tag. Click x to remove."
           />
+          <Field
+            label="Honors or awards"
+            name="honors_or_awards"
+            value={draft.honors_or_awards}
+            onChange={setDraft}
+            placeholder="Dean's list, research award..."
+          />
+          <Field
+            label="Publications"
+            name="publications"
+            value={draft.publications}
+            onChange={setDraft}
+            placeholder="Paper title, venue, year"
+          />
+          <SmallFileUpload label="Upload profile photo" inputId="avatar_file" name="avatar_file" accept=".png,.jpg,.jpeg,.webp" />
+          <SmallFileUpload label="Upload resume file" inputId="resume_file" name="resume_file" accept=".pdf" />
+          <SmallFileUpload label="Upload transcript file" inputId="transcript_file" name="transcript_file" accept=".pdf" />
         </div>
       ) : null}
 
@@ -764,6 +779,38 @@ function TagField({
         </div>
       ) : null}
       {hint ? <p className="text-sm text-ll-gray">{hint}</p> : null}
+    </div>
+  );
+}
+
+function SmallFileUpload({
+  label,
+  inputId,
+  name,
+  accept,
+}: {
+  label: string;
+  inputId: string;
+  name: string;
+  accept: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <label htmlFor={inputId} className="flex items-center gap-2 text-base font-medium text-ll-navy">
+        {label}
+        <span className="text-xs text-zinc-500">(optional)</span>
+      </label>
+      <label
+        htmlFor={inputId}
+        className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-4 py-3 text-sm transition hover:bg-zinc-100"
+      >
+        <span className="inline-flex items-center gap-2 text-zinc-700">
+          <Upload className="h-4 w-4" />
+          Choose file
+        </span>
+        <span className="text-xs text-zinc-500">{accept}</span>
+      </label>
+      <input id={inputId} name={name} type="file" accept={accept} className="hidden" />
     </div>
   );
 }

@@ -29,7 +29,6 @@ type StudentProfileValues = {
   prior_experience: string;
   experience_details: string;
   relevant_courses: string;
-  parsed_courses: string;
   role_types_sought: string;
   experience_types: string;
   priorities: string;
@@ -132,7 +131,6 @@ export function StudentProfileEditor({
               <Input label="Major(s)" name="major" defaultValue={values.major} />
               <Input label="Minor(s)" name="minor" defaultValue={values.minor} />
               <Input label="Relevant courses" name="relevant_courses" defaultValue={values.relevant_courses} />
-              <Input label="Parsed courses" name="parsed_courses" defaultValue={values.parsed_courses} />
               <Input label="Research fields" name="research_fields" defaultValue={values.research_fields} />
               <Input label="Research topics" name="research_topics" defaultValue={values.research_topics} />
               <Input label="Ranked interests" name="ranked_interests" defaultValue={values.ranked_interests} />

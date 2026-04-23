@@ -39,7 +39,7 @@ export default async function StudentProfilePage({
   const { data: student } = await supabase
     .from("student_profiles")
     .select(
-      "full_name,university,major,minor,year,graduation_month,graduation_year,gpa,is_gpa_visible,willing_to_volunteer,research_fields,research_topics,ranked_interests,skills,programming_languages,lab_equipment,software_tools,prior_experience,experience_details,relevant_courses,parsed_courses,role_types_sought,experience_types,priorities,motivations,time_commitment,paid_preference,start_availability,honors_or_awards,publications,resume_url,transcript_url",
+      "full_name,university,major,minor,year,graduation_month,graduation_year,gpa,is_gpa_visible,willing_to_volunteer,research_fields,research_topics,ranked_interests,skills,programming_languages,lab_equipment,software_tools,prior_experience,experience_details,relevant_courses,role_types_sought,experience_types,priorities,motivations,time_commitment,paid_preference,start_availability,honors_or_awards,publications,resume_url,transcript_url",
     )
     .eq("id", user.id)
     .maybeSingle<{
@@ -63,7 +63,6 @@ export default async function StudentProfilePage({
       prior_experience: string[] | null;
       experience_details: string | null;
       relevant_courses: string[] | null;
-      parsed_courses: string | null;
       role_types_sought: string[] | null;
       experience_types: string[] | null;
       priorities: string[] | null;
@@ -101,7 +100,6 @@ export default async function StudentProfilePage({
     prior_experience: toCsv(student?.prior_experience),
     experience_details: student?.experience_details ?? "",
     relevant_courses: toCsv(student?.relevant_courses),
-    parsed_courses: student?.parsed_courses ?? "",
     role_types_sought: toCsv(student?.role_types_sought),
     experience_types: toCsv(student?.experience_types),
     priorities: toCsv(student?.priorities),

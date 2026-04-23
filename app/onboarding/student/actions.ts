@@ -11,6 +11,25 @@ function toList(value: FormDataEntryValue | null) {
     .filter(Boolean);
 }
 
+async function uploadProfileAsset(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  file: FormDataEntryValue | null,
+  bucketPathPrefix: string,
+) {
+  if (!(file instanceof File) || file.size === 0) return null;
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
+  const filePath = `${bucketPathPrefix}/${userId}/${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabase.storage.from("lab-assets").upload(filePath, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: file.type || undefined,
+  });
+  if (error) return null;
+  const { data } = supabase.storage.from("lab-assets").getPublicUrl(filePath);
+  return data.publicUrl;
+}
+
 export async function completeStudentOnboarding(formData: FormData) {
   const supabase = await createClient();
   const {
@@ -35,8 +54,24 @@ export async function completeStudentOnboarding(formData: FormData) {
   const softwareTools = toList(formData.get("software_tools"));
   const priorExperience = toList(formData.get("prior_experience"));
   const experienceDetails = String(formData.get("experience_details") ?? "").trim();
-  const transcriptUrl = String(formData.get("transcript_url") ?? "").trim();
-  const resumeUrl = String(formData.get("resume_url") ?? "").trim();
+  const uploadedAvatarUrl = await uploadProfileAsset(
+    supabase,
+    user.id,
+    formData.get("avatar_file"),
+    "avatars",
+  );
+  const uploadedResumeUrl = await uploadProfileAsset(
+    supabase,
+    user.id,
+    formData.get("resume_file"),
+    "student-profiles",
+  );
+  const uploadedTranscriptUrl = await uploadProfileAsset(
+    supabase,
+    user.id,
+    formData.get("transcript_file"),
+    "student-profiles",
+  );
   const relevantCourses = toList(formData.get("relevant_courses"));
   const roleTypesSought = toList(formData.get("role_types_sought"));
   const timeCommitment = String(formData.get("time_commitment") ?? "").trim();
@@ -51,9 +86,20 @@ export async function completeStudentOnboarding(formData: FormData) {
   const graduationYearRaw = Number(formData.get("graduation_year") ?? 0);
   const gpaRaw = Number(formData.get("gpa") ?? 0);
   const parsedGpaRaw = Number(formData.get("parsed_gpa") ?? 0);
-  const parsedCourses = String(formData.get("parsed_courses") ?? "").trim();
   const isGpaVisibleRaw = String(formData.get("is_gpa_visible") ?? "true");
   const volunteerRaw = String(formData.get("willing_to_volunteer") ?? "true");
+
+  const existing = await supabase
+    .from("student_profiles")
+    .select("resume_url,transcript_url")
+    .eq("id", user.id)
+    .maybeSingle<{ resume_url: string | null; transcript_url: string | null }>();
+
+  const currentProfile = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", user.id)
+    .maybeSingle<{ avatar_url: string | null }>();
 
   if (!fullName || !university) {
     redirect("/onboarding/student?error=missing_fields");
@@ -79,8 +125,8 @@ export async function completeStudentOnboarding(formData: FormData) {
     software_tools: softwareTools,
     prior_experience: priorExperience,
     experience_details: experienceDetails || null,
-    transcript_url: transcriptUrl || null,
-    resume_url: resumeUrl || null,
+    transcript_url: uploadedTranscriptUrl || existing.data?.transcript_url || null,
+    resume_url: uploadedResumeUrl || existing.data?.resume_url || null,
     experience_types: experienceTypes,
     priorities,
     relevant_courses: relevantCourses,
@@ -92,7 +138,6 @@ export async function completeStudentOnboarding(formData: FormData) {
     motivations,
     start_availability: startAvailability || null,
     parsed_gpa: parsedGpaRaw > 0 ? parsedGpaRaw : null,
-    parsed_courses: parsedCourses || null,
     is_gpa_visible: isGpaVisibleRaw !== "false",
     willing_to_volunteer: volunteerRaw !== "false",
   };
@@ -102,7 +147,11 @@ export async function completeStudentOnboarding(formData: FormData) {
 
   await supabase
     .from("profiles")
-    .update({ onboarding_complete: true, display_name: fullName })
+    .update({
+      onboarding_complete: true,
+      display_name: fullName,
+      avatar_url: uploadedAvatarUrl || currentProfile.data?.avatar_url || null,
+    })
     .eq("id", user.id);
 
   redirect("/dashboard/student");
