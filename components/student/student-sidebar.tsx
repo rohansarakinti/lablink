@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Compass, FileText, MessageSquare, UserRound } from "lucide-react";
+import { Building2, Compass, FileText, UserRound } from "lucide-react";
 
 const nav = [
   { href: "/dashboard/student", label: "Explore", icon: Compass, exact: true },
   { href: "/dashboard/student/applications", label: "Applications", icon: FileText, exact: false },
-  { href: "/dashboard/student/messaging", label: "Messaging", icon: MessageSquare, exact: false },
   { href: "/dashboard/student/labs", label: "Lab management", icon: Building2, exact: false },
   { href: "/dashboard/student/profile", label: "My profile", icon: UserRound, exact: false },
 ] as const;
