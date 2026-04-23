@@ -126,7 +126,6 @@ export default async function StudentDashboardPage() {
   const discoverItems = [...rankedItems, ...fallbackItems].slice(0, 20);
 
   const firstName = (profile?.display_name ?? profile?.email ?? "there").split(/\s+/)[0] ?? "there";
-  const matchCount = (cachedMatchesAfter ?? []).length;
   const appCount = (applications ?? []).length;
   const labCount = (myLabs ?? []).filter((m) => m.lab_groups).length;
 
@@ -139,11 +138,7 @@ export default async function StudentDashboardPage() {
         </p>
       </div>
 
-      <div className="mb-8 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">AI matches in cache</p>
-          <p className="mt-1 text-2xl font-bold text-ll-navy">{matchCount}</p>
-        </div>
+      <div className="mb-8 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Applications</p>
           <p className="mt-1 text-2xl font-bold text-ll-navy">{appCount}</p>

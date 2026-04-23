@@ -16,7 +16,7 @@ export function StudentSidebar({ displayName }: { displayName: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full shrink-0 flex-col border-r border-zinc-200/80 bg-white md:w-56 lg:w-64">
+    <aside className="flex w-full shrink-0 flex-col border-r border-zinc-200/80 bg-white md:w-52 lg:w-56">
       <div className="border-b border-zinc-100 px-4 py-5 md:px-5">
         <p className="text-lg font-semibold leading-tight tracking-tight text-ll-navy">{displayName}</p>
         <p className="mt-1 text-xs text-zinc-500">Student</p>

@@ -12,6 +12,8 @@ From project root:
 supabase functions deploy generate-embedding
 ```
 
+`supabase/config.toml` sets **`verify_jwt = false`** for this function so calls from Next.js with **ES256** user access tokens are not rejected at the gateway (“Unsupported JWT algorithm ES256”). After changing config, **redeploy** the function so the setting applies to your hosted project.
+
 ### Search (`query_embed`)
 
 The app can call this function with `{ "mode": "query_embed", "text": "your search" }` to get a **384-dim** vector (same `gte-small` space as stored posting embeddings). That path requires **Supabase AI** in the Edge runtime (`globalThis.Supabase.ai.Session`). If search returns errors mentioning `supabase_ai_session_unavailable`, enable AI / inference for Edge Functions in the Supabase project and redeploy, or check Edge Function logs in the dashboard.

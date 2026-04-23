@@ -33,10 +33,13 @@ capture what is currently live in the codebase.
 - `/auth/role-select` is removed from active flow.
 - Supabase client/server helpers and middleware/proxy-style session refresh are implemented.
 - Student onboarding and professor onboarding are implemented with Server Actions.
-- Resume/CV upload autofill is implemented:
-  - client-side text extraction for PDF/text
-  - server-side LLM parsing with Gemini (`gemini-3-flash-preview`)
-  - heuristic fallback when LLM is unavailable/rate-limited
+- Resume/CV upload autofill is implemented (student and professor use the **same** client pipeline):
+  - `lib/onboarding/extract-text-from-file.ts` — PDF via `pdfjs-dist` (max **100** pages, **90s** wall-clock budget; then UTF-8 fallback so the UI cannot hang indefinitely)
+  - `lib/onboarding/parse-onboarding-file.ts` — size check (10MB) → extract → `parseResumeWithLlm` server action
+  - `app/onboarding/autofill-actions.ts` — Gemini (`gemini-3-flash-preview`) JSON extract + **60s** `fetch` timeout (`AbortController`); heuristic fallback when the key is missing, the request fails, times out, or JSON is invalid
+  - Accepts `.pdf`, `.txt`, `.md`; step-1 dropzone + hidden file input; input cleared after each attempt so the same file can be re-chosen
+- Onboarding wizards (`app/onboarding/student/wizard.tsx`, `app/onboarding/professor/wizard.tsx`): client `useState`, draft persisted in **`sessionStorage`**, per-step **title + description** headers, **scroll-to-top** on step change, **Back / Continue** with arrow icons (professor primary = `ll-navy`, student = `ll-purple`). Final submit is one **Server Action** (`completeStudentOnboarding` / `completeProfessorOnboarding`) with hidden inputs for the full draft.
+- Synthetic test fixtures for autofill smoke tests: `docs/sample-student-resume.md`, `docs/sample-professor-cv.md`.
 - Student onboarding currently uses a 6-step flow:
   1. Upload resume
   2. Basic info
@@ -70,11 +73,13 @@ capture what is currently live in the codebase.
   - posting creation page at `/labs/[labId]/postings/new`
   - applicant review at `/labs/[labId]/postings/[postingId]/applicants`
     (single status updates, reviewer notes, bulk move/reject)
-- Student dashboard baseline is implemented at `/dashboard/student` with top-tab navigation:
-  - Feed (placeholder shell)
-  - Discover (open postings list)
-  - Applications (student applications list + status chips)
-  - My Labs (accepted lab memberships list)
+- Student dashboard is implemented under `/dashboard/student` with a **layout shell** (left sidebar + top search bar):
+  - **Explore** (`/dashboard/student`): large welcome, stats row, **horizontal scroll of AI-matched open roles** (from `match_cache` + `rankMatchesForStudent` refresh), **Discovery** section (placeholder), CTA to applications
+  - **Applications** (`/dashboard/student/applications`): applications list + status
+  - **Messaging** (`/dashboard/student/messaging`): placeholder
+  - **Lab management** (`/dashboard/student/labs`): student lab memberships
+  - **My profile** (`/dashboard/student/profile`): placeholder + link to onboarding for edits
+  - **Search** (`/dashboard/student/search?q=`): **semantic search** — `generate-embedding` **`query_embed`** → **`vector_match_role_postings_by_embedding`** → same **Gemini JSON re-rank** pattern as profile matching (`rankRolePostingsForSearchQuery` in `lib/matching.ts`); Edge Function **`verify_jwt = false`** in `supabase/config.toml` for ES256 gateway compatibility
 - Student apply flow baseline is implemented at `/postings/[id]`:
   - posting detail + application form
   - resume/transcript URL and file upload support
@@ -83,7 +88,7 @@ capture what is currently live in the codebase.
   - submit inserts manager notifications (`application_submitted`) when notifications table exists
   - discover list excludes postings the student has already applied to
 - Global navigation is applied through root layout navbar across app routes.
-- Vector matching groundwork is implemented: `pgvector` embeddings (gte-small, 384-dim) on `student_profiles` and `open` `role_postings`, `vector_match_role_postings` RPC, `match_cache` table, edge function `generate-embedding`, and DB webhooks to refresh vectors.
+- Vector matching groundwork is implemented: `pgvector` embeddings (gte-small, 384-dim) on `student_profiles` and `open` `role_postings`, `vector_match_role_postings` RPC (profile ↔ postings), **`vector_match_role_postings_by_embedding`** (ad-hoc query text ↔ postings, `p_embedding` text → `vector(384)`), `match_cache` table, edge function `generate-embedding` (table/record updates + **`query_embed`**), and DB webhooks to refresh vectors where configured.
 - **Stage 1 + Stage 2 matching** — `lib/matching.ts` `rankMatchesForStudent`:
   - Stage 1: top-50 shortlist from `vector_match_role_postings`
   - Stage 2: `gemini-2.0-flash` JSON re-rank with student + lab/posting context (requires `GOOGLE_AI_STUDIO_API_KEY`); heuristic skill-overlap + vector ordering fallback if the key is missing or the LLM call fails
@@ -103,14 +108,14 @@ capture what is currently live in the codebase.
 ### Not implemented yet (still roadmap)
 
 - `vector_match_lab_posts` + recommended lab-posts feed, mixed with followed-lab content.
-- Student feed ranking/mix, profile completeness scoring banner, and advanced discover filtering/search.
+- Student feed ranking/mix, profile completeness scoring banner, **Discovery** product (beyond placeholder), and **FTS / filter sidebar** for discover (search page uses **vectors + LLM**, not `role_postings.fts` yet).
 - Social lab posts feed, analytics dashboards, cron reminder/email automation, richer notification UX (beyond application-submit inserts).
 
 ### Milestone snapshot
 
 - **Auth + onboarding foundation:** Implemented
 - **Onboarding UX polish (tags, shared multiselects, sizing, required/optional cues):** Implemented
-- **Resume/CV AI autofill path:** Implemented (with heuristic fallback)
+- **Resume/CV AI autofill path:** Implemented (shared client parse + PDF/LLM timeouts + heuristic fallback)
 - **Lab lifecycle (create lab, postings, applications, memberships):** Implemented
 - **Student dashboard baseline + apply flow baseline:** Implemented
 - **Vector matching (stage 1 shortlist + stage 2 Gemini re-rank) + `match_cache`:** Implemented
@@ -118,7 +123,7 @@ capture what is currently live in the codebase.
 
 ### Next recommended implementation order
 
-1. Enrich student Discover/Feed UX: use `llm_rank` / `llm_reason` in UI consistently, profile completeness banner, and optional search/filter.
+1. Enrich student Explore/Feed UX: use `llm_rank` / `llm_reason` on home/discover consistently, profile completeness banner, and FTS/filter UI (search page already does vector + LLM rerank).
 2. Implement `vector_match_lab_posts` + `getRecommendedPosts` + Feed tab mixed stream.
 3. Add social lab posts feed, analytics, and cron/email automation.
 
@@ -1578,112 +1583,63 @@ export async function getRecommendedPosts(studentId: string): Promise<Recommende
 
 ## 6. Onboarding
 
+Implementation lives in `app/onboarding/*/wizard.tsx` (client) + `actions.ts` (Server Actions).
+Draft state is **`useState`** + **`sessionStorage`** (not React Context / `useReducer`). The
+final step submits the whole form once (`completeStudentOnboarding` / `completeProfessorOnboarding`).
+Autofill: see **Implemented now** (shared `lib/onboarding/*` + `autofill-actions.ts`).
+
 ### Student Onboarding (`/onboarding/student`) — 6 steps
 
-All fields map directly to columns in `student_profiles`. State held in `useReducer` + React
-context, persisted to `sessionStorage`. Each step upserts via Server Action.
+All collected fields map to `student_profiles` (and related list columns) on submit. Hidden
+form inputs carry the full draft; `transcript_url`, `honors_or_awards`, `publications`, and
+`parsed_*` fields exist in the draft and are submitted if set (e.g. by autofill) but **do not
+have dedicated wizard screens** today — transcript upload is available on **apply** (`/postings/[id]`),
+not in this wizard.
 
-**Step 1 — Personal & Academic**
-- Full name (text)
-- University (searchable dropdown)
-- Major(s) (multi-select), Minor(s) (multi-select, optional)
-- Current year (radio: Freshman / Sophomore / Junior / Senior / Graduate / Other)
-- Expected graduation: month + year dropdowns
-- GPA (number input, optional) + visibility toggle (show GPA on profile: yes/no)
+**Step 1 — Upload resume (optional)**
+- File: `.pdf`, `.txt`, `.md` (10MB max); dropzone UI; client extract + `parseResumeWithLlm("student", …)`
+- Stores `resume_file_name` / `resume_url` marker and merges parsed fields into the draft where empty
 
-**Step 2 — Research Interests**
-- Broad research fields (multi-select: Biology, Chemistry, Physics, Neuroscience, CS,
-  Biomedical Engineering, Public Health, Psychology, Environmental Science, Materials Science,
-  Aerospace, Other)
-- Specific research topics (free-text tag input with suggestions: CRISPR, PCR, fMRI,
-  Machine Learning, CFD, ELISA, etc.)
-- Drag-to-rank top 3 interests → stored in `ranked_interests`
+**Step 2 — Basic info**
+- Full name, university (required); current year (select); majors / minors (**tag** input); graduation month, year, GPA (optional text)
 
-**Step 3 — Technical Skills**
-- Lab skills (multi-select + per-skill proficiency: Beginner / Intermediate / Advanced):
-  Pipetting, Cell culture, PCR / gel electrophoresis, Microscopy, Western blot,
-  Flow cytometry, ELISA, Animal handling, Sterile technique, DNA/RNA extraction,
-  Cloning, Tissue culture, Clinical data entry, Patient interaction, Literature review
-- Lab equipment (multi-select + custom add): Confocal microscope, SEM, NMR, HPLC,
-  Mass spectrometer, Patch clamp rig, etc.
-- Programming languages (multi-select + custom): Python, R, MATLAB, Java, C++, SQL, etc.
-- Software tools (multi-select + custom): GraphPad Prism, ImageJ, SPSS, Fiji, AutoCAD, etc.
+**Step 3 — Research interests**
+- Research fields, research topics, ranked top interests (**tag** inputs; fields required for Continue)
 
-**Step 4 — Experience**
-- Prior experience types (multi-select): Research lab, Hospital volunteering,
-  Physician shadowing, Clinical work (scribe/MA), Independent project, None yet
-- Experience details (repeatable form blocks, optional):
-  - Role title, Lab/organization name, Duration, Brief description (2-3 sentences)
-- Resume upload (PDF, optional — can also upload at application time)
-- Transcript upload (PDF, optional — parsed client-side for GPA + course list)
+**Step 4 — Skills**
+- Skills (**tag**, required); prior experience (**single** select: none, research lab, hospital volunteering, shadowing, clinical work, independent project); programming languages, lab equipment, software tools (**tags**); experience details (text); relevant courses (**tags**)
 
-**Step 5 — Relevant Coursework**
-- Completed courses relevant to research (multi-select + custom):
-  General Biology, General Chemistry, Organic Chemistry, Biochemistry, Genetics,
-  Anatomy & Physiology, Neuroscience, Statistics, Cell Biology, Microbiology,
-  Calculus, Linear Algebra, Physics, Psychology, Computer Science, Other
-- Honors / awards (text, optional)
-- Publications or posters (text, optional)
+**Step 5 — Goals**
+- Role types sought (`MultiSelectDropdown`); start availability (text); experience types; priorities; willing to volunteer; GPA visible on profile (yes/no)
 
-**Step 6 — Preferences & Goals**
-- Role types sought (multi-select): Undergraduate RA, Graduate RA, Lab Technician,
-  Volunteer, Paid Internship, Honors Thesis
-- Time commitment (dropdown: <5 / 5-10 / 10-20 / 20+ hrs/week)
-- Paid vs unpaid (radio: Paid only / Unpaid OK / Either)
-- Available to start (text: "Immediately", "Spring 2026", "Summer 2026")
-- Willing to volunteer: yes/no
-- Desired experience types (multi-select): Hands-on lab work, Patient interaction,
-  Data analysis / research writing, Shadowing and observation, Long-term mentorship,
-  Clinical setting
-- Motivations (multi-select): Medical school prep, Gain lab experience,
-  Interest in specific topic, Build prof relationships, Explore career paths,
-  Publications / research credit
-- What matters most — select up to 3 (chip selector with count enforcement):
-  Hands-on experience, Patient exposure, Mentorship quality, Flexible schedule,
-  Prestige of lab, Publications / authorship opportunity, Paid compensation
+**Step 6 — Preferences**
+- Time commitment / hours per week (required text); paid preference (`MultiSelectDropdown`); motivations (**tags**)
 
 On completion → `onboarding_complete = true` → redirect to `/dashboard/student`
 
 ---
 
-### Professor Onboarding (`/onboarding/professor`) — 4 steps
+### Professor Onboarding (`/onboarding/professor`) — 5 steps
 
-Collects professor personal and research info only. Lab creation is a separate flow
-after onboarding, because one professor may own or join multiple labs.
+Collects professor profile fields used before lab creation. Lab creation remains **`/labs/new`**
+after onboarding.
 
-**Step 1 — Personal Info**
-- Full name (text)
-- Title / position (text or dropdown: Assistant Professor, Associate Professor, Full Professor,
-  Postdoctoral Researcher, Research Scientist, Lab Manager, Other)
-- University (searchable dropdown)
-- Department (dependent on university)
-- Office / building location (text, optional)
-- Lab or personal website (URL, optional)
-- Google Scholar URL (optional)
-- ORCID (optional)
+**Step 1 — Upload CV (optional)**
+- Same file pipeline as student step 1, role `"professor"`; stores `cv_file_name` / `cv_url` marker
 
-**Step 2 — Research Background**
-- Research fields (multi-select — same list as student)
-- Research keywords / techniques (free-text tag input with suggestions)
-- Research summary (textarea: 2-4 sentences describing their work and lab, shown publicly
-  on their profile)
+**Step 2 — Profile**
+- Full name, university (required); title; department; office location; lab website; Google Scholar URL; ORCID (all text fields except selects elsewhere)
 
-**Step 3 — What You Look For in Students**
-- Preferred student year (multi-select)
-- Preferred majors (multi-select)
-- Preferred experience level (radio: No experience needed / Intro courses completed /
-  Prior lab/clinical experience required)
-- Mentorship style (multi-select): Hands-on training focused, Close mentorship,
-  Independent work encouraged, Collaborative team environment
-- Lab culture (multi-select): Fast-paced, Patient/clinical-facing, Computation-heavy,
-  Fieldwork-based, Regular group meetings
+**Step 3 — Research**
+- Research fields, research keywords (**tags**; fields required for Continue); research summary (textarea); preferred experience level for trainees (select: none / intro courses / prior lab-clinical)
 
-**Step 4 — Account Preferences**
-- Profile visibility: Public / University-only
-- Email notification preferences: New applications (yes/no), Weekly digest (yes/no)
+**Step 4 — Mentorship**
+- Mentorship style (select: hands-on / independent / collaborative); lab culture (select: fast-paced, collaborative, clinical, computation-heavy, mentorship-focused)
+
+**Step 5 — Preferences**
+- Preferred student years and preferred majors (`MultiSelectDropdown`); profile visibility; notify new applications; notify weekly digest
 
 On completion → `onboarding_complete = true` → redirect to `/dashboard/professor`
-(which prompts them to create their first lab group)
 
 ---
 
@@ -1919,7 +1875,9 @@ analytics SDK required.
 
 ### Student Dashboard (`/dashboard/student`)
 
-Four tabs in a top navigation bar: **Feed · Discover · Applications · My Labs**
+**Shipped (Apr 2026):** sidebar navigation (Explore, Applications, Messaging, Lab management, My profile), top search → `/dashboard/student/search`, Explore home with matched-role row + Discovery placeholder — see **“Implemented now”** at the top of this doc.
+
+**Target UX (below):** original tabbed shell — **Feed · Discover · Applications · My Labs** — plus feed/discover features still largely roadmap.
 
 **Profile Completeness Banner**
 
@@ -2354,10 +2312,15 @@ Custom components (no shadcn equivalent) in `components/`:
 /auth/sign-in                                      Sign-in form (reads optional ?role= for UI hints)
 /auth/callback                                     Supabase magic-link / OAuth callback
 
-/onboarding/student                                6-step student wizard
-/onboarding/professor                              4-step professor wizard
+/onboarding/student                                6-step student wizard (`wizard.tsx` + `actions.ts`)
+/onboarding/professor                              5-step professor wizard (`wizard.tsx` + `actions.ts`)
 
-/dashboard/student                                 Feed / Discover / Applications / My Labs
+/dashboard/student                                 Explore home (matched roles row + discovery placeholder)
+/dashboard/student/search                          Semantic role search (?q=)
+/dashboard/student/applications                      Applications list
+/dashboard/student/labs                            Student lab memberships ("Lab management")
+/dashboard/student/messaging                       Placeholder
+/dashboard/student/profile                         Placeholder + onboarding link
 /dashboard/professor                               Lab grid + recent activity
 
 /labs/new                                          Create lab group (2-page form)
@@ -2395,14 +2358,17 @@ lablink/
 │   │   ├── sign-in/page.tsx                         # reads optional searchParams.role for UI hints
 │   │   └── callback/route.ts
 │   ├── onboarding/
+│   │   ├── autofill-actions.ts                      # "use server": parseResumeWithLlm (+ Gemini + heuristic)
 │   │   ├── student/
-│   │   │   ├── page.tsx                             # wizard shell (client context)
-│   │   │   └── actions.ts                           # Server Actions per step
+│   │   │   ├── page.tsx                             # mounts `StudentOnboardingWizard`
+│   │   │   ├── wizard.tsx                           # client: steps, sessionStorage, file autofill
+│   │   │   └── actions.ts                           # completeStudentOnboarding
 │   │   └── professor/
-│   │       ├── page.tsx
-│   │       └── actions.ts
+│   │       ├── page.tsx                             # mounts `ProfessorOnboardingWizard`
+│   │       ├── wizard.tsx
+│   │       └── actions.ts                           # completeProfessorOnboarding
 │   ├── dashboard/
-│   │   ├── student/page.tsx                         # tabbed: Feed / Discover / Applications / My Labs
+│   │   ├── student/                                 # layout + Explore, applications, messaging, labs, profile, search routes
 │   │   └── professor/page.tsx                       # lab grid + activity
 │   ├── labs/
 │   │   ├── new/page.tsx
@@ -2430,22 +2396,28 @@ lablink/
 │       └── professor/[id]/page.tsx
 │
 ├── components/
-│   ├── ui/                                          # primitives
-│   ├── onboarding/                                  # WizardShell, step components
-│   ├── labs/                                        # LabCard, MembersTable, PostingForm, FollowButton, AnalyticsCharts
-│   ├── posts/                                       # PostCard, PostForm, MediaUploader, FeedItem
-│   ├── postings/                                    # PostingCard, FeedFilters, ApplyModal
-│   ├── applications/                                # ApplicantDrawer, StatusPill, BulkActions
-│   └── dashboard/                                   # ProfileCompletenessBar, FeedStream
+│   ├── ui/                                          # e.g. button primitive
+│   ├── site-navbar.tsx
+│   ├── multi-select-dropdown.tsx                    # shared multiselect (onboarding + elsewhere)
+│   └── student/                                     # student dashboard shell: sidebar, top search, search browser
+│
+├── docs/
+│   ├── plan.md                                      # this file
+│   ├── sample-student-resume.md                     # synthetic resume for autofill testing
+│   └── sample-professor-cv.md                       # synthetic CV for autofill testing
 │
 ├── lib/
 │   ├── supabase/
 │   │   ├── client.ts
-│   │   └── server.ts
-│   ├── matching.ts                                  # rankMatchesForStudent + getRecommendedPosts Server Actions
-│   ├── completeness.ts                              # computeProfileCompleteness() pure function
-│   ├── permissions.ts                               # canEditLab(), canCreatePosting(), etc.
-│   └── types.ts
+│   │   ├── server.ts
+│   │   └── middleware.ts                            # session refresh (used from root `middleware.ts`)
+│   ├── onboarding/
+│   │   ├── autofill.ts                              # buildStudentAutofill / buildProfessorAutofill heuristics
+│   │   ├── extract-text-from-file.ts                # "use client": PDF + text extraction (bounded)
+│   │   └── parse-onboarding-file.ts                 # "use client": 10MB check → extract → server autofill
+│   ├── matching.ts                                  # rankMatchesForStudent, search re-rank, etc.
+│   ├── embeddings.ts                                # requestEmbeddingRefresh, etc.
+│   └── utils.ts
 │
 ├── middleware.ts
 │
@@ -2463,8 +2435,8 @@ lablink/
 
 1. Supabase project + all 13 migrations (including `vector` + `pg_cron` extensions) + env vars + client helpers + middleware
 2. Auth: role-select page + sign-up/sign-in/callback + `handle_new_user` trigger; guard `/auth/sign-up` against missing `?role` param
-3. Student onboarding: all 6 steps + Server Actions
-4. Professor onboarding: all 4 steps + Server Actions
+3. Student onboarding: all 6 steps + `wizard.tsx` + `completeStudentOnboarding` Server Action
+4. Professor onboarding: all 5 steps + `wizard.tsx` + `completeProfessorOnboarding` Server Action
 5. Landing page
 6. Lab creation flow (`/labs/new`) + lab overview page with Follow / Unfollow button
 7. Lab management: Members tab, Postings list, Create/Edit Posting form

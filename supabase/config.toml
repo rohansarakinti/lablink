@@ -1,6 +1,12 @@
 # Minimal Supabase config so `supabase db reset` runs migrations then seed.sql
 # (Extend with your project `project_id` and API settings when you link a remote project.)
 
+# Hosted Auth often issues ES256 access tokens; the Edge gateway JWT check does not accept them
+# (returns "Unsupported JWT algorithm ES256"). Disable gateway verification for this function only.
+# See: https://supabase.com/docs/guides/functions/function-configuration
+[functions.generate-embedding]
+verify_jwt = false
+
 [api]
 enabled = true
 
