@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { bulkUpdateApplicationStatus, updateApplicationReviewerNotes, updateApplicationStatus } from "../../../actions";
 
 type ReviewRow = {
   id: string;
+  studentId: string;
   studentName: string;
   yearText: string;
   majorText: string;
@@ -100,7 +102,12 @@ export function ReviewTable({ labId, postingId, rows, statusOptions }: ReviewTab
                   />
                 </td>
                 <td className="py-3 pr-4 align-top">
-                  <p className="font-medium text-ll-navy">{row.studentName}</p>
+                  <Link
+                    href={`/labs/${labId}/postings/${postingId}/applicants/${row.studentId}`}
+                    className="font-medium text-ll-navy underline underline-offset-2"
+                  >
+                    {row.studentName}
+                  </Link>
                 </td>
                 <td className="py-3 pr-4 align-top text-zinc-600">
                   {row.yearText} / {row.majorText}

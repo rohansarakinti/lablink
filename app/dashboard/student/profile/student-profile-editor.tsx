@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import { Upload } from "lucide-react";
 import { saveStudentProfile } from "./actions";
 
-type StudentProfileValues = {
+export type StudentProfileValues = {
   display_name: string;
   email: string;
   avatar_url: string;
@@ -45,14 +45,16 @@ type StudentProfileValues = {
 export function StudentProfileEditor({
   values,
   saved,
+  readOnly = false,
 }: {
   values: StudentProfileValues;
   saved: boolean;
+  readOnly?: boolean;
 }) {
   const avatarSrc = useMemo(() => values.avatar_url || "/window.svg", [values.avatar_url]);
 
   return (
-    <form action={saveStudentProfile} className="mx-auto w-full max-w-6xl space-y-5">
+    <form action={readOnly ? undefined : saveStudentProfile} className="mx-auto w-full max-w-6xl space-y-5">
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
@@ -61,9 +63,9 @@ export function StudentProfileEditor({
               Edit every student field in one place. Array fields accept comma-separated values.
             </p>
           </div>
-          <SaveButton />
+          {!readOnly ? <SaveButton /> : null}
         </div>
-        {saved ? (
+        {saved && !readOnly ? (
           <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
             Profile saved.
           </p>
@@ -79,23 +81,25 @@ export function StudentProfileEditor({
             name="avatar_file"
             accept=".png,.jpg,.jpeg,.webp"
             helperText="PNG, JPG, or WEBP."
+            hidden={readOnly}
           />
-          <Input label="Display name" name="display_name" defaultValue={values.display_name} />
-          <Input label="Full name" name="full_name" defaultValue={values.full_name} />
-          <Input label="Email" name="email" defaultValue={values.email} />
-          <Input label="University" name="university" defaultValue={values.university} />
-          <Input label="Year" name="year" defaultValue={values.year} />
+          <Input label="Display name" name="display_name" defaultValue={values.display_name} readOnly={readOnly} />
+          <Input label="Full name" name="full_name" defaultValue={values.full_name} readOnly={readOnly} />
+          <Input label="Email" name="email" defaultValue={values.email} readOnly={readOnly} />
+          <Input label="University" name="university" defaultValue={values.university} readOnly={readOnly} />
+          <Input label="Year" name="year" defaultValue={values.year} readOnly={readOnly} />
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Grad month" name="graduation_month" defaultValue={values.graduation_month} />
-            <Input label="Grad year" name="graduation_year" defaultValue={values.graduation_year} />
+            <Input label="Grad month" name="graduation_month" defaultValue={values.graduation_month} readOnly={readOnly} />
+            <Input label="Grad year" name="graduation_year" defaultValue={values.graduation_year} readOnly={readOnly} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="GPA" name="gpa" defaultValue={values.gpa} />
+            <Input label="GPA" name="gpa" defaultValue={values.gpa} readOnly={readOnly} />
           </div>
           <Select
             label="GPA visible"
             name="is_gpa_visible"
             defaultValue={values.is_gpa_visible}
+            disabled={readOnly}
             options={[
               { label: "Yes", value: "true" },
               { label: "No", value: "false" },
@@ -105,6 +109,7 @@ export function StudentProfileEditor({
             label="Willing to volunteer"
             name="willing_to_volunteer"
             defaultValue={values.willing_to_volunteer}
+            disabled={readOnly}
             options={[
               { label: "Yes", value: "true" },
               { label: "No", value: "false" },
@@ -120,38 +125,39 @@ export function StudentProfileEditor({
               name="experience_details"
               defaultValue={values.experience_details}
               rows={6}
+              readOnly={readOnly}
             />
-            <Textarea label="Publications" name="publications" defaultValue={values.publications} rows={4} />
-            <Textarea label="Honors / awards" name="honors_or_awards" defaultValue={values.honors_or_awards} rows={3} />
+            <Textarea label="Publications" name="publications" defaultValue={values.publications} rows={4} readOnly={readOnly} />
+            <Textarea label="Honors / awards" name="honors_or_awards" defaultValue={values.honors_or_awards} rows={3} readOnly={readOnly} />
           </section>
 
           <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-xl font-semibold text-ll-navy">Academic + Skills</h2>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
-              <Input label="Major(s)" name="major" defaultValue={values.major} />
-              <Input label="Minor(s)" name="minor" defaultValue={values.minor} />
-              <Input label="Relevant courses" name="relevant_courses" defaultValue={values.relevant_courses} />
-              <Input label="Research fields" name="research_fields" defaultValue={values.research_fields} />
-              <Input label="Research topics" name="research_topics" defaultValue={values.research_topics} />
-              <Input label="Ranked interests" name="ranked_interests" defaultValue={values.ranked_interests} />
-              <Input label="Skills" name="skills" defaultValue={values.skills} />
-              <Input label="Programming languages" name="programming_languages" defaultValue={values.programming_languages} />
-              <Input label="Lab equipment" name="lab_equipment" defaultValue={values.lab_equipment} />
-              <Input label="Software tools" name="software_tools" defaultValue={values.software_tools} />
-              <Input label="Prior experience" name="prior_experience" defaultValue={values.prior_experience} />
+              <Input label="Major(s)" name="major" defaultValue={values.major} readOnly={readOnly} />
+              <Input label="Minor(s)" name="minor" defaultValue={values.minor} readOnly={readOnly} />
+              <Input label="Relevant courses" name="relevant_courses" defaultValue={values.relevant_courses} readOnly={readOnly} />
+              <Input label="Research fields" name="research_fields" defaultValue={values.research_fields} readOnly={readOnly} />
+              <Input label="Research topics" name="research_topics" defaultValue={values.research_topics} readOnly={readOnly} />
+              <Input label="Ranked interests" name="ranked_interests" defaultValue={values.ranked_interests} readOnly={readOnly} />
+              <Input label="Skills" name="skills" defaultValue={values.skills} readOnly={readOnly} />
+              <Input label="Programming languages" name="programming_languages" defaultValue={values.programming_languages} readOnly={readOnly} />
+              <Input label="Lab equipment" name="lab_equipment" defaultValue={values.lab_equipment} readOnly={readOnly} />
+              <Input label="Software tools" name="software_tools" defaultValue={values.software_tools} readOnly={readOnly} />
+              <Input label="Prior experience" name="prior_experience" defaultValue={values.prior_experience} readOnly={readOnly} />
             </div>
           </section>
 
           <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-xl font-semibold text-ll-navy">Preferences + Goals</h2>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
-              <Input label="Role types sought" name="role_types_sought" defaultValue={values.role_types_sought} />
-              <Input label="Experience types" name="experience_types" defaultValue={values.experience_types} />
-              <Input label="Priorities" name="priorities" defaultValue={values.priorities} />
-              <Input label="Motivations" name="motivations" defaultValue={values.motivations} />
-              <Input label="Time commitment" name="time_commitment" defaultValue={values.time_commitment} />
-              <Input label="Paid preference" name="paid_preference" defaultValue={values.paid_preference} />
-              <Input label="Start availability" name="start_availability" defaultValue={values.start_availability} />
+              <Input label="Role types sought" name="role_types_sought" defaultValue={values.role_types_sought} readOnly={readOnly} />
+              <Input label="Experience types" name="experience_types" defaultValue={values.experience_types} readOnly={readOnly} />
+              <Input label="Priorities" name="priorities" defaultValue={values.priorities} readOnly={readOnly} />
+              <Input label="Motivations" name="motivations" defaultValue={values.motivations} readOnly={readOnly} />
+              <Input label="Time commitment" name="time_commitment" defaultValue={values.time_commitment} readOnly={readOnly} />
+              <Input label="Paid preference" name="paid_preference" defaultValue={values.paid_preference} readOnly={readOnly} />
+              <Input label="Start availability" name="start_availability" defaultValue={values.start_availability} readOnly={readOnly} />
             </div>
           </section>
 
@@ -163,13 +169,21 @@ export function StudentProfileEditor({
                 inputId="resume_file"
                 name="resume_file"
                 helperText={values.resume_url ? "A resume is already on file. Upload to replace it." : undefined}
+                hidden={readOnly}
               />
               <CompactUpload
                 label="Transcript file"
                 inputId="transcript_file"
                 name="transcript_file"
                 helperText={values.transcript_url ? "A transcript is already on file. Upload to replace it." : undefined}
+                hidden={readOnly}
               />
+              {readOnly ? (
+                <>
+                  <DocumentLink label="Resume on file" href={values.resume_url} />
+                  <DocumentLink label="Transcript / cover letter on file" href={values.transcript_url} />
+                </>
+              ) : null}
             </div>
           </section>
         </div>
@@ -195,10 +209,12 @@ function Input({
   label,
   name,
   defaultValue,
+  readOnly = false,
 }: {
   label: string;
   name: string;
   defaultValue?: string;
+  readOnly?: boolean;
 }) {
   return (
     <label className="space-y-1">
@@ -206,6 +222,7 @@ function Input({
       <input
         name={name}
         defaultValue={defaultValue}
+        readOnly={readOnly}
         className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
       />
     </label>
@@ -217,11 +234,13 @@ function Textarea({
   name,
   defaultValue,
   rows = 4,
+  readOnly = false,
 }: {
   label: string;
   name: string;
   defaultValue?: string;
   rows?: number;
+  readOnly?: boolean;
 }) {
   return (
     <label className="mt-3 block space-y-1">
@@ -230,6 +249,7 @@ function Textarea({
         name={name}
         defaultValue={defaultValue}
         rows={rows}
+        readOnly={readOnly}
         className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
       />
     </label>
@@ -241,11 +261,13 @@ function Select({
   name,
   defaultValue,
   options,
+  disabled = false,
 }: {
   label: string;
   name: string;
   defaultValue: string;
   options: Array<{ label: string; value: string }>;
+  disabled?: boolean;
 }) {
   return (
     <label className="space-y-1">
@@ -253,6 +275,7 @@ function Select({
       <select
         name={name}
         defaultValue={defaultValue}
+        disabled={disabled}
         className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
       >
         {options.map((option) => (
@@ -271,13 +294,17 @@ function CompactUpload({
   name,
   helperText,
   accept = ".pdf",
+  hidden = false,
 }: {
   label: string;
   inputId: string;
   name: string;
   helperText?: string;
   accept?: string;
+  hidden?: boolean;
 }) {
+  if (hidden) return null;
+
   return (
     <div className="space-y-1">
       <label htmlFor={inputId} className="text-xs font-medium uppercase tracking-wide text-zinc-500">
@@ -295,6 +322,21 @@ function CompactUpload({
       </label>
       <input id={inputId} name={name} type="file" accept={accept} className="hidden" />
       {helperText ? <p className="text-xs text-zinc-500">{helperText}</p> : null}
+    </div>
+  );
+}
+
+function DocumentLink({ label, href }: { label: string; href?: string }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</p>
+      {href ? (
+        <a href={href} className="text-sm font-medium text-ll-navy underline">
+          Open file
+        </a>
+      ) : (
+        <p className="text-sm text-zinc-500">No file</p>
+      )}
     </div>
   );
 }

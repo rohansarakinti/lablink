@@ -109,6 +109,7 @@ export default async function PostingApplicantsPage({
             const profile = profileById.get(application.student_id);
             return {
               id: application.id,
+              studentId: application.student_id,
               studentName:
                 student?.full_name ?? profile?.display_name ?? profile?.email ?? "Unknown student",
               yearText: student?.year ?? "—",
