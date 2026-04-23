@@ -72,13 +72,14 @@ capture what is currently live in the codebase.
   - postings status quick actions (open/close/archive)
   - posting creation page at `/labs/[labId]/postings/new`
   - applicant review at `/labs/[labId]/postings/[postingId]/applicants`
-    (single status updates, reviewer notes, bulk move/reject)
+    (single status updates, reviewer notes, bulk move/reject, recommended ranking tab + profile filters)
+  - applicant names in posting review open the student's full profile page (same My Profile layout, read-only)
 - Student dashboard is implemented under `/dashboard/student` with a **layout shell** (left sidebar + top search bar):
   - **Explore** (`/dashboard/student`): large welcome, stats row, **horizontal scroll of AI-matched open roles** (from `match_cache` + `rankMatchesForStudent` refresh), **Discovery** section (placeholder), CTA to applications
   - **Applications** (`/dashboard/student/applications`): applications list + status
   - **Messaging** (`/dashboard/student/messaging`): placeholder
   - **Lab management** (`/dashboard/student/labs`): student lab memberships
-  - **My profile** (`/dashboard/student/profile`): placeholder + link to onboarding for edits
+  - **My profile** (`/dashboard/student/profile`): full editable profile page (all student fields + file uploads)
   - **Search** (`/dashboard/student/search?q=`): **semantic search** — `generate-embedding` **`query_embed`** → **`vector_match_role_postings_by_embedding`** → same **Gemini JSON re-rank** pattern as profile matching (`rankRolePostingsForSearchQuery` in `lib/matching.ts`); includes URL-backed multi-select filters for research field, role type, paid/unpaid, hours, year preference, and university (compact horizontal dropdown row with popout menus); Edge Function **`verify_jwt = false`** in `supabase/config.toml` for ES256 gateway compatibility
 - Student apply flow baseline is implemented at `/postings/[id]`:
   - posting detail + application form
@@ -89,7 +90,7 @@ capture what is currently live in the codebase.
   - submit inserts manager notifications (`application_submitted`) when notifications table exists
   - discover list excludes postings the student has already applied to
 - Global navigation is applied through root layout navbar across app routes.
-- Vector matching groundwork is implemented: `pgvector` embeddings (gte-small, 384-dim) on `student_profiles` and `open` `role_postings`, `vector_match_role_postings` RPC (profile ↔ postings), **`vector_match_role_postings_by_embedding`** (ad-hoc query text ↔ postings, `p_embedding` text → `vector(384)`), `match_cache` table, edge function `generate-embedding` (table/record updates + **`query_embed`**), and DB webhooks to refresh vectors where configured.
+- Vector matching groundwork is implemented: `pgvector` embeddings (gte-small, 384-dim) on `student_profiles` and `open` `role_postings`, `vector_match_role_postings` RPC (profile ↔ postings), `vector_match_students_for_posting` RPC (posting ↔ students), **`vector_match_role_postings_by_embedding`** (ad-hoc query text ↔ postings, `p_embedding` text → `vector(384)`), `match_cache` table, edge function `generate-embedding` (table/record updates + **`query_embed`**), and DB webhooks to refresh vectors where configured.
 - **Stage 1 + Stage 2 matching** — `lib/matching.ts` `rankMatchesForStudent`:
   - Stage 1: top-50 shortlist from `vector_match_role_postings`
   - Stage 2: `gemini-2.0-flash` JSON re-rank with student + lab/posting context (requires `GOOGLE_AI_STUDIO_API_KEY`); heuristic skill-overlap + vector ordering fallback if the key is missing or the LLM call fails

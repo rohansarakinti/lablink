@@ -17,6 +17,8 @@ type ReviewRow = {
   resumeUrl: string | null;
   transcriptUrl: string | null;
   status: string;
+  recommendationReason: string | null;
+  recommendationScore: number | null;
 };
 
 type ReviewTableProps = {
@@ -24,9 +26,10 @@ type ReviewTableProps = {
   postingId: string;
   rows: ReviewRow[];
   statusOptions: string[];
+  showRecommendation?: boolean;
 };
 
-export function ReviewTable({ labId, postingId, rows, statusOptions }: ReviewTableProps) {
+export function ReviewTable({ labId, postingId, rows, statusOptions, showRecommendation = false }: ReviewTableProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const allSelected = useMemo(
     () => rows.length > 0 && selectedIds.length === rows.length,
@@ -86,6 +89,7 @@ export function ReviewTable({ labId, postingId, rows, statusOptions }: ReviewTab
               <th className="py-2 pr-4 font-medium">GPA</th>
               <th className="py-2 pr-4 font-medium">Applied</th>
               <th className="py-2 pr-4 font-medium">Materials</th>
+              {showRecommendation ? <th className="py-2 pr-4 font-medium">Recommendation</th> : null}
               <th className="py-2 font-medium">Review</th>
             </tr>
           </thead>
@@ -133,6 +137,14 @@ export function ReviewTable({ labId, postingId, rows, statusOptions }: ReviewTab
                     {row.statement ? <p className="line-clamp-3">Statement: {row.statement}</p> : <p>Statement: —</p>}
                   </div>
                 </td>
+                {showRecommendation ? (
+                  <td className="py-3 pr-4 align-top text-zinc-600">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                      Score: {row.recommendationScore != null ? row.recommendationScore.toFixed(3) : "—"}
+                    </p>
+                    <p className="mt-1 text-xs">{row.recommendationReason ?? "—"}</p>
+                  </td>
+                ) : null}
                 <td className="py-3 align-top">
                   <div className="space-y-2">
                     <form action={updateApplicationStatus} className="flex items-center gap-2">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getLabContext } from "../../../_lib";
 import { ReviewTable } from "./review-table";
+import { rankStudentsForPosting } from "@/lib/posting-student-matching";
 
 type ApplicationRow = {
   id: string;
@@ -16,13 +17,93 @@ type ApplicationRow = {
 };
 
 const statusOptions = ["submitted", "reviewing", "interview", "accepted", "rejected"];
+const viewOptions = ["all", "recommended", ...statusOptions] as const;
+
+function includesItem(values: string[] | null | undefined, selected: string | undefined) {
+  if (!selected || !String(selected).trim()) return true;
+  const want = String(selected).trim().toLowerCase();
+  return (values ?? []).some((item) => item.toLowerCase() === want);
+}
+
+function uniqueFromApplicantProfiles(
+  rows: Array<{
+    skills: string[] | null;
+    research_fields: string[] | null;
+    major: string[] | null;
+    prior_experience: string[] | null;
+    paid_preference: string | null;
+  }>,
+) {
+  const addAll = (set: Set<string>, arr: string[] | null | undefined) => {
+    for (const item of arr ?? []) {
+      if (item?.trim()) set.add(item.trim());
+    }
+  };
+  const skills = new Set<string>();
+  const researchFields = new Set<string>();
+  const majors = new Set<string>();
+  const prior = new Set<string>();
+  const paid = new Set<string>();
+  for (const row of rows) {
+    addAll(skills, row.skills);
+    addAll(researchFields, row.research_fields);
+    addAll(majors, row.major);
+    addAll(prior, row.prior_experience);
+    if (row.paid_preference?.trim()) paid.add(row.paid_preference.trim());
+  }
+  return {
+    skills: Array.from(skills).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    researchFields: Array.from(researchFields).sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" }),
+    ),
+    majors: Array.from(majors).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    priorExperience: Array.from(prior).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    paidPreferences: Array.from(paid).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+  };
+}
+
+const YEAR_OPTIONS = [
+  { value: "freshman", label: "Freshman" },
+  { value: "sophomore", label: "Sophomore" },
+  { value: "junior", label: "Junior" },
+  { value: "senior", label: "Senior" },
+  { value: "graduate", label: "Graduate" },
+  { value: "other", label: "Other" },
+];
+
+const PRIOR_EXPERIENCE_KNOWN = [
+  { value: "none", label: "No prior experience" },
+  { value: "research_lab", label: "Research lab" },
+  { value: "hospital_volunteering", label: "Hospital volunteering" },
+  { value: "shadowing", label: "Physician shadowing" },
+  { value: "clinical_work", label: "Clinical work" },
+  { value: "independent_project", label: "Independent project" },
+];
+
+const PAID_PREFERENCE_OPTIONS = [
+  { value: "paid_only", label: "Paid only" },
+  { value: "open_to_unpaid", label: "Open to unpaid" },
+  { value: "either", label: "Either paid or unpaid" },
+];
+
+const MIN_GPA_OPTIONS = ["2.0", "2.5", "2.7", "3.0", "3.3", "3.5", "3.7", "4.0"];
 
 export default async function PostingApplicantsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ labId: string; postingId: string }>;
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    skills?: string;
+    research_fields?: string;
+    year?: string;
+    major?: string;
+    min_gpa?: string;
+    prior_experience?: string;
+    willing_to_volunteer?: string;
+    paid_preference?: string;
+  }>;
 }) {
   const { labId, postingId } = await params;
   const query = await searchParams;
@@ -44,14 +125,16 @@ export default async function PostingApplicantsPage({
     );
   }
 
-  const requestedStatus = statusOptions.includes(query.status ?? "") ? query.status : "all";
+  const requestedStatus = viewOptions.includes((query.status ?? "all") as (typeof viewOptions)[number])
+    ? query.status ?? "all"
+    : "all";
   let request = supabase
     .from("applications")
     .select("id,posting_id,student_id,status,created_at,statement,reviewer_notes,resume_url,transcript_url")
     .eq("posting_id", postingId)
     .order("created_at", { ascending: false });
 
-  if (requestedStatus !== "all") {
+  if (requestedStatus !== "all" && requestedStatus !== "recommended") {
     request = request.eq("status", requestedStatus);
   }
 
@@ -61,18 +144,116 @@ export default async function PostingApplicantsPage({
   const [{ data: studentProfiles }, { data: profiles }] =
     studentIds.length === 0
       ? [
-          { data: [] as Array<{ id: string; full_name: string | null; year: string | null; major: string[] | null; gpa: number | null }> },
+          {
+            data: [] as Array<{
+              id: string;
+              full_name: string | null;
+              year: string | null;
+              major: string[] | null;
+              gpa: number | null;
+              skills: string[] | null;
+              research_fields: string[] | null;
+              prior_experience: string[] | null;
+              willing_to_volunteer: boolean;
+              paid_preference: string | null;
+            }>,
+          },
           { data: [] as Array<{ id: string; display_name: string | null; email: string }> },
         ]
       : await Promise.all([
-          supabase.from("student_profiles").select("id,full_name,year,major,gpa").in("id", studentIds),
+          supabase
+            .from("student_profiles")
+            .select(
+              "id,full_name,year,major,gpa,skills,research_fields,prior_experience,willing_to_volunteer,paid_preference",
+            )
+            .in("id", studentIds),
           supabase.from("profiles").select("id,display_name,email").in("id", studentIds),
         ]);
 
-  const studentById = new Map<string, { full_name: string | null; year: string | null; major: string[] | null; gpa: number | null }>();
+  const studentById = new Map<
+    string,
+    {
+      full_name: string | null;
+      year: string | null;
+      major: string[] | null;
+      gpa: number | null;
+      skills: string[] | null;
+      research_fields: string[] | null;
+      prior_experience: string[] | null;
+      willing_to_volunteer: boolean;
+      paid_preference: string | null;
+    }
+  >();
   (studentProfiles ?? []).forEach((student) => studentById.set(student.id, student));
   const profileById = new Map<string, { display_name: string | null; email: string }>();
   (profiles ?? []).forEach((profile) => profileById.set(profile.id, profile));
+
+  const filterOptionLists = uniqueFromApplicantProfiles(
+    (studentProfiles ?? []).map((s) => ({
+      skills: s.skills,
+      research_fields: s.research_fields,
+      major: s.major,
+      prior_experience: s.prior_experience,
+      paid_preference: s.paid_preference,
+    })),
+  );
+
+  const filterSkill = String(query.skills ?? "").trim();
+  const filterResearchField = String(query.research_fields ?? "").trim();
+  const filterMajor = String(query.major ?? "").trim();
+  const filterPrior = String(query.prior_experience ?? "").trim();
+  const selectedYear = String(query.year ?? "").trim().toLowerCase();
+  const minGpa = Number(query.min_gpa ?? "");
+  const selectedVolunteer = String(query.willing_to_volunteer ?? "").trim().toLowerCase();
+  const filterPaid = String(query.paid_preference ?? "").trim();
+
+  const recommendationRankings =
+    requestedStatus === "recommended" && studentIds.length > 0
+      ? await rankStudentsForPosting(postingId, studentIds)
+      : [];
+  const recommendationByStudentId = new Map(
+    recommendationRankings.map((item) => [item.student_id, item]),
+  );
+
+  const buildApplicantListUrl = (nextStatus: string) => {
+    const p = new URLSearchParams();
+    p.set("status", nextStatus);
+    if (query.skills) p.set("skills", query.skills);
+    if (query.research_fields) p.set("research_fields", query.research_fields);
+    if (query.major) p.set("major", query.major);
+    if (query.prior_experience) p.set("prior_experience", query.prior_experience);
+    if (query.year) p.set("year", query.year);
+    if (query.min_gpa) p.set("min_gpa", query.min_gpa);
+    if (query.willing_to_volunteer) p.set("willing_to_volunteer", query.willing_to_volunteer);
+    if (query.paid_preference) p.set("paid_preference", query.paid_preference);
+    return `/labs/${labId}/postings/${postingId}/applicants?${p.toString()}`;
+  };
+
+  const filteredRows = (applications ?? [])
+    .filter((application) => {
+      const student = studentById.get(application.student_id);
+      if (!student) return false;
+
+      if (!includesItem(student.skills, filterSkill)) return false;
+      if (!includesItem(student.research_fields, filterResearchField)) return false;
+      if (!includesItem(student.major, filterMajor)) return false;
+      if (!includesItem(student.prior_experience, filterPrior)) return false;
+
+      if (selectedYear && String(student.year ?? "").toLowerCase() !== selectedYear) return false;
+      if (!Number.isNaN(minGpa) && minGpa > 0 && (student.gpa ?? 0) < minGpa) return false;
+      if (selectedVolunteer && String(student.willing_to_volunteer).toLowerCase() !== selectedVolunteer) return false;
+      if (filterPaid && String(student.paid_preference ?? "").toLowerCase() !== filterPaid.toLowerCase()) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (requestedStatus !== "recommended") return 0;
+      const rankA = recommendationByStudentId.get(a.student_id)?.rank ?? Number.MAX_SAFE_INTEGER;
+      const rankB = recommendationByStudentId.get(b.student_id)?.rank ?? Number.MAX_SAFE_INTEGER;
+      return rankA - rankB;
+    });
 
   return (
     <div className="space-y-4">
@@ -86,10 +267,10 @@ export default async function PostingApplicantsPage({
 
       <div className="rounded-2xl border border-zinc-200 bg-white p-6">
         <div className="mb-4 flex flex-wrap gap-2">
-          {["all", ...statusOptions].map((status) => (
+          {viewOptions.map((status) => (
             <a
               key={status}
-              href={`/labs/${labId}/postings/${postingId}/applicants?status=${status}`}
+              href={buildApplicantListUrl(status)}
               className={`rounded-full border px-3 py-1 text-xs font-medium uppercase ${
                 requestedStatus === status
                   ? "border-ll-navy bg-ll-navy text-white"
@@ -100,13 +281,136 @@ export default async function PostingApplicantsPage({
             </a>
           ))}
         </div>
+        <form method="get" className="mb-5 grid gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 md:grid-cols-4">
+          <input type="hidden" name="status" value={requestedStatus} />
+          <select
+            name="skills"
+            defaultValue={query.skills ?? ""}
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+          >
+            <option value="">Any skill</option>
+            {filterOptionLists.skills.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <select
+            name="research_fields"
+            defaultValue={query.research_fields ?? ""}
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+          >
+            <option value="">Any research field</option>
+            {filterOptionLists.researchFields.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <select
+            name="major"
+            defaultValue={query.major ?? ""}
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+          >
+            <option value="">Any major</option>
+            {filterOptionLists.majors.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <select
+            name="prior_experience"
+            defaultValue={query.prior_experience ?? ""}
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+          >
+            <option value="">Any prior experience</option>
+            {PRIOR_EXPERIENCE_KNOWN.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+            {filterOptionLists.priorExperience
+              .filter((p) => !PRIOR_EXPERIENCE_KNOWN.some((k) => k.value === p))
+              .map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+          </select>
+          <select
+            name="year"
+            defaultValue={query.year ?? ""}
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+          >
+            <option value="">Any year</option>
+            {YEAR_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <select
+            name="min_gpa"
+            defaultValue={query.min_gpa ?? ""}
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+          >
+            <option value="">Any min GPA</option>
+            {MIN_GPA_OPTIONS.map((g) => (
+              <option key={g} value={g}>
+                {g}+
+              </option>
+            ))}
+          </select>
+          <select
+            name="willing_to_volunteer"
+            defaultValue={query.willing_to_volunteer ?? ""}
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+          >
+            <option value="">Volunteer (any)</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+          <select
+            name="paid_preference"
+            defaultValue={query.paid_preference ?? ""}
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+          >
+            <option value="">Any paid preference</option>
+            {PAID_PREFERENCE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+            {filterOptionLists.paidPreferences
+              .filter((p) => !PAID_PREFERENCE_OPTIONS.some((k) => k.value === p))
+              .map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+          </select>
+          <div className="md:col-span-4 flex flex-wrap gap-2">
+            <button type="submit" className="rounded-full bg-ll-navy px-3 py-1 text-xs font-medium text-white">
+              Apply filters
+            </button>
+            <a
+              href={buildApplicantListUrl(requestedStatus)}
+              className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-700"
+            >
+              Clear filters
+            </a>
+          </div>
+        </form>
         <ReviewTable
           labId={labId}
           postingId={postingId}
           statusOptions={statusOptions}
-          rows={(applications ?? []).map((application) => {
+          showRecommendation={requestedStatus === "recommended"}
+          rows={filteredRows.map((application) => {
             const student = studentById.get(application.student_id);
             const profile = profileById.get(application.student_id);
+            const recommendation = recommendationByStudentId.get(application.student_id);
             return {
               id: application.id,
               studentId: application.student_id,
@@ -121,6 +425,8 @@ export default async function PostingApplicantsPage({
               resumeUrl: application.resume_url,
               transcriptUrl: application.transcript_url,
               status: application.status,
+              recommendationReason: recommendation?.reason ?? null,
+              recommendationScore: recommendation?.vector_score ?? null,
             };
           })}
         />
