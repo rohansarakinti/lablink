@@ -67,9 +67,23 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
     return null;
   }
 
-  const skills = [...(selected?.requiredSkills ?? []), ...(selected?.preferredSkills ?? [])].filter(Boolean).slice(0, 8);
+  const requiredOnly = (selected?.requiredSkills ?? []).filter(Boolean).slice(0, 8);
+  const skillGrid =
+    requiredOnly.length > 0
+      ? requiredOnly
+      : [...(selected?.preferredSkills ?? [])].filter(Boolean).slice(0, 8);
   const paras = splitDescription(selected?.description ?? null);
   const matchPct = pctFromScore(selected?.vectorScore ?? 0);
+
+  const eyebrow = (selected?.department ?? selected?.university ?? "Research opportunity").toUpperCase();
+
+  function parseEnvLine(line: string) {
+    const split = line.split(/[|–—:]/).map((s) => s.trim());
+    if (split.length >= 2 && split[1]) {
+      return { title: split[0], desc: split.slice(1).join(" — ") };
+    }
+    return { title: line, desc: "From this lab’s profile for this listing." };
+  }
 
   return (
     <div className="flex min-h-[70vh] flex-col gap-4 lg:flex-row lg:gap-5">
@@ -107,34 +121,41 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
         </div>
       </div>
 
-      {/* Detail */}
-      <div className="min-w-0 flex-1 rounded-2xl border border-zinc-200 bg-white shadow-sm">
-        <div className="relative h-44 w-full overflow-hidden rounded-t-2xl bg-gradient-to-br from-ll-navy via-zinc-800 to-ll-navy md:h-52">
+      {/* Detail — hero + actions + 2-col body (main / sidebar) */}
+      <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <div
+          className={`relative h-[13.5rem] w-full overflow-hidden rounded-t-2xl rounded-br-[2.25rem] rounded-bl-none bg-gradient-to-br from-ll-navy via-[#0a4a52] to-ll-navy md:h-60 ${
+            selected?.bannerUrl ? "" : "bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Cpath%20fill%3D%22%23ffffff08%22%20d%3D%22M0%200h40v40H0z%22%2F%3E%3Cpath%20stroke%3D%22%23ffffff0d%22%20d%3D%22M0%200l40%2040M40%200L0%2040%22%2F%3E%3C%2Fsvg%3E')]"
+          }`}
+        >
           {selected?.bannerUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={selected.bannerUrl}
               alt=""
-              className="absolute inset-0 size-full object-cover opacity-90"
+              className="absolute inset-0 size-full object-cover opacity-95"
             />
           ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/20" />
-          <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
-            <p className="text-xs font-medium uppercase tracking-wide text-white/80">
-              {selected?.department ?? selected?.university}
-            </p>
-            <h3 className="mt-1 text-2xl font-bold leading-tight md:text-3xl">{selected?.labName}</h3>
-            <p className="mt-1 text-sm text-white/90">Lead: {selected?.piName}</p>
-            <span className="mt-3 inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
-              {matchPct}% match score
-            </span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/25" />
+          <div className="absolute inset-0 flex flex-col justify-end p-5 pb-6 text-white md:p-7 md:pb-7">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/85">{eyebrow}</p>
+            <h3 className="mt-2 text-2xl font-bold leading-[1.15] tracking-tight md:text-[1.75rem]">{selected?.labName}</h3>
+            <p className="mt-2 max-w-2xl text-sm font-medium text-white/90 md:text-base">{selected?.title}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide backdrop-blur-sm">
+                PI: {selected?.piName}
+              </span>
+              <span className="rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide backdrop-blur-sm">
+                {matchPct}% match score
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3 border-b border-zinc-100 px-5 py-4">
+        <div className="flex flex-wrap items-center gap-3 border-b border-zinc-100 px-5 py-4 md:px-8">
           <Link
             href={`/postings/${selected?.postingId}`}
-            className="inline-flex items-center gap-2 rounded-lg bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-ll-navy/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ll-navy/90"
           >
             Apply now
             <ArrowRight className="size-4" />
@@ -142,7 +163,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           <button
             type="button"
             title="Coming soon"
-            className="inline-flex items-center gap-2 rounded-lg border border-ll-purple bg-ll-purple px-5 py-2.5 text-sm font-semibold text-white opacity-90 hover:opacity-100 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-xl bg-ll-purple px-5 py-2.5 text-sm font-semibold text-white shadow-sm opacity-90 hover:opacity-100 disabled:cursor-not-allowed"
             disabled
           >
             <Save className="size-4" />
@@ -150,95 +171,108 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           </button>
         </div>
 
-        <div className="px-5 py-5">
-          <h4 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Why this match</h4>
-          <p className="mt-1 text-sm text-zinc-700">{selected?.reason}</p>
-          <h4 className="mt-6 text-lg font-bold text-ll-navy">About the role</h4>
-          {paras.length > 0 ? (
-            <div className="mt-3 space-y-3 text-sm leading-relaxed text-zinc-600">
-              {paras.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-zinc-500">No long description is available for this listing yet.</p>
-          )}
+        <div className="grid lg:grid-cols-12 lg:gap-0">
+          <div className="border-zinc-100 px-5 py-6 md:px-8 md:py-8 lg:col-span-8 lg:border-r">
+            <h4 className="text-xl font-bold tracking-tight text-ll-navy">About this role</h4>
+            {paras.length > 0 ? (
+              <div className="mt-4 space-y-3 text-sm leading-relaxed text-zinc-600 md:text-[15px]">
+                {paras.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-zinc-500">No long description is available for this listing yet.</p>
+            )}
 
-          {skills.length > 0 ? (
-            <>
-              <h4 className="mt-8 text-sm font-bold uppercase tracking-wide text-ll-navy">Skills & techniques</h4>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {skills.map((skill) => {
-                  const Icon = pickIcon(skill);
+            <div className="mt-6 rounded-2xl border border-zinc-200/80 bg-zinc-50/60 p-4 md:p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Why this match</p>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-700">{selected?.reason}</p>
+            </div>
+
+            {skillGrid.length > 0 ? (
+              <>
+                <h4 className="mt-10 text-lg font-bold text-ll-navy">Required skills</h4>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {skillGrid.map((skill) => {
+                    const Icon = pickIcon(skill);
+                    return (
+                      <div
+                        key={skill}
+                        className="flex items-center gap-3 rounded-xl border border-zinc-200/90 bg-zinc-100/90 px-3.5 py-3 text-sm text-zinc-800"
+                      >
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-ll-navy shadow-sm">
+                          <Icon className="size-4" />
+                        </span>
+                        <span className="min-w-0 leading-snug">{skill}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : null}
+          </div>
+
+          <aside className="space-y-6 bg-zinc-50/80 px-5 py-6 md:px-8 md:py-8 lg:col-span-4">
+            <div className="rounded-2xl rounded-br-[2rem] bg-ll-navy p-5 text-white shadow-md">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">Application deadline</p>
+              <p className="mt-2 text-2xl font-bold leading-tight tracking-tight">
+                {selected?.applicationDeadline
+                  ? new Date(selected.applicationDeadline).toLocaleDateString(undefined, {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "Not listed"}
+              </p>
+              <p className="mt-4 text-xs leading-relaxed text-white/65">
+                Open the full posting to apply and see the latest timeline from the lab.
+              </p>
+              {selected?.isPaid != null && selected.isPaid !== "" ? (
+                <p className="mt-3 border-t border-white/15 pt-3 text-sm text-white/85">Compensation: {selected.isPaid}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">Lab environment</h3>
+              <ul className="mt-4 space-y-5">
+                {(selected?.labEnvironment?.length
+                  ? selected.labEnvironment
+                  : ["Collaborative", "Mentorship-focused", "Project-driven"]
+                ).map((line, i) => {
+                  const { title, desc } = parseEnvLine(line);
                   return (
-                    <div
-                      key={skill}
-                      className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50/80 px-3 py-2.5 text-sm text-zinc-800"
-                    >
-                      <span className="flex size-9 items-center justify-center rounded-lg bg-white text-ll-navy shadow-sm">
-                        <Icon className="size-4" />
-                      </span>
-                      {skill}
-                    </div>
+                    <li key={i}>
+                      <p className="text-sm font-bold text-ll-navy">{title}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-zinc-600">{desc}</p>
+                    </li>
                   );
                 })}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">Academic requirements</h3>
+              <div className="mt-4 space-y-3">
+                <div className="rounded-xl border border-zinc-200/80 bg-zinc-100/90 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">Minimum GPA</p>
+                  <p className="mt-1.5 text-xl font-bold text-ll-navy">
+                    {selected?.minGpa != null ? String(selected.minGpa) : "Not specified"}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-zinc-200/80 bg-zinc-100/90 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">Student level</p>
+                  <p className="mt-1.5 text-xl font-bold text-ll-navy">{formatYearLabel(selected?.preferredYear ?? [])}</p>
+                </div>
+                <div className="rounded-xl border border-zinc-200/80 bg-zinc-100/90 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">Weekly commitment</p>
+                  <p className="mt-1.5 text-xl font-bold text-ll-navy">{selected?.hoursPerWeek ?? "—"}</p>
+                </div>
               </div>
-            </>
-          ) : null}
-        </div>
-      </div>
-
-      {/* Side meta */}
-      <div className="w-full shrink-0 space-y-4 lg:max-w-[300px]">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">At a glance</h2>
-        <div className="rounded-2xl bg-ll-navy p-4 text-white shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-white/70">Application deadline</p>
-          <p className="mt-1 text-lg font-semibold">
-            {selected?.applicationDeadline
-              ? new Date(selected.applicationDeadline).toLocaleDateString(undefined, {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })
-              : "Not listed"}
-          </p>
-          {selected?.isPaid != null && selected.isPaid !== "" ? (
-            <p className="mt-2 text-sm text-white/80">Compensation: {selected.isPaid}</p>
-          ) : null}
+            </div>
+          </aside>
         </div>
 
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-zinc-500">Lab environment</h3>
-          <ul className="mt-3 space-y-2 text-sm text-zinc-700">
-            {(selected?.labEnvironment?.length ? selected.labEnvironment : ["Collaborative", "Mentorship-focused", "Project-driven"]).map(
-              (line, i) => (
-                <li key={i} className="flex gap-2">
-                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-ll-purple" />
-                  <span>{line}</span>
-                </li>
-              ),
-            )}
-          </ul>
-        </div>
-
-        <div className="space-y-3">
-          <div className="rounded-xl border border-cyan-100 bg-[#E4FBFF]/80 p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-ll-navy/70">Minimum GPA</p>
-            <p className="mt-1 text-lg font-semibold text-ll-navy">
-              {selected?.minGpa != null ? String(selected.minGpa) : "Not specified"}
-            </p>
-          </div>
-          <div className="rounded-xl border border-cyan-100 bg-[#E4FBFF]/80 p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-ll-navy/70">Student level</p>
-            <p className="mt-1 text-lg font-semibold text-ll-navy">{formatYearLabel(selected?.preferredYear ?? [])}</p>
-          </div>
-          <div className="rounded-xl border border-cyan-100 bg-[#E4FBFF]/80 p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-ll-navy/70">Weekly commitment</p>
-            <p className="mt-1 text-lg font-semibold text-ll-navy">{selected?.hoursPerWeek ?? "—"}</p>
-          </div>
-        </div>
-
-        <p className="text-center text-xs text-zinc-400">
+        <p className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-3 text-center text-[11px] text-zinc-400 md:px-8">
           Results for &quot;{query}&quot; · ordered by vector similarity, then re-ranked
         </p>
       </div>
