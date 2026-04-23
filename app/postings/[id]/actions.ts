@@ -60,14 +60,18 @@ export async function submitApplication(formData: FormData) {
   }
 
   const statement = String(formData.get("statement") ?? "").trim();
-  const resumeUrlInput = String(formData.get("resume_url") ?? "").trim();
-  const transcriptUrlInput = String(formData.get("transcript_url") ?? "").trim();
+  const resumeSource = String(formData.get("resume_source") ?? "upload").trim();
 
   const uploadedResumeUrl = await uploadApplicationAsset(supabase, user.id, formData.get("resume_file"));
-  const uploadedTranscriptUrl = await uploadApplicationAsset(supabase, user.id, formData.get("transcript_file"));
+  const uploadedCoverLetterUrl = await uploadApplicationAsset(
+    supabase,
+    user.id,
+    formData.get("cover_letter_file"),
+  );
 
-  const resumeUrl = uploadedResumeUrl || resumeUrlInput || studentProfile.resume_url;
-  const transcriptUrl = uploadedTranscriptUrl || transcriptUrlInput || null;
+  const useProfileResume = resumeSource === "profile";
+  const resumeUrl = uploadedResumeUrl || (useProfileResume ? studentProfile.resume_url : null);
+  const coverLetterUrl = uploadedCoverLetterUrl || null;
 
   if (!resumeUrl) {
     redirect(`/postings/${postingId}?error=resume_required`);
@@ -88,7 +92,7 @@ export async function submitApplication(formData: FormData) {
       posting_id: postingId,
       student_id: user.id,
       resume_url: resumeUrl,
-      transcript_url: transcriptUrl,
+      transcript_url: coverLetterUrl,
       statement: statement || null,
       custom_responses: customResponses,
       status: "submitted",

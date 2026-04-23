@@ -2,11 +2,14 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { rankRolePostingsForSearchQuery } from "@/lib/matching";
 import { StudentSearchBrowser, type StudentSearchResult } from "@/components/student/student-search-browser";
+import { SearchFilterRow } from "@/components/student/search-filter-row";
+import Link from "next/link";
 
 type Row = {
   id: string;
   title: string;
   description: string | null;
+  member_role: string;
   is_paid: string | null;
   hours_per_week: string | null;
   application_deadline: string | null;
@@ -27,13 +30,76 @@ type Row = {
   } | null;
 };
 
+const FILTER_LABELS = {
+  field: "Research field",
+  role: "Role type",
+  paid: "Paid/unpaid",
+  hours: "Hours",
+  year: "Year preference",
+  university: "University",
+} as const;
+
+type FilterKey = keyof typeof FILTER_LABELS;
+
+type FilterState = Record<FilterKey, string[]>;
+
+function readFilterValues(
+  value: string | string[] | undefined,
+): string[] {
+  if (!value) return [];
+  const list = Array.isArray(value) ? value : [value];
+  return [...new Set(list.flatMap((entry) => entry.split(",")).map((entry) => entry.trim()).filter(Boolean))];
+}
+
+function titleCase(value: string) {
+  return value
+    .split(/[_\s]+/)
+    .map((part) => (part ? part[0].toUpperCase() + part.slice(1) : part))
+    .join(" ");
+}
+
+function roleLabel(role: string) {
+  const pretty = titleCase(role).replace("Ra", "RA");
+  if (pretty === "Grad Researcher") return "Graduate researcher";
+  if (pretty === "Lab Technician") return "Lab technician";
+  return pretty;
+}
+
+function hasOverlap(haystack: string[], needles: string[]) {
+  if (needles.length === 0) return true;
+  const set = new Set(haystack.map((item) => item.toLowerCase()));
+  return needles.some((needle) => set.has(needle.toLowerCase()));
+}
+
+function uniqueNormalized(values: Array<string | null | undefined>) {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const value of values) {
+    const trimmed = value?.trim();
+    if (!trimmed) continue;
+    const normalized = trimmed.toLowerCase();
+    if (seen.has(normalized)) continue;
+    seen.add(normalized);
+    out.push(trimmed);
+  }
+  return out;
+}
+
 export default async function StudentSearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { q = "" } = await searchParams;
-  const query = (q || "").trim();
+  const params = await searchParams;
+  const query = (typeof params.q === "string" ? params.q : "").trim();
+  const filters: FilterState = {
+    field: readFilterValues(params.field),
+    role: readFilterValues(params.role),
+    paid: readFilterValues(params.paid),
+    hours: readFilterValues(params.hours),
+    year: readFilterValues(params.year),
+    university: readFilterValues(params.university),
+  };
 
   const supabase = await createClient();
   const {
@@ -78,7 +144,7 @@ export default async function StudentSearchPage({
   const { data: rows } = await supabase
     .from("role_postings")
     .select(
-      "id, title, description, is_paid, hours_per_week, application_deadline, min_gpa, required_skills, preferred_skills, preferred_year, lab_groups ( name, university, department, research_fields, research_tags, lab_environment, banner_url, logo_url, created_by )",
+      "id, title, description, member_role, is_paid, hours_per_week, application_deadline, min_gpa, required_skills, preferred_skills, preferred_year, lab_groups ( name, university, department, research_fields, research_tags, lab_environment, banner_url, logo_url, created_by )",
     )
     .in("id", order)
     .returns<Row[]>();
@@ -93,8 +159,44 @@ export default async function StudentSearchPage({
       : await supabase.from("profiles").select("id, display_name").in("id", creatorIds);
 
   const piName = new Map((profs ?? []).map((p) => [p.id, p.display_name?.trim() || "Principal investigator"]));
+  const rowById = new Map((rows ?? []).map((row) => [row.id, row]));
 
-  const items = order
+  const options = {
+    field: uniqueNormalized((rows ?? []).flatMap((row) => row.lab_groups?.research_fields ?? [])).sort((a, b) =>
+      a.localeCompare(b),
+    ),
+    role: uniqueNormalized((rows ?? []).map((row) => row.member_role)).sort((a, b) => a.localeCompare(b)),
+    paid: uniqueNormalized((rows ?? []).map((row) => row.is_paid)).sort((a, b) => a.localeCompare(b)),
+    hours: uniqueNormalized((rows ?? []).map((row) => row.hours_per_week)),
+    year: uniqueNormalized((rows ?? []).flatMap((row) => row.preferred_year ?? [])).sort((a, b) => a.localeCompare(b)),
+    university: uniqueNormalized((rows ?? []).map((row) => row.lab_groups?.university)).sort((a, b) =>
+      a.localeCompare(b),
+    ),
+  } satisfies FilterState;
+
+  const filteredOrder = order.filter((id) => {
+    const row = rowById.get(id);
+    if (!row) return false;
+    return (
+      hasOverlap(row.lab_groups?.research_fields ?? [], filters.field) &&
+      hasOverlap([row.member_role], filters.role) &&
+      hasOverlap([row.is_paid ?? ""], filters.paid) &&
+      hasOverlap([row.hours_per_week ?? ""], filters.hours) &&
+      hasOverlap(row.preferred_year ?? [], filters.year) &&
+      hasOverlap([row.lab_groups?.university ?? ""], filters.university)
+    );
+  });
+
+  const filterSections = (Object.keys(FILTER_LABELS) as FilterKey[]).map((key) => ({
+    key,
+    label: FILTER_LABELS[key],
+    options: options[key].map((value) => ({
+      value,
+      label: key === "role" ? roleLabel(value) : key === "year" ? titleCase(value) : value,
+    })),
+  }));
+
+  const items = filteredOrder
     .map((id) => {
       const r = byId.get(id);
       const m = meta.get(id);
@@ -132,6 +234,8 @@ export default async function StudentSearchPage({
     })
     .filter((x): x is StudentSearchResult => x != null);
 
+  const clearAllHref = `/dashboard/student/search?q=${encodeURIComponent(query)}`;
+
   return (
     <div>
       <header className="mb-6">
@@ -140,7 +244,16 @@ export default async function StudentSearchPage({
           Showing {items.length} result{items.length === 1 ? "" : "s"} for &quot;{query}&quot;
         </p>
       </header>
-      <StudentSearchBrowser items={items} query={query} />
+      <SearchFilterRow query={query} selected={filters} sections={filterSections} />
+      {items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-6 py-10 text-center">
+          <p className="text-sm text-zinc-600">No opportunities match the current filter selection.</p>
+          <Link href={clearAllHref} className="mt-3 inline-block text-sm font-medium text-ll-navy hover:underline">
+            Reset filters
+          </Link>
+        </div>
+      ) : null}
+      {items.length > 0 ? <StudentSearchBrowser items={items} query={query} /> : null}
     </div>
   );
 }

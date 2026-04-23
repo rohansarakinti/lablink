@@ -79,10 +79,11 @@ capture what is currently live in the codebase.
   - **Messaging** (`/dashboard/student/messaging`): placeholder
   - **Lab management** (`/dashboard/student/labs`): student lab memberships
   - **My profile** (`/dashboard/student/profile`): placeholder + link to onboarding for edits
-  - **Search** (`/dashboard/student/search?q=`): **semantic search** — `generate-embedding` **`query_embed`** → **`vector_match_role_postings_by_embedding`** → same **Gemini JSON re-rank** pattern as profile matching (`rankRolePostingsForSearchQuery` in `lib/matching.ts`); Edge Function **`verify_jwt = false`** in `supabase/config.toml` for ES256 gateway compatibility
+  - **Search** (`/dashboard/student/search?q=`): **semantic search** — `generate-embedding` **`query_embed`** → **`vector_match_role_postings_by_embedding`** → same **Gemini JSON re-rank** pattern as profile matching (`rankRolePostingsForSearchQuery` in `lib/matching.ts`); includes URL-backed multi-select filters for research field, role type, paid/unpaid, hours, year preference, and university (compact horizontal dropdown row with popout menus); Edge Function **`verify_jwt = false`** in `supabase/config.toml` for ES256 gateway compatibility
 - Student apply flow baseline is implemented at `/postings/[id]`:
   - posting detail + application form
-  - resume/transcript URL and file upload support
+  - file-upload-first documents: resume required, optional cover letter
+  - if profile resume exists, student can choose profile resume or upload a new one
   - statement + custom question response capture
   - submit inserts into `applications`
   - submit inserts manager notifications (`application_submitted`) when notifications table exists
@@ -108,7 +109,7 @@ capture what is currently live in the codebase.
 ### Not implemented yet (still roadmap)
 
 - `vector_match_lab_posts` + recommended lab-posts feed, mixed with followed-lab content.
-- Student feed ranking/mix, profile completeness scoring banner, **Discovery** product (beyond placeholder), and **FTS / filter sidebar** for discover (search page uses **vectors + LLM**, not `role_postings.fts` yet).
+- Student feed ranking/mix, profile completeness scoring banner, and **Discovery** product (beyond placeholder). Discover-specific FTS integration remains roadmap; current search page uses **vectors + LLM rerank** with filter controls.
 - Social lab posts feed, analytics dashboards, cron reminder/email automation, richer notification UX (beyond application-submit inserts).
 
 ### Milestone snapshot
@@ -123,7 +124,7 @@ capture what is currently live in the codebase.
 
 ### Next recommended implementation order
 
-1. Enrich student Explore/Feed UX: use `llm_rank` / `llm_reason` on home/discover consistently, profile completeness banner, and FTS/filter UI (search page already does vector + LLM rerank).
+1. Enrich student Explore/Feed UX: use `llm_rank` / `llm_reason` on home/discover consistently and add profile completeness banner. (Search page already has vector + LLM rerank and filter UI.)
 2. Implement `vector_match_lab_posts` + `getRecommendedPosts` + Feed tab mixed stream.
 3. Add social lab posts feed, analytics, and cron/email automation.
 
@@ -1593,8 +1594,7 @@ Autofill: see **Implemented now** (shared `lib/onboarding/*` + `autofill-actions
 All collected fields map to `student_profiles` (and related list columns) on submit. Hidden
 form inputs carry the full draft; `transcript_url`, `honors_or_awards`, `publications`, and
 `parsed_*` fields exist in the draft and are submitted if set (e.g. by autofill) but **do not
-have dedicated wizard screens** today — transcript upload is available on **apply** (`/postings/[id]`),
-not in this wizard.
+have dedicated wizard screens** today. The apply flow uses resume + cover-letter uploads.
 
 **Step 1 — Upload resume (optional)**
 - File: `.pdf`, `.txt`, `.md` (10MB max); dropzone UI; client extract + `parseResumeWithLlm("student", …)`
@@ -1952,9 +1952,11 @@ On first visit (embedding not yet generated): skeleton loader with copy
 
 ### Apply Flow
 
-Apply button on posting detail page (`/postings/[id]`) opens an application modal:
-1. Resume upload (PDF, required if not already in profile — pre-filled from profile if exists)
-2. Transcript upload (PDF, optional)
+Posting detail page (`/postings/[id]`) renders an inline apply form:
+1. Resume selection/upload:
+   - If student has a profile resume, they can choose profile resume or upload a new PDF
+   - If no profile resume exists, resume PDF upload is required
+2. Cover letter upload (PDF, optional; currently persisted in `applications.transcript_url`)
 3. Statement of interest (textarea, shown if `eval_methods` includes `statement_of_interest`)
 4. Custom question fields (rendered from `custom_questions` JSONB)
 5. Submit → Server Action:
@@ -2143,7 +2145,7 @@ export interface Application {
   student_id: string
   status: ApplicationStatus
   resume_url: string | null
-  transcript_url: string | null
+  transcript_url: string | null // currently used for optional cover letter upload
   statement: string | null
   custom_responses: Record<string, string>
   created_at: string

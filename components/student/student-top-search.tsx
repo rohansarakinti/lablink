@@ -24,7 +24,9 @@ export function StudentTopSearch() {
     e.preventDefault();
     const q = value.trim();
     if (!q) return;
-    router.push(`/dashboard/student/search?q=${encodeURIComponent(q)}`);
+    const next = new URLSearchParams(searchParams.toString());
+    next.set("q", q);
+    router.push(`/dashboard/student/search?${next.toString()}`);
   };
 
   return (

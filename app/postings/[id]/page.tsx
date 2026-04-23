@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { submitApplication } from "./actions";
+import { CompactFileUpload } from "./compact-file-upload";
 
 type CustomQuestion = {
   id: string;
@@ -87,9 +88,9 @@ export default async function PostingDetailPage({
 
   const { data: studentProfile } = await supabase
     .from("student_profiles")
-    .select("resume_url,transcript_url")
+    .select("resume_url")
     .eq("id", user.id)
-    .maybeSingle<{ resume_url: string | null; transcript_url: string | null }>();
+    .maybeSingle<{ resume_url: string | null }>();
 
   const { data: existingApplication } = await supabase
     .from("applications")
@@ -156,21 +157,42 @@ export default async function PostingDetailPage({
           <form action={submitApplication} className="mt-4 space-y-4">
             <input type="hidden" name="posting_id" value={posting.id} />
 
-            <Field
-              label="Resume URL"
-              name="resume_url"
-              defaultValue={studentProfile?.resume_url ?? ""}
-              hint="Required unless you upload a resume file below."
-            />
-            <FileField label="Resume file (PDF)" name="resume_file" />
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-ll-navy">Resume</p>
+              {studentProfile?.resume_url ? (
+                <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+                  <label className="flex items-center gap-2 text-sm text-zinc-700">
+                    <input type="radio" name="resume_source" value="profile" defaultChecked />
+                    Use resume linked in your profile
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-zinc-700">
+                    <input type="radio" name="resume_source" value="upload" />
+                    Upload a new resume for this application
+                  </label>
+                  <CompactFileUpload
+                    inputId="resume_file"
+                    name="resume_file"
+                    label="Resume file"
+                    hint="If you choose upload, attach your resume as PDF."
+                  />
+                </div>
+              ) : (
+                <CompactFileUpload
+                  inputId="resume_file"
+                  name="resume_file"
+                  label="Resume file"
+                  required
+                  hint="Required. Upload your resume as PDF."
+                />
+              )}
+            </div>
 
-            <Field
-              label="Transcript URL"
-              name="transcript_url"
-              defaultValue={studentProfile?.transcript_url ?? ""}
-              hint="Optional."
+            <CompactFileUpload
+              inputId="cover_letter_file"
+              name="cover_letter_file"
+              label="Cover letter (optional)"
+              hint="Optional. Upload a cover letter as PDF."
             />
-            <FileField label="Transcript file (PDF)" name="transcript_file" />
 
             {showStatement ? (
               <div className="space-y-2">
@@ -208,50 +230,6 @@ export default async function PostingDetailPage({
         </section>
       )}
     </main>
-  );
-}
-
-function Field({
-  label,
-  name,
-  defaultValue,
-  hint,
-}: {
-  label: string;
-  name: string;
-  defaultValue?: string;
-  hint?: string;
-}) {
-  return (
-    <div className="space-y-2">
-      <label htmlFor={name} className="text-sm font-medium text-ll-navy">
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        defaultValue={defaultValue}
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-      />
-      {hint ? <p className="text-xs text-zinc-500">{hint}</p> : null}
-    </div>
-  );
-}
-
-function FileField({ label, name }: { label: string; name: string }) {
-  return (
-    <div className="space-y-2">
-      <label htmlFor={name} className="text-sm font-medium text-ll-navy">
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        type="file"
-        accept=".pdf"
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-      />
-    </div>
   );
 }
 
