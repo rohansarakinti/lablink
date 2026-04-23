@@ -94,7 +94,7 @@ export default async function StudentSearchPage({
 
   const piName = new Map((profs ?? []).map((p) => [p.id, p.display_name?.trim() || "Principal investigator"]));
 
-  const items: StudentSearchResult[] = order
+  const items = order
     .map((id) => {
       const r = byId.get(id);
       const m = meta.get(id);
@@ -127,6 +127,7 @@ export default async function StudentSearchPage({
         researchFields: lab?.research_fields ?? [],
         bannerUrl: lab?.banner_url ?? null,
         labLogoUrl: lab?.logo_url ?? null,
+        applicantCount: null as number | null,
       } satisfies StudentSearchResult;
     })
     .filter((x): x is StudentSearchResult => x != null);

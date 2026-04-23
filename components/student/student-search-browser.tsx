@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, BarChart3, Beaker, Code, Dna, Microscope, Save } from "lucide-react";
 
@@ -26,6 +26,8 @@ export type StudentSearchResult = {
   researchFields: string[];
   bannerUrl: string | null;
   labLogoUrl: string | null;
+  /** Filled when the API exposes aggregate counts; otherwise null */
+  applicantCount: number | null;
 };
 
 function pctFromScore(score: number) {
@@ -55,13 +57,73 @@ function formatYearLabel(years: string[]) {
   return years.join(" · ");
 }
 
+const DEFAULT_LAB_ENV: { title: string; desc: string }[] = [
+  { title: "Mentorship-heavy", desc: "Direct weekly 1-on-1s with the PI and senior post-docs when available." },
+  { title: "Fast-paced", desc: "High output expected with regular milestone reviews." },
+  { title: "Collaborative", desc: "Bi-weekly journal clubs and cross-functional project work when applicable." },
+];
+
+function formatDeadlineDisplay(iso: string | null) {
+  if (!iso?.trim()) {
+    return { line1: "Not", line2: "listed yet" };
+  }
+  const d = new Date(iso);
+  const line1 = d.toLocaleDateString(undefined, { month: "long" });
+  const day = d.getDate();
+  const y = d.getFullYear();
+  const ord = (n: number) => {
+    const j = n % 10;
+    const k = n % 100;
+    if (j === 1 && k !== 11) return `${n}st`;
+    if (j === 2 && k !== 12) return `${n}nd`;
+    if (j === 3 && k !== 13) return `${n}rd`;
+    return `${n}th`;
+  };
+  return { line1, line2: `${ord(day)}, ${y}` };
+}
+
 export function StudentSearchBrowser({ items, query }: { items: StudentSearchResult[]; query: string }) {
   const [selectedId, setSelectedId] = useState(items[0]?.postingId ?? "");
+  const detailRef = useRef<HTMLDivElement | null>(null);
+  const [detailBlockHeight, setDetailBlockHeight] = useState(0);
+  const [syncListToDetail, setSyncListToDetail] = useState(false);
 
   const selected = useMemo(
     () => items.find((i) => i.postingId === selectedId) ?? items[0],
     [items, selectedId],
   );
+
+  const measureDetailHeight = useCallback(() => {
+    const el = detailRef.current;
+    if (el) setDetailBlockHeight(el.getBoundingClientRect().height);
+  }, []);
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onMq = () => {
+      setSyncListToDetail(mq.matches);
+      requestAnimationFrame(measureDetailHeight);
+    };
+    onMq();
+    mq.addEventListener("change", onMq);
+    return () => mq.removeEventListener("change", onMq);
+  }, [measureDetailHeight]);
+
+  useLayoutEffect(() => {
+    const el = detailRef.current;
+    if (!el) return;
+    const measure = () => measureDetailHeight();
+    if (typeof ResizeObserver === "undefined") {
+      measure();
+      return;
+    }
+    measure();
+    const ro = new ResizeObserver(() => {
+      measure();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [selectedId, query, measureDetailHeight]);
 
   if (items.length === 0) {
     return null;
@@ -85,12 +147,32 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
     return { title: line, desc: "From this lab’s profile for this listing." };
   }
 
+  const envRows = (() => {
+    const raw = selected?.labEnvironment?.length ? selected.labEnvironment : [];
+    if (raw.length === 0) return DEFAULT_LAB_ENV;
+    return raw.slice(0, 3).map((line) => {
+      const p = parseEnvLine(line);
+      return { title: p.title, desc: p.desc };
+    });
+  })();
+
+  const deadlineLines = formatDeadlineDisplay(selected?.applicationDeadline ?? null);
+
+  const listColStyle =
+    syncListToDetail && detailBlockHeight > 0
+      ? ({ height: detailBlockHeight } as const)
+      : undefined;
+
   return (
-    <div className="flex min-h-[70vh] flex-col gap-4 lg:flex-row lg:gap-5">
-      {/* Matched list */}
-      <div className="flex w-full shrink-0 flex-col lg:max-w-[320px] lg:min-w-[280px]">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">Matched opportunities</h2>
-        <div className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto pr-1">
+    <div className="h-fit w-full min-h-0 max-w-full">
+      <div className="flex min-h-0 w-full max-w-full flex-col gap-4 lg:flex-row lg:items-start lg:gap-5">
+        {/* Matched list: on lg, height = measured detail block so the row doesn’t grow with list min-content; scroll inside */}
+        <div
+          className="flex min-h-0 w-full max-h-[60vh] flex-col overflow-hidden max-lg:shrink-0 lg:min-w-[220px] lg:max-w-[252px] lg:max-h-none"
+          style={listColStyle}
+        >
+        <h2 className="mb-3 shrink-0 text-sm font-semibold uppercase tracking-wide text-zinc-500">Matched opportunities</h2>
+        <div className="min-h-0 flex-1 basis-0 overflow-y-auto overflow-x-hidden pr-1 [scrollbar-gutter:stable]">
           {items.map((item) => {
             const active = item.postingId === (selected?.postingId ?? "");
             const pct = pctFromScore(item.vectorScore);
@@ -99,7 +181,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
                 key={item.postingId}
                 type="button"
                 onClick={() => setSelectedId(item.postingId)}
-                className={`rounded-xl border p-4 text-left transition-shadow ${
+                className={`rounded-xl border p-3 text-left transition-shadow ${
                   active
                     ? "border-ll-purple/50 bg-white shadow-md ring-1 ring-ll-purple/20"
                     : "border-zinc-200 bg-white hover:border-zinc-300"
@@ -121,10 +203,13 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
         </div>
       </div>
 
-      {/* Detail — hero + actions + 2-col body (main / sidebar) */}
-      <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      {/* Detail: intrinsic height — measured so the list column (lg) can match without flex min-content from long lists */}
+      <div
+        ref={detailRef}
+        className="min-h-0 w-full min-w-0 max-w-full shrink-0 grow overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm lg:flex-1"
+      >
         <div
-          className={`relative h-[13.5rem] w-full overflow-hidden rounded-t-2xl rounded-br-[2.25rem] rounded-bl-none bg-gradient-to-br from-ll-navy via-[#0a4a52] to-ll-navy md:h-60 ${
+          className={`relative h-[12rem] w-full overflow-hidden rounded-t-2xl rounded-br-[2.25rem] rounded-bl-none bg-gradient-to-br from-ll-navy via-[#0a4a52] to-ll-navy md:h-52 ${
             selected?.bannerUrl ? "" : "bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Cpath%20fill%3D%22%23ffffff08%22%20d%3D%22M0%200h40v40H0z%22%2F%3E%3Cpath%20stroke%3D%22%23ffffff0d%22%20d%3D%22M0%200l40%2040M40%200L0%2040%22%2F%3E%3C%2Fsvg%3E')]"
           }`}
         >
@@ -152,7 +237,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 border-b border-zinc-100 px-5 py-4 md:px-8">
+        <div className="flex flex-wrap items-center gap-3 border-b border-zinc-100 px-5 py-3 md:px-8">
           <Link
             href={`/postings/${selected?.postingId}`}
             className="inline-flex items-center gap-2 rounded-xl bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ll-navy/90"
@@ -171,17 +256,17 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           </button>
         </div>
 
-        <div className="grid lg:grid-cols-12 lg:gap-0">
-          <div className="border-zinc-100 px-5 py-6 md:px-8 md:py-8 lg:col-span-8 lg:border-r">
-            <h4 className="text-xl font-bold tracking-tight text-ll-navy">About this role</h4>
+        <div className="grid items-stretch gap-0 lg:grid-cols-12">
+          <div className="min-h-0 border-zinc-100 bg-white px-5 py-6 md:px-8 md:py-7 lg:col-span-7 lg:h-full lg:border-r">
+            <h4 className="text-2xl font-bold tracking-tight text-zinc-900">About the lab</h4>
             {paras.length > 0 ? (
-              <div className="mt-4 space-y-3 text-sm leading-relaxed text-zinc-600 md:text-[15px]">
+              <div className="mt-5 space-y-4 text-sm leading-relaxed text-zinc-600 md:text-[15px]">
                 {paras.map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
             ) : (
-              <p className="mt-4 text-sm text-zinc-500">No long description is available for this listing yet.</p>
+              <p className="mt-5 text-sm text-zinc-500">No long description is available for this listing yet.</p>
             )}
 
             <div className="mt-6 rounded-2xl border border-zinc-200/80 bg-zinc-50/60 p-4 md:p-5">
@@ -191,16 +276,16 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
 
             {skillGrid.length > 0 ? (
               <>
-                <h4 className="mt-10 text-lg font-bold text-ll-navy">Required skills</h4>
+                <h4 className="mt-8 text-2xl font-bold text-zinc-900">Required skills</h4>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   {skillGrid.map((skill) => {
                     const Icon = pickIcon(skill);
                     return (
                       <div
                         key={skill}
-                        className="flex items-center gap-3 rounded-xl border border-zinc-200/90 bg-zinc-100/90 px-3.5 py-3 text-sm text-zinc-800"
+                        className="flex items-center gap-3 rounded-r-lg border-y border-r border-zinc-200/80 border-l-4 border-l-ll-purple bg-[#f3f4f6] py-2.5 pl-2 pr-3 text-sm font-semibold text-zinc-900 shadow-sm"
                       >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-ll-navy shadow-sm">
+                        <span className="flex size-9 shrink-0 items-center justify-center text-ll-navy">
                           <Icon className="size-4" />
                         </span>
                         <span className="min-w-0 leading-snug">{skill}</span>
@@ -212,60 +297,53 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
             ) : null}
           </div>
 
-          <aside className="space-y-6 bg-zinc-50/80 px-5 py-6 md:px-8 md:py-8 lg:col-span-4">
-            <div className="rounded-2xl rounded-br-[2rem] bg-ll-navy p-5 text-white shadow-md">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">Application deadline</p>
-              <p className="mt-2 text-2xl font-bold leading-tight tracking-tight">
-                {selected?.applicationDeadline
-                  ? new Date(selected.applicationDeadline).toLocaleDateString(undefined, {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })
-                  : "Not listed"}
-              </p>
-              <p className="mt-4 text-xs leading-relaxed text-white/65">
-                Open the full posting to apply and see the latest timeline from the lab.
-              </p>
-              {selected?.isPaid != null && selected.isPaid !== "" ? (
-                <p className="mt-3 border-t border-white/15 pt-3 text-sm text-white/85">Compensation: {selected.isPaid}</p>
-              ) : null}
-            </div>
+          <aside className="flex w-full min-h-0 flex-col border-t border-zinc-200/80 bg-zinc-100/80 px-5 py-5 md:px-6 md:py-6 lg:col-span-5 lg:h-full lg:border-l lg:border-t-0 lg:border-zinc-200/80">
+            <div className="min-h-0 space-y-5 lg:space-y-6">
+              <div className="rounded-2xl bg-[#1a2e35] p-4 text-white shadow-sm md:p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Application deadline</p>
+                <p className="mt-1 text-2xl font-bold leading-tight tracking-tight md:text-[1.75rem]">{deadlineLines.line1}</p>
+                <p className="text-2xl font-bold leading-tight tracking-tight md:text-[1.75rem]">{deadlineLines.line2}</p>
+                <p className="mt-3 text-sm leading-relaxed text-white/75">
+                  {selected != null && selected.applicantCount != null && selected.applicantCount > 0
+                    ? `${selected.applicantCount} applicant${selected.applicantCount === 1 ? " has" : "s have"} already applied to this role.`
+                    : "Open the full posting to apply—interest and timing can change as other students move through the process."}
+                </p>
+                {selected?.isPaid != null && selected.isPaid !== "" ? (
+                  <p className="mt-4 border-t border-white/20 pt-3 text-sm text-white/90">Compensation: {selected.isPaid}</p>
+                ) : null}
+              </div>
 
-            <div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">Lab environment</h3>
-              <ul className="mt-4 space-y-5">
-                {(selected?.labEnvironment?.length
-                  ? selected.labEnvironment
-                  : ["Collaborative", "Mentorship-focused", "Project-driven"]
-                ).map((line, i) => {
-                  const { title, desc } = parseEnvLine(line);
-                  return (
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Lab environment</h3>
+                <ul className="mt-3 space-y-3">
+                  {envRows.map((row, i) => (
                     <li key={i}>
-                      <p className="text-sm font-bold text-ll-navy">{title}</p>
-                      <p className="mt-1 text-xs leading-relaxed text-zinc-600">{desc}</p>
+                      <p className="text-sm font-bold text-zinc-900">{row.title}</p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-zinc-600">{row.desc}</p>
                     </li>
-                  );
-                })}
-              </ul>
-            </div>
+                  ))}
+                </ul>
+              </div>
 
-            <div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">Academic requirements</h3>
-              <div className="mt-4 space-y-3">
-                <div className="rounded-xl border border-zinc-200/80 bg-zinc-100/90 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">Minimum GPA</p>
-                  <p className="mt-1.5 text-xl font-bold text-ll-navy">
-                    {selected?.minGpa != null ? String(selected.minGpa) : "Not specified"}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-zinc-200/80 bg-zinc-100/90 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">Student level</p>
-                  <p className="mt-1.5 text-xl font-bold text-ll-navy">{formatYearLabel(selected?.preferredYear ?? [])}</p>
-                </div>
-                <div className="rounded-xl border border-zinc-200/80 bg-zinc-100/90 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">Weekly commitment</p>
-                  <p className="mt-1.5 text-xl font-bold text-ll-navy">{selected?.hoursPerWeek ?? "—"}</p>
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Academic requirements</h3>
+                <div className="mt-3 space-y-2.5">
+                  <div className="rounded-xl border border-zinc-300/50 bg-[#c2d0d3] p-3 shadow-sm md:p-3.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-600">Minimum GPA</p>
+                    <p className="mt-1 text-xl font-bold text-zinc-900 md:text-2xl">
+                      {selected?.minGpa != null ? String(selected.minGpa) : "Not specified"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-zinc-300/50 bg-[#c2d0d3] p-3 shadow-sm md:p-3.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-600">Student level</p>
+                    <p className="mt-1 text-xl font-bold leading-tight text-zinc-900 md:text-2xl">
+                      {formatYearLabel(selected?.preferredYear ?? [])}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-zinc-300/50 bg-[#c2d0d3] p-3 shadow-sm md:p-3.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-600">Weekly commitment</p>
+                    <p className="mt-1 text-xl font-bold text-zinc-900 md:text-2xl">{selected?.hoursPerWeek ?? "—"}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -275,6 +353,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
         <p className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-3 text-center text-[11px] text-zinc-400 md:px-8">
           Results for &quot;{query}&quot; · ordered by vector similarity, then re-ranked
         </p>
+      </div>
       </div>
     </div>
   );
