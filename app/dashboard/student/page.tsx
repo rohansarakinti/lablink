@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { rankMatchesForStudent } from "@/lib/matching";
+import { MatchedForYouCarousel } from "@/components/student/matched-for-you-carousel";
 import { CalendarDays, Compass, Sparkles } from "lucide-react";
 
 function pctFromScore(score: number) {
@@ -125,6 +126,21 @@ export default async function StudentDashboardPage() {
   );
   const discoverItems = [...rankedItems, ...fallbackItems].slice(0, 20);
 
+  const carouselItems = discoverItems.map((posting) => {
+    const meta = matchMetaByPostingId.get(posting.id);
+    const matchPct = meta?.vector_score != null ? pctFromScore(meta.vector_score) : null;
+    const topic =
+      (posting.lab_groups?.research_fields && posting.lab_groups.research_fields[0]) || "Research";
+    return {
+      id: posting.id,
+      title: posting.title,
+      labName: posting.lab_groups?.name ?? null,
+      university: posting.lab_groups?.university ?? null,
+      topic: String(topic),
+      matchPct,
+    };
+  });
+
   const firstName = (profile?.display_name ?? profile?.email ?? "there").split(/\s+/)[0] ?? "there";
   const appCount = (applications ?? []).length;
   const labCount = (myLabs ?? []).filter((m) => m.lab_groups).length;
@@ -167,36 +183,7 @@ export default async function StudentDashboardPage() {
             No open opportunities right now, or you have applied to every current listing. Check back soon.
           </div>
         ) : (
-          <div className="flex gap-4 overflow-x-auto scroll-smooth pb-2 pt-1 [mask-image:linear-gradient(to_right,black_92%,transparent)] md:grid md:grid-cols-2 md:overflow-visible md:[mask-image:none] lg:grid-cols-3">
-            {discoverItems.map((posting) => {
-                const meta = matchMetaByPostingId.get(posting.id);
-                const pct = meta?.vector_score != null ? pctFromScore(meta.vector_score) : null;
-                const topic =
-                  (posting.lab_groups?.research_fields && posting.lab_groups.research_fields[0]) || "Research";
-                return (
-                  <Link
-                    key={posting.id}
-                    href={`/postings/${posting.id}`}
-                    className="min-w-[280px] max-w-[320px] shrink-0 snap-start rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md md:max-w-none md:min-w-0"
-                  >
-                    {pct != null ? (
-                      <p className="text-xs font-bold text-ll-purple">{pct}% match</p>
-                    ) : (
-                      <p className="text-xs font-semibold text-zinc-500">Open role</p>
-                    )}
-                    <h3 className="mt-2 line-clamp-2 text-base font-bold text-ll-navy">{posting.title}</h3>
-                    <p className="mt-1 text-sm text-zinc-600">
-                      {posting.lab_groups?.name}
-                      <br />
-                      <span className="text-xs text-zinc-500">{posting.lab_groups?.university}</span>
-                    </p>
-                    <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-zinc-400">
-                      Topic: {String(topic).toUpperCase()}
-                    </p>
-                  </Link>
-                );
-              })}
-          </div>
+          <MatchedForYouCarousel items={carouselItems} />
         )}
       </section>
 
