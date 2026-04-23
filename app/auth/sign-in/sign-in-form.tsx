@@ -48,7 +48,7 @@ export function SignInForm() {
           type="email"
           required
           placeholder="first.last@university.edu"
-          className="w-full rounded-md border bg-zinc-300 px-4 py-3 text-base"
+          className="w-full rounded-md border bg-zinc-200 px-4 py-3 text-base"
         />
       </div>
       <div className="space-y-2">
@@ -65,7 +65,7 @@ export function SignInForm() {
           name="password"
           type="password"
           required
-          className="w-full rounded-md border bg-zinc-300 px-4 py-3 text-base"
+          className="w-full rounded-md border bg-zinc-200 px-4 py-3 text-base"
         />
       </div>
 
