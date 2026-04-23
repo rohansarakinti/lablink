@@ -19,13 +19,13 @@ export async function SiteNavbar() {
 
   return (
     <header className="bg-ll-purple">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-1.5">
+      <div className="flex w-full items-center justify-between pl-4 pr-6 py-1">
         <Link
           href="/"
           aria-label="Go to home"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
+          // className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm"
         >
-          <Image src="/lablinkLogo.svg" alt="LabLink logo" width={36} height={36} priority />
+          <Image src="/LabLink-Logo_logo-White.svg" alt="LabLink logo" width={100} height={100} priority />
         </Link>
         {user ? (
           <form action={signOut}>
