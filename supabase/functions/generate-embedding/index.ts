@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 type Payload = {
-  table?: "student_profiles" | "role_postings";
+  table?: "student_profiles" | "role_postings" | "lab_posts";
   record?: Record<string, unknown>;
   // Supabase DB webhooks may send `new`/`old` keys.
   new?: Record<string, unknown>;
@@ -58,7 +58,10 @@ Deno.serve(async (req) => {
         record_keys: record && typeof record === "object" ? Object.keys(record) : [],
       }),
     );
-    if (!table || (table !== "student_profiles" && table !== "role_postings")) {
+    if (
+      !table ||
+      (table !== "student_profiles" && table !== "role_postings" && table !== "lab_posts")
+    ) {
       return new Response(
         JSON.stringify({ ok: false, skipped: true, reason: `unsupported_table:${String(table)}` }),
         {
@@ -83,7 +86,11 @@ Deno.serve(async (req) => {
     );
 
     const text =
-      table === "student_profiles" ? buildStudentText(record) : buildPostingText(record);
+      table === "student_profiles"
+        ? buildStudentText(record)
+        : table === "role_postings"
+          ? buildPostingText(record)
+          : buildLabPostText(record);
     if (!text.trim()) {
       return new Response(JSON.stringify({ ok: false, reason: "empty_embedding_text" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -161,6 +168,13 @@ function buildPostingText(r: Record<string, unknown>): string {
     `Duration: ${String(r.duration ?? "")}.`,
     `Hours: ${String(r.hours_per_week ?? "")} per week.`,
     `Paid: ${String(r.is_paid ?? "")}.`,
+  ].join(" ");
+}
+
+function buildLabPostText(r: Record<string, unknown>): string {
+  return [
+    `Caption: ${String(r.caption ?? "")}.`,
+    `Tags: ${toStringList(r.tags).join(", ")}.`,
   ].join(" ");
 }
 

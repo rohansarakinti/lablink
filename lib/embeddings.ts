@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 
-type EmbeddingTable = "student_profiles" | "role_postings";
+type EmbeddingTable = "student_profiles" | "role_postings" | "lab_posts";
 
 export async function requestEmbeddingRefresh(table: EmbeddingTable, record: Record<string, unknown>) {
   try {

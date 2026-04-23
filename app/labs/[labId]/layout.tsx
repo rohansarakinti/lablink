@@ -4,6 +4,7 @@ import { getLabContext } from "./_lib";
 const tabs = [
   { href: "", label: "Overview" },
   { href: "members", label: "Members" },
+  { href: "feed", label: "Feed" },
   { href: "postings", label: "Role postings" },
   { href: "applicants", label: "Applicants" },
 ];

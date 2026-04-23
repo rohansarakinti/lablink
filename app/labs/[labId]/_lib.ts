@@ -1,9 +1,16 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+const labFeedPosterRoles = ["pi", "lab_manager", "postdoc", "grad_researcher"] as const;
+
+export function canPostToLabFeed(labRole: string): boolean {
+  return (labFeedPosterRoles as readonly string[]).includes(labRole);
+}
+
 export type LabContext = {
   userId: string;
   canManage: boolean;
+  canPostToFeed: boolean;
   membershipRole: string;
   lab: {
     id: string;
@@ -61,10 +68,12 @@ export async function getLabContext(labId: string): Promise<LabContext> {
   }
 
   const canManage = membership.lab_role === "pi" || membership.lab_role === "lab_manager";
+  const canPostToFeed = canPostToLabFeed(membership.lab_role);
 
   return {
     userId: user.id,
     canManage,
+    canPostToFeed,
     membershipRole: membership.lab_role,
     lab,
   };
