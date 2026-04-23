@@ -1593,9 +1593,11 @@ Autofill: see **Implemented now** (shared `lib/onboarding/*` + `autofill-actions
 ### Student Onboarding (`/onboarding/student`) — 6 steps
 
 All collected fields map to `student_profiles` (and related list columns) on submit. Hidden
-form inputs carry the full draft; `transcript_url`, `honors_or_awards`, `publications`, and
-`parsed_*` fields exist in the draft and are submitted if set (e.g. by autofill) but **do not
-have dedicated wizard screens** today. The apply flow uses resume + cover-letter uploads.
+form inputs carry the full draft. Autofill can set `parsed_gpa` (hidden) from resume; there is
+no `parsed_courses` field in the student UIs. **Step 6** includes honors, publications, and
+**file uploads** (profile photo, resume, transcript) via `completeStudentOnboarding` (no user-entered
+document URLs in those controls). The public apply flow at `/postings/[id]` uses resume + optional
+cover letter file uploads.
 
 **Step 1 — Upload resume (optional)**
 - File: `.pdf`, `.txt`, `.md` (10MB max); dropzone UI; client extract + `parseResumeWithLlm("student", …)`
@@ -1614,7 +1616,8 @@ have dedicated wizard screens** today. The apply flow uses resume + cover-letter
 - Role types sought (`MultiSelectDropdown`); start availability (text); experience types; priorities; willing to volunteer; GPA visible on profile (yes/no)
 
 **Step 6 — Preferences**
-- Time commitment / hours per week (required text); paid preference (`MultiSelectDropdown`); motivations (**tags**)
+- Time commitment / hours per week (required text); paid preference (`MultiSelectDropdown`); motivations (**tags**);
+  honors, publications; file uploads (avatar, resume, transcript) stored via Server Action uploads to `lab-assets`
 
 On completion → `onboarding_complete = true` → redirect to `/dashboard/student`
 
@@ -2323,7 +2326,7 @@ Custom components (no shadcn equivalent) in `components/`:
 /dashboard/student/applications                      Applications list
 /dashboard/student/labs                            Student lab memberships ("Lab management")
 /dashboard/student/messaging                       Placeholder
-/dashboard/student/profile                         Placeholder + onboarding link
+/dashboard/student/profile                         Full student profile (all `student_profiles` + identity fields; file uploads for avatar, resume, transcript — no user-entered file URLs in UI)
 /dashboard/professor                               Lab grid + recent activity
 
 /labs/new                                          Create lab group (2-page form)
@@ -2332,14 +2335,15 @@ Custom components (no shadcn equivalent) in `components/`:
 /labs/[labId]/postings                             Posting list (management view)
 /labs/[labId]/postings/new                         Create posting
 /labs/[labId]/postings/[postingId]                 Edit posting
-/labs/[labId]/postings/[postingId]/applicants      Review applicants
+/labs/[labId]/postings/[postingId]/applicants      Review applicants (status + **recommended** tab: `vector_match_students_for_posting` + `lib/posting-student-matching.ts` LLM rerank among **current applicants**; filter dropdowns; name → read-only same layout as student My Profile)
+/labs/[labId]/postings/[postingId]/applicants/[studentId]  Applicant’s student profile (read-only My Profile component)
 /labs/[labId]/posts                                Lab social posts list (management)
 /labs/[labId]/posts/new                            Create post
 /labs/[labId]/posts/[postId]                       Edit post
 /labs/[labId]/analytics                            Pipeline + follower analytics (PI/manager only)
 /labs/[labId]/settings                             Lab settings
 
-/postings/[id]                                     Public posting detail + apply modal
+/postings/[id]                                     Posting detail + inline apply (student-only; file uploads, no document URL fields in form)
 /posts/[id]                                        Public social post permalink
 
 /profile/student/[id]                              Public student profile

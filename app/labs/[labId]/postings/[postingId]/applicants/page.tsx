@@ -231,18 +231,35 @@ export default async function PostingApplicantsPage({
 
   const filteredRows = (applications ?? [])
     .filter((application) => {
+      // Show every application row even if student_profiles is missing; filters use optional data.
       const student = studentById.get(application.student_id);
-      if (!student) return false;
 
-      if (!includesItem(student.skills, filterSkill)) return false;
-      if (!includesItem(student.research_fields, filterResearchField)) return false;
-      if (!includesItem(student.major, filterMajor)) return false;
-      if (!includesItem(student.prior_experience, filterPrior)) return false;
+      if (!includesItem(student?.skills, filterSkill)) return false;
+      if (!includesItem(student?.research_fields, filterResearchField)) return false;
+      if (!includesItem(student?.major, filterMajor)) return false;
+      if (!includesItem(student?.prior_experience, filterPrior)) return false;
 
-      if (selectedYear && String(student.year ?? "").toLowerCase() !== selectedYear) return false;
-      if (!Number.isNaN(minGpa) && minGpa > 0 && (student.gpa ?? 0) < minGpa) return false;
-      if (selectedVolunteer && String(student.willing_to_volunteer).toLowerCase() !== selectedVolunteer) return false;
-      if (filterPaid && String(student.paid_preference ?? "").toLowerCase() !== filterPaid.toLowerCase()) {
+      if (selectedYear && String(student?.year ?? "").toLowerCase() !== selectedYear) return false;
+      if (
+        student &&
+        !Number.isNaN(minGpa) &&
+        minGpa > 0 &&
+        (student.gpa ?? 0) < minGpa
+      ) {
+        return false;
+      }
+      if (
+        student &&
+        selectedVolunteer &&
+        String(student.willing_to_volunteer).toLowerCase() !== selectedVolunteer
+      ) {
+        return false;
+      }
+      if (
+        student &&
+        filterPaid &&
+        String(student.paid_preference ?? "").toLowerCase() !== filterPaid.toLowerCase()
+      ) {
         return false;
       }
 
