@@ -27,7 +27,7 @@ export async function SiteNavbar() {
         >
           <Image src="/LabLink-Logo_logo-White.svg" alt="LabLink logo" width={100} height={100} priority />
         </Link>
-        {user ? (
+        {user && !user.is_anonymous ? (
           <form action={signOut}>
             <button
               type="submit"
