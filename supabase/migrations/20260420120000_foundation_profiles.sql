@@ -1,4 +1,4 @@
--- Core identity tables (must exist before 20260421_lab_management_foundation references public.profiles).
+-- Core identity tables (must exist before 20260421120010_lab_management_foundation references public.profiles).
 -- Safe to re-run: creates objects only if missing.
 
 create extension if not exists pgcrypto;

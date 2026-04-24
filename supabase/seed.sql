@@ -1,5 +1,8 @@
 -- LabLink — development seed (abundant data for non-empty pages)
--- Run: `supabase db reset` (local) or paste into the Supabase SQL editor (dashboard).
+-- PREREQUISITE: Apply ALL migrations in supabase/migrations/ (timestamp order) first.
+--   This file does NOT create tables (e.g. public.profiles). Without migrations you get:
+--   ERROR: relation "public.profiles" does not exist
+-- Run: `supabase db reset` (local) or paste migrations then this file into the SQL editor (hosted).
 -- All test accounts use password: SeedPass123!  (8+ chars for Supabase)
 --
 -- Demo personas (pre-med / translational IO): see end of file —
@@ -91,6 +94,24 @@ set
   email_change_token_new = coalesce(email_change_token_new, ''),
   recovery_token = coalesce(recovery_token, '')
 where email like '%@lablink-seed.test';
+
+-- Fail fast with a clear message if migrations were not applied first (RLS is unrelated to this error).
+do $prereq$
+begin
+  if not exists (
+    select 1
+    from information_schema.tables
+    where table_schema = 'public'
+      and table_name = 'profiles'
+  ) then
+    raise exception
+      'LabLink seed requires the database schema from supabase/migrations/. '
+      || 'public.profiles is missing. In the SQL editor, run ALL migration .sql files in timestamp order '
+      || '(start with migrations: first file 20260420120000_foundation_profiles.sql), then run this seed again. '
+      || 'See comment block at top of seed.sql.';
+  end if;
+end
+$prereq$;
 
 -- --- Profiles (idempotent upsert)
 insert into public.profiles (id, role, display_name, email, onboarding_complete, is_verified)
