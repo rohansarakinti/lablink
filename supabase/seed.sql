@@ -2,6 +2,10 @@
 -- Run: `supabase db reset` (local) or paste into the Supabase SQL editor (dashboard).
 -- All test accounts use password: SeedPass123!  (8+ chars for Supabase)
 --
+-- Demo personas (pre-med / translational IO): see end of file —
+--   professor.smith@lablink-demo.test, anushka.bakshi@lablink-demo.test (+ synthetic applicants; not for login).
+--   Resume/CV source text: docs/seed/anushka-bakshi-resume.md, docs/seed/professor-smith-cv.md
+--
 -- Emails: profNN@lablink-seed.test (12), studentNN@lablink-seed.test (24)
 -- NOTE: If auth.users insert fails (hosted project policies), create matching users
 --   in Auth → Users with the same emails, then re-run the section marked "PUBLIC DATA ONLY"
@@ -429,5 +433,758 @@ begin
   end loop;
 end
 $lab$;
+
+-- ---------------------------------------------------------------------------
+-- Demo personas: Professor Smith + Anushka Bakshi (pre-med / translational IO)
+-- Log in: professor.smith@lablink-demo.test / anushka.bakshi@lablink-demo.test
+-- Password (same as other seed users): SeedPass123!
+-- Long-form resume/CV text: docs/seed/anushka-bakshi-resume.md and professor-smith-cv.md
+-- Embeddings: null here; run your generate-embedding pipeline (or open profiles in-app)
+--   so vector_match_* + LLM rerank reflect the rich text below.
+-- Applicant pool for Smith's posting uses only UUIDs >= e222... so lexicographic tie-break
+--   favors Anushka when embeddings are still null.
+-- ---------------------------------------------------------------------------
+
+-- Professor Smith
+insert into auth.users (
+  id, instance_id, aud, role, email, encrypted_password,
+  email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+  created_at, updated_at, is_sso_user, is_anonymous,
+  confirmation_token, email_change, email_change_token_new, recovery_token
+) values (
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  '00000000-0000-0000-0000-000000000000'::uuid,
+  'authenticated', 'authenticated',
+  'professor.smith@lablink-demo.test',
+  crypt('SeedPass123!', gen_salt('bf')),
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  jsonb_build_object('role', 'professor'),
+  now(), now(), false, false,
+  '', '', '', ''
+) on conflict (id) do nothing;
+
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+select
+  gen_random_uuid(),
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'e1111111-1111-4111-8111-111111111111'::text,
+  jsonb_build_object(
+    'sub', 'e1111111-1111-4111-8111-111111111111'::text,
+    'email', 'professor.smith@lablink-demo.test',
+    'email_verified', true,
+    'phone_verified', false
+  ),
+  'email', now(), now(), now()
+where not exists (
+  select 1 from auth.identities where user_id = 'e1111111-1111-4111-8111-111111111111'::uuid
+);
+
+-- Anushka Bakshi
+insert into auth.users (
+  id, instance_id, aud, role, email, encrypted_password,
+  email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+  created_at, updated_at, is_sso_user, is_anonymous,
+  confirmation_token, email_change, email_change_token_new, recovery_token
+) values (
+  'e2222222-2222-4222-8222-222222222222'::uuid,
+  '00000000-0000-0000-0000-000000000000'::uuid,
+  'authenticated', 'authenticated',
+  'anushka.bakshi@lablink-demo.test',
+  crypt('SeedPass123!', gen_salt('bf')),
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  jsonb_build_object('role', 'student'),
+  now(), now(), false, false,
+  '', '', '', ''
+) on conflict (id) do nothing;
+
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+select
+  gen_random_uuid(),
+  'e2222222-2222-4222-8222-222222222222'::uuid,
+  'e2222222-2222-4222-8222-222222222222'::text,
+  jsonb_build_object(
+    'sub', 'e2222222-2222-4222-8222-222222222222'::text,
+    'email', 'anushka.bakshi@lablink-demo.test',
+    'email_verified', true,
+    'phone_verified', false
+  ),
+  'email', now(), now(), now()
+where not exists (
+  select 1 from auth.identities where user_id = 'e2222222-2222-4222-8222-222222222222'::uuid
+);
+
+-- Synthetic applicants (weak match for immuno-oncology RA) — UUIDs sort after Anushka for embedding-null tie-break
+
+insert into auth.users (
+  id, instance_id, aud, role, email, encrypted_password,
+  email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+  created_at, updated_at, is_sso_user, is_anonymous,
+  confirmation_token, email_change, email_change_token_new, recovery_token
+) values
+  (
+    'e9999999-9999-4999-8999-999999999901'::uuid,
+    '00000000-0000-0000-0000-000000000000'::uuid,
+    'authenticated', 'authenticated',
+    'seed.applicant.io1@lablink-demo.test',
+    crypt('SeedPass123!', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    jsonb_build_object('role', 'student'),
+    now(), now(), false, false,
+    '', '', '', ''
+  ),
+  (
+    'e9999999-9999-4999-8999-999999999902'::uuid,
+    '00000000-0000-0000-0000-000000000000'::uuid,
+    'authenticated', 'authenticated',
+    'seed.applicant.io2@lablink-demo.test',
+    crypt('SeedPass123!', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    jsonb_build_object('role', 'student'),
+    now(), now(), false, false,
+    '', '', '', ''
+  ),
+  (
+    'e9999999-9999-4999-8999-999999999903'::uuid,
+    '00000000-0000-0000-0000-000000000000'::uuid,
+    'authenticated', 'authenticated',
+    'seed.applicant.io3@lablink-demo.test',
+    crypt('SeedPass123!', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    jsonb_build_object('role', 'student'),
+    now(), now(), false, false,
+    '', '', '', ''
+  )
+on conflict (id) do nothing;
+
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+select gen_random_uuid(), u.id, u.id::text,
+  jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true, 'phone_verified', false),
+  'email', now(), now(), now()
+from auth.users u
+where u.email in (
+  'seed.applicant.io1@lablink-demo.test',
+  'seed.applicant.io2@lablink-demo.test',
+  'seed.applicant.io3@lablink-demo.test'
+)
+and not exists (select 1 from auth.identities i where i.user_id = u.id);
+
+update auth.users
+set
+  confirmation_token = coalesce(confirmation_token, ''),
+  email_change = coalesce(email_change, ''),
+  email_change_token_new = coalesce(email_change_token_new, ''),
+  recovery_token = coalesce(recovery_token, '')
+where email in (
+  'professor.smith@lablink-demo.test',
+  'anushka.bakshi@lablink-demo.test',
+  'seed.applicant.io1@lablink-demo.test',
+  'seed.applicant.io2@lablink-demo.test',
+  'seed.applicant.io3@lablink-demo.test'
+);
+
+insert into public.profiles (id, role, display_name, email, onboarding_complete, is_verified)
+values
+  ('e1111111-1111-4111-8111-111111111111'::uuid, 'professor', 'Professor Jordan Smith', 'professor.smith@lablink-demo.test', true, true),
+  ('e2222222-2222-4222-8222-222222222222'::uuid, 'student', 'Anushka Bakshi', 'anushka.bakshi@lablink-demo.test', true, true),
+  ('e9999999-9999-4999-8999-999999999901'::uuid, 'student', 'Seed Applicant (CS)', 'seed.applicant.io1@lablink-demo.test', true, true),
+  ('e9999999-9999-4999-8999-999999999902'::uuid, 'student', 'Seed Applicant (Robotics)', 'seed.applicant.io2@lablink-demo.test', true, true),
+  ('e9999999-9999-4999-8999-999999999903'::uuid, 'student', 'Seed Applicant (Design)', 'seed.applicant.io3@lablink-demo.test', true, true)
+on conflict (id) do update set
+  display_name = excluded.display_name,
+  email = excluded.email,
+  onboarding_complete = excluded.onboarding_complete;
+
+insert into public.professor_profiles (
+  id, full_name, title, university, department, office_location,
+  research_fields, research_keywords, research_summary,
+  preferred_majors, preferred_student_year, mentorship_style, lab_culture,
+  profile_visibility, notify_new_applications, notify_weekly_digest,
+  lab_website, google_scholar_url, orcid, preferred_experience_level
+) values (
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'Jordan A. Smith, Ph.D.',
+  'Associate Professor of Molecular Medicine & Immunology',
+  'Summit State University',
+  'Department of Molecular Medicine (joint: Immunology)',
+  'Biomedical Research Tower 6-412',
+  array[
+    'translational oncology',
+    'tumor immunology',
+    'tumor microenvironment',
+    'immune checkpoint therapy',
+    'biomarkers',
+    'myeloid biology',
+    'physician-scientist training'
+  ],
+  array[
+    'flow cytometry',
+    'multiplex elisa',
+    'mouse tumor models',
+    'cd8 t cell exhaustion',
+    'mdsc',
+    'tumor-associated macrophages',
+    'irb',
+    'r',
+    'python',
+    'pre-med mentorship'
+  ],
+  'The Smith lab maps myeloid and CD8 dynamics in the tumor microenvironment to actionable immunotherapy biomarkers. '
+  || 'We combine mouse models, human biospecimens, multiplex immunoassays, and reproducible R/Python pipelines. '
+  || 'We strongly mentor undergraduates pursuing MD, MD/PhD, or PhD training with structured wet-lab training in cell culture, ELISA, and flow cytometry.',
+  array['Molecular Biology', 'Biochemistry', 'Immunology', 'Global Health', 'Neuroscience'],
+  array['junior', 'senior'],
+  array['structured weekly 1:1s', 'journal club', 'figure drafting workshops', 'authorship when criteria met'],
+  array['collaborative', 'rigorous', 'team science', 'patient-centered framing'],
+  'public',
+  true,
+  true,
+  'https://labs.summitstate.example/smith-immuno-oncology',
+  'https://scholar.google.com/example/smith-immuno',
+  '0000-0002-0000-0002',
+  'prior coursework in immunology or cell biology preferred; committed pre-med researchers welcome.'
+)
+on conflict (id) do update set
+  full_name = excluded.full_name,
+  title = excluded.title,
+  university = excluded.university,
+  department = excluded.department,
+  research_fields = excluded.research_fields,
+  research_keywords = excluded.research_keywords,
+  research_summary = excluded.research_summary,
+  preferred_majors = excluded.preferred_majors,
+  preferred_student_year = excluded.preferred_student_year;
+
+insert into public.student_profiles (
+  id, full_name, university, year, major, minor, gpa, is_gpa_visible,
+  research_fields, research_topics, ranked_interests, skills, programming_languages,
+  lab_equipment, software_tools, prior_experience, experience_details,
+  experience_types, motivations, priorities, relevant_courses, role_types_sought,
+  time_commitment, paid_preference, start_availability,
+  honors_or_awards, publications, willing_to_volunteer,
+  graduation_month, graduation_year, parsed_courses
+) values (
+  'e2222222-2222-4222-8222-222222222222'::uuid,
+  'Anushka Bakshi',
+  'Summit State University',
+  'junior',
+  array['Molecular Biology', 'Global Health'],
+  array['South Asian Studies'],
+  3.91,
+  true,
+  array[
+    'translational oncology',
+    'tumor immunology',
+    'tumor microenvironment',
+    'immunotherapy biomarkers',
+    'clinical research',
+    'health disparities'
+  ],
+  array[
+    'myeloid infiltrates and cd8 exhaustion in syngeneic mouse models',
+    'multicolor flow cytometry panels for checkpoint therapy studies',
+    'elisa cytokine profiling ifn-gamma tnf-alpha il-6',
+    'mammalian cell culture thp-1 differentiation primary splenocytes',
+    'irb-trained chart review training cohort no phi retained',
+    'pre-med physician-scientist pathway oncology interest'
+  ],
+  array[
+    'tumor immunology',
+    'wet lab immunoassays',
+    'clinical correlation projects',
+    'community health volunteering',
+    'computational qc for cytometry'
+  ],
+  array[
+    'flow cytometry',
+    'elisa',
+    'cell culture',
+    'aseptic technique',
+    'mouse handling iacuc training',
+    'multiplex immunoassays',
+    'biomarker validation',
+    'irb human subjects citi',
+    'science communication',
+    'mentoring'
+  ],
+  array['r', 'python', 'graphpad prism', 'bash basics'],
+  array['biosafety cabinet', 'flow cytometer', 'plate reader', 'fluorescence microscope', 'centrifuge', 'incubator'],
+  array['quarto', 'redcap training', 'notion', 'latex'],
+  array[
+    'undergraduate tumor microenvironment rotation',
+    'hospital volunteering navigation desk',
+    'emergency department observation',
+    'oncology physician shadowing',
+    'crisis text line volunteer'
+  ],
+  'Co-authors flow gating figures for manuscript in preparation; presented poster on myeloid-rich niches and exhausted CD8 phenotypes '
+  || 'at the Summit State Undergraduate Research Symposium (Apr 2025). Trained on IACUC mouse handling and weekly QC for multicolor panels.',
+  array['hands_on_lab', 'patient_interaction', 'data_analysis', 'shadowing', 'mentorship'],
+  array['med_school_prep', 'lab_experience', 'specific_topic', 'relationships', 'career_exploration'],
+  array['hands_on', 'mentorship', 'patient_exposure'],
+  array[
+    'immunology',
+    'cancer biology',
+    'biochemistry i',
+    'biochemistry ii',
+    'cell biology',
+    'genetics',
+    'epidemiology biostatistics',
+    'clinical research methods',
+    'medical ethics',
+    'organic chemistry'
+  ],
+  array['undergrad_ra', 'summer_full_time'],
+  '10-20',
+  'either',
+  'immediately',
+  'deans list six semesters; regents scholar; summit state undergraduate research grant 2500 usd; goldwater honorable mention',
+  'poster summit state undergraduate research symposium april 2025 myeloid-rich niches exhausted cd8',
+  true,
+  5::smallint,
+  2027::smallint,
+  'immunology a, cancer biology a-, physiology a, cell biology a, genetics a, biochemistry i-ii a range'
+)
+on conflict (id) do update set
+  full_name = excluded.full_name,
+  university = excluded.university,
+  year = excluded.year,
+  major = excluded.major,
+  minor = excluded.minor,
+  gpa = excluded.gpa,
+  research_fields = excluded.research_fields,
+  research_topics = excluded.research_topics,
+  ranked_interests = excluded.ranked_interests,
+  skills = excluded.skills,
+  programming_languages = excluded.programming_languages,
+  lab_equipment = excluded.lab_equipment,
+  software_tools = excluded.software_tools,
+  prior_experience = excluded.prior_experience,
+  experience_details = excluded.experience_details,
+  experience_types = excluded.experience_types,
+  motivations = excluded.motivations,
+  priorities = excluded.priorities,
+  relevant_courses = excluded.relevant_courses,
+  role_types_sought = excluded.role_types_sought,
+  time_commitment = excluded.time_commitment,
+  paid_preference = excluded.paid_preference,
+  start_availability = excluded.start_availability,
+  honors_or_awards = excluded.honors_or_awards,
+  publications = excluded.publications;
+
+insert into public.student_profiles (
+  id, full_name, university, year, major, gpa,
+  research_fields, research_topics, skills, programming_languages,
+  prior_experience, time_commitment, paid_preference, experience_types, motivations, willing_to_volunteer
+) values
+  (
+    'e9999999-9999-4999-8999-999999999901'::uuid,
+    'Alex Chen',
+    'Summit State University',
+    'sophomore',
+    array['Computer Science'],
+    3.45,
+    array['machine learning', 'robotics'],
+    array['slam', 'embedded systems'],
+    array['java', 'c++', 'cad'],
+    array['c++', 'python'],
+    array['FIRST robotics', 'personal projects'],
+    '10-20',
+    'paid',
+    array['data_analysis'],
+    array['career_exploration'],
+    true
+  ),
+  (
+    'e9999999-9999-4999-8999-999999999902'::uuid,
+    'Riley Nguyen',
+    'Harbor College',
+    'junior',
+    array['Mechanical Engineering'],
+    3.20,
+    array['controls', 'materials'],
+    array['composites', 'cfd intro'],
+    array['solidworks', 'matlab', 'machining'],
+    array['matlab'],
+    array['formula student'],
+    '5-10',
+    'either',
+    array['hands_on_lab'],
+    array['specific_topic'],
+    true
+  ),
+  (
+    'e9999999-9999-4999-8999-999999999903'::uuid,
+    'Sam Patel',
+    'Lakeside Institute',
+    'senior',
+    array['Graphic Design'],
+    3.10,
+    array['visual design'],
+    array['branding'],
+    array['figma', 'illustrator', 'photography'],
+    array['typescript'],
+    array['freelance design'],
+    '<5',
+    'unpaid',
+    array['mentorship'],
+    array['relationships'],
+    true
+  )
+on conflict (id) do update set
+  full_name = excluded.full_name,
+  skills = excluded.skills,
+  research_fields = excluded.research_fields;
+
+insert into public.lab_groups (
+  id, slug, name, tagline, description, university, department,
+  website_url, research_fields, research_tags, lab_environment,
+  is_active, created_by
+) values (
+  'e3333333-3333-4333-8333-333333333333'::uuid,
+  'smith-translational-io-summit',
+  'Smith Lab — Translational Immuno-Oncology',
+  'From tumor microenvironment maps to immunotherapy biomarkers — mentoring physician-scientists of tomorrow.',
+  'We study myeloid and CD8 co-evolution in solid tumors using mouse models, human biospecimens, flow cytometry, multiplex ELISA, and reproducible R/Python pipelines. '
+  || 'Undergraduates lead figures for posters and manuscripts, train in IACUC/IRB literacy, and work directly on translational oncology questions aligned with pre-med competencies.',
+  'Summit State University',
+  'Molecular Medicine & Immunology',
+  'https://labs.summitstate.example/smith-immuno-oncology',
+  array[
+    'translational oncology',
+    'tumor immunology',
+    'tumor microenvironment',
+    'immunotherapy',
+    'biomarkers',
+    'flow cytometry',
+    'pre-med research training'
+  ],
+  array[
+    'checkpoint blockade',
+    'myeloid cells',
+    'cd8 exhaustion',
+    'cytokine profiling',
+    'mouse engraftment',
+    'multiplex elisa',
+    'r stats',
+    'python pandas',
+    'irb',
+    'iacuc'
+  ],
+  array['collaborative', 'mentorship_heavy', 'team_science', 'publication_oriented'],
+  true,
+  'e1111111-1111-4111-8111-111111111111'::uuid
+)
+on conflict (id) do update set
+  name = excluded.name,
+  description = excluded.description,
+  research_fields = excluded.research_fields,
+  research_tags = excluded.research_tags;
+
+insert into public.lab_memberships (lab_id, user_id, lab_role, is_active)
+values
+  ('e3333333-3333-4333-8333-333333333333'::uuid, 'e1111111-1111-4111-8111-111111111111'::uuid, 'pi', true)
+on conflict (lab_id, user_id) do nothing;
+
+-- Optional co-manager from seed prof01 for livelier member list
+insert into public.lab_memberships (lab_id, user_id, lab_role, is_active)
+values
+  ('e3333333-3333-4333-8333-333333333333'::uuid, '10000000-0001-4000-8000-000000000001'::uuid, 'lab_manager', true)
+on conflict (lab_id, user_id) do nothing;
+
+-- Role postings: primary RA is worded to align with embedding text fields used in generate-embedding
+insert into public.role_postings (
+  id, lab_id, created_by, title, description, status,
+  application_deadline, member_role, is_paid, hours_per_week, duration, start_date, spots_available,
+  required_skills, preferred_skills, preferred_year, preferred_majors,
+  min_experience, min_gpa, gpa_enforcement, priority_courses, eval_methods, custom_questions
+) values
+(
+  'e4444444-4444-4444-8444-444444444441'::uuid,
+  'e3333333-3333-4333-8333-333333333333'::uuid,
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'Undergraduate RA — Tumor microenvironment, flow cytometry & translational immuno-oncology',
+  'Title: Undergraduate RA — Tumor microenvironment, flow cytometry & translational immuno-oncology. '
+  || 'We seek a junior or senior who can contribute to myeloid and CD8 co-evolution projects in the tumor microenvironment, '
+  || 'including multicolor flow cytometry panels, ELISA cytokine profiling (IFN-gamma, TNF-alpha, IL-6), and mammalian cell culture. '
+  || 'Experience with mouse models under IACUC training is a plus. You will curate QC plots in R (tidyverse, ggplot2) and Python (pandas) '
+  || 'for exploratory analysis of immunotherapy biomarkers. Ideal for pre-med students pursuing physician-scientist training who want '
+  || 'hands-on wet lab work plus structured mentorship toward posters and manuscripts.',
+  'open',
+  '2026-06-15'::date,
+  'undergrad_ra',
+  'either',
+  '10-20',
+  '2 semesters + optional summer',
+  'rolling',
+  2::smallint,
+  array['flow cytometry', 'elisa', 'cell culture'],
+  array['r', 'python', 'immunology', 'biomarker validation', 'mouse handling iacuc training', 'science communication'],
+  array['junior', 'senior'],
+  array['Molecular Biology', 'Biochemistry', 'Immunology', 'Global Health'],
+  'prior_experience',
+  3.50,
+  'holistic',
+  array['immunology', 'cell biology', 'biochemistry'],
+  array['transcript', 'short interview', 'reference letter'],
+  '[
+    {"id":"q1","prompt":"Describe a time you troubleshooted an experiment or quality-control issue.","type":"short_text"},
+    {"id":"q2","prompt":"How does this role connect to your longer-term clinical or research goals?","type":"short_text"}
+  ]'::jsonb
+),
+(
+  'e4444444-4444-4444-8444-444444444442'::uuid,
+  'e3333333-3333-4333-8333-333333333333'::uuid,
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'Volunteer — Clinical correlation literature & biomarker database curation',
+  'Support IRB-approved systematic literature updates on immunotherapy biomarkers (PD-L1, TMB, MSI limitations). '
+  || 'Comfort with PubMed, citation management, and spreadsheet or R/Python wrangling preferred. Good fit for pre-med students building clinical research literacy.',
+  'open',
+  '2026-05-01'::date,
+  'volunteer',
+  'unpaid',
+  '5-10',
+  '1 semester renewable',
+  'next quarter',
+  3::smallint,
+  array['science communication', 'r'],
+  array['python', 'irb human subjects citi'],
+  array['sophomore', 'junior', 'senior'],
+  array['Global Health', 'Molecular Biology'],
+  'intro_courses',
+  3.30,
+  'preferred',
+  array['epidemiology biostatistics', 'clinical research methods'],
+  array['work sample'],
+  '[]'::jsonb
+),
+(
+  'e4444444-4444-4444-8444-444444444443'::uuid,
+  'e3333333-3333-4333-8333-333333333333'::uuid,
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'Postdoc — Spatial myeloid programs (draft)',
+  'Placeholder draft for future hire; not visible to students when closed.',
+  'draft',
+  null,
+  'postdoc',
+  'paid',
+  '20+',
+  '2 years',
+  'fall 2026',
+  1::smallint,
+  array['spatial biology', 'single-cell'],
+  array['python', 'r'],
+  array['graduate'],
+  array['Molecular Biology'],
+  'prior_experience',
+  3.70,
+  'strict',
+  array['advanced immunology'],
+  array['cv', 'talk'],
+  '[]'::jsonb
+)
+on conflict (id) do update set
+  title = excluded.title,
+  description = excluded.description,
+  status = excluded.status;
+
+insert into public.lab_posts (id, lab_id, author_id, caption, tags, is_published)
+values
+(
+  'e5555555-5555-4555-8555-555555555501'::uuid,
+  'e3333333-3333-4333-8333-333333333333'::uuid,
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'Journal club this week: biomarker discordance after PD-1 therapy — residents and undergrads welcome. '
+  || 'We will connect mechanistic mouse data to clinical case discussions (de-identified).',
+  array['journal club', 'immunotherapy biomarkers', 'pre-med', 'tumor microenvironment', 'cd8 t cells'],
+  true
+),
+(
+  'e5555555-5555-4555-8555-555555555502'::uuid,
+  'e3333333-3333-4333-8333-333333333333'::uuid,
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'New cohort incoming: we are prioritizing undergrads with flow + ELISA experience for the translational immuno-oncology RA role. '
+  || 'See open posting — we especially value mentorship fit and clear communication for physician-scientist tracks.',
+  array['hiring', 'flow cytometry', 'elisa', 'undergraduate research', 'translational oncology'],
+  true
+),
+(
+  'e5555555-5555-4555-8555-555555555503'::uuid,
+  'e3333333-3333-4333-8333-333333333333'::uuid,
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'Lab wins internal pilot award for multiplex cytokine profiling core — shout-out to students who standardized QC plots in R/Python.',
+  array['grants', 'multiplex elisa', 'r', 'python', 'team science'],
+  true
+),
+(
+  'e5555555-5555-4555-8555-555555555504'::uuid,
+  'e3333333-3333-4333-8333-333333333333'::uuid,
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'Reminder: all mouse work requires updated IACUC badges + buddy system for tumor measurements.',
+  array['iacuc', 'mouse models', 'training'],
+  true
+)
+on conflict (id) do update set
+  caption = excluded.caption,
+  tags = excluded.tags;
+
+insert into public.lab_follows (student_id, lab_id)
+values ('e2222222-2222-4222-8222-222222222222'::uuid, 'e3333333-3333-4333-8333-333333333333'::uuid)
+on conflict (student_id, lab_id) do nothing;
+
+-- Applications: Smith primary posting (pool crafted for ranking demos)
+insert into public.applications (posting_id, student_id, status, statement, custom_responses)
+values
+(
+  'e4444444-4444-4444-8444-444444444441'::uuid,
+  'e2222222-2222-4222-8222-222222222222'::uuid,
+  'reviewing',
+  'I am applying because your posting mirrors my rotation in tumor microenvironment immunity: multicolor flow for CD3/CD4/CD8/PD-1, '
+  || 'ELISA for IFN-gamma/TNF-alpha/IL-6, and THP-1 / splenocyte processing. I want to deepen biomarker validation skills and contribute to manuscripts '
+  || 'while preparing for MD applications with a physician-scientist focus.',
+  '{"q1":"During flow QC I noticed CD8 counts drifting across batches; I re-titered antibodies and logged instrument settings in a Quarto notebook until MFI stabilized.","q2":"I hope to pair wet-lab immuno-oncology training with longitudinal exposure to how biomarkers inform clinical trial design."}'::jsonb
+),
+(
+  'e4444444-4444-4444-8444-444444444441'::uuid,
+  'e9999999-9999-4999-8999-999999999901'::uuid,
+  'submitted',
+  'I code well and learn fast; interested in bioinformatics side of your projects.',
+  '{}'::jsonb
+),
+(
+  'e4444444-4444-4444-8444-444444444441'::uuid,
+  'e9999999-9999-4999-8999-999999999902'::uuid,
+  'submitted',
+  'Mechanical engineer looking to pivot; willing to build hardware for lab automation.',
+  '{}'::jsonb
+),
+(
+  'e4444444-4444-4444-8444-444444444441'::uuid,
+  'e9999999-9999-4999-8999-999999999903'::uuid,
+  'submitted',
+  'Can help with figures and outreach materials for the lab.',
+  '{}'::jsonb
+)
+on conflict (posting_id, student_id) do update set
+  statement = excluded.statement,
+  status = excluded.status,
+  custom_responses = excluded.custom_responses;
+
+-- Anushka: additional applications for a lively Track tab (open postings from main seed batch)
+insert into public.applications (posting_id, student_id, status, statement, custom_responses)
+select p.id, 'e2222222-2222-4222-8222-222222222222'::uuid,
+  case (row_number() over (order by p.id)) % 4
+    when 0 then 'submitted'
+    when 1 then 'reviewing'
+    when 2 then 'interview'
+    else 'submitted'
+  end,
+  'I am broadly interested in translational work connecting wet lab immuno skills to patient-relevant outcomes; this posting complements my primary immuno-oncology focus.',
+  '{}'::jsonb
+from public.role_postings p
+where p.status = 'open'
+  and p.id <> 'e4444444-4444-4444-8444-444444444441'::uuid
+order by p.created_at desc
+limit 7
+on conflict (posting_id, student_id) do nothing;
+
+-- Notifications
+insert into public.notifications (user_id, type, payload, read)
+values
+(
+  'e2222222-2222-4222-8222-222222222222'::uuid,
+  'new_match',
+  jsonb_build_object(
+    'title', 'Strong match: Smith Lab',
+    'body', 'Your profile aligns with translational immuno-oncology roles — review the open RA posting.'
+  ),
+  false
+),
+(
+  'e2222222-2222-4222-8222-222222222222'::uuid,
+  'application_status_change',
+  jsonb_build_object(
+    'title', 'Application in review',
+    'body', 'Smith Lab moved your RA application to reviewing.',
+    'new_status', 'reviewing',
+    'posting_title', 'Undergraduate RA — Tumor microenvironment, flow cytometry & translational immuno-oncology'
+  ),
+  false
+),
+(
+  'e2222222-2222-4222-8222-222222222222'::uuid,
+  'new_lab_post',
+  jsonb_build_object(
+    'title', 'Smith Lab update',
+    'body', 'New feed post: hiring note for flow + ELISA experience.',
+    'caption_preview', 'New cohort incoming: we are prioritizing undergrads with flow + ELISA experience...'
+  ),
+  true
+),
+(
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'application_submitted',
+  jsonb_build_object(
+    'title', 'New applications',
+    'body', 'Students applied to your translational immuno-oncology RA posting.'
+  ),
+  false
+),
+(
+  'e1111111-1111-4111-8111-111111111111'::uuid,
+  'posting_published',
+  jsonb_build_object(
+    'title', 'Posting live',
+    'body', 'Your undergraduate RA role is open to applicants.',
+    'posting_id', 'e4444444-4444-4444-8444-444444444441'
+  ),
+  true
+);
+
+-- Warm match_cache for Anushka (Explore); recomputed on dashboard if stale
+with picked as (
+  select p.id, p.created_at
+  from public.role_postings p
+  where p.status = 'open'
+  order by
+    case when p.id = 'e4444444-4444-4444-8444-444444444441'::uuid then 0 else 1 end,
+    p.created_at desc
+  limit 14
+),
+ranked as (
+  select
+    id as posting_id,
+    row_number() over (
+      order by
+        case when id = 'e4444444-4444-4444-8444-444444444441'::uuid then 0 else 1 end,
+        created_at desc
+    ) as llm_rank
+  from picked
+)
+insert into public.match_cache (student_id, posting_id, vector_score, llm_rank, llm_reason, computed_at)
+select
+  'e2222222-2222-4222-8222-222222222222'::uuid,
+  r.posting_id,
+  greatest(
+    0.55::float4,
+    (0.92::float4 - (r.llm_rank::float4 - 1.0::float4) * 0.02::float4)
+  ) as vector_score,
+  r.llm_rank::int,
+  case
+    when r.posting_id = 'e4444444-4444-4444-8444-444444444441'::uuid
+    then 'Top match: shared tumor microenvironment, flow cytometry, ELISA, and R/Python stack with explicit pre-med mentorship.'
+    else 'Open role in your research interest graph (seed cache; refresh for live LLM).'
+  end,
+  now()
+from ranked r
+on conflict (student_id, posting_id) do update set
+  vector_score = excluded.vector_score,
+  llm_rank = excluded.llm_rank,
+  llm_reason = excluded.llm_reason,
+  computed_at = excluded.computed_at;
 
 commit;

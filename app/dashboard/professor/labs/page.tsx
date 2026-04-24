@@ -1,4 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 type LabMembershipRow = {
@@ -8,23 +10,10 @@ type LabMembershipRow = {
     name: string;
     tagline: string | null;
     university: string;
+    banner_url: string | null;
+    logo_url: string | null;
   } | null;
 };
-
-const DEFAULT_BANNERS = [
-  "/lab-banners/lab-1.jpg",
-  "/lab-banners/lab-2.jpg",
-  "/lab-banners/lab-3.jpg",
-  "/lab-banners/lab-4.jpg",
-];
-
-function getBanner(labId: string): string {
-  let hash = 0;
-  for (let i = 0; i < labId.length; i++) {
-    hash = labId.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return DEFAULT_BANNERS[Math.abs(hash) % DEFAULT_BANNERS.length];
-}
 
 export default async function ProfessorLabsPage() {
   const supabase = await createClient();
@@ -32,11 +21,16 @@ export default async function ProfessorLabsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect("/auth/sign-in?role=professor");
+  }
+
   const { data: memberships } = await supabase
     .from("lab_memberships")
-    .select("lab_role,lab_groups(id,name,tagline,university)")
-    .eq("user_id", user?.id ?? "")
+    .select("lab_role,lab_groups(id,name,tagline,university,banner_url,logo_url)")
+    .eq("user_id", user.id)
     .eq("is_active", true)
+    .order("joined_at", { ascending: false })
     .returns<LabMembershipRow[]>();
 
   const labs = memberships ?? [];
@@ -76,41 +70,55 @@ export default async function ProfessorLabsPage() {
                 href={`/labs/${membership.lab_groups.id}`}
                 className="group block"
               >
-                <article className="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
-
-                  {/* Fixed-height banner — same for every card */}
-                  <div className="h-48 w-full flex-shrink-0 overflow-hidden bg-zinc-100">
-                    <img
-                      src={getBanner(membership.lab_groups.id)}
-                      alt={membership.lab_groups.name}
-                      className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                    />
+                <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
+                  <div className="relative h-48 w-full shrink-0 overflow-hidden bg-zinc-100">
+                    {membership.lab_groups.banner_url ? (
+                      <Image
+                        src={membership.lab_groups.banner_url}
+                        alt=""
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ll-navy/15 via-zinc-100 to-ll-purple/10">
+                        {membership.lab_groups.logo_url ? (
+                          <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/80 bg-white shadow-md">
+                            <Image
+                              src={membership.lab_groups.logo_url}
+                              alt=""
+                              fill
+                              className="object-cover"
+                              sizes="96px"
+                              unoptimized
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-5xl font-bold text-zinc-400" aria-hidden>
+                            {membership.lab_groups.name.slice(0, 1).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Body — fixed height so all cards are the same total size */}
-                  <div className="p-5 flex flex-col flex-1">
+                  <div className="flex flex-1 flex-col p-5">
                     <p className="inline-flex self-start rounded-full bg-zinc-100 px-2 py-1 text-xs font-semibold uppercase text-zinc-700">
                       {membership.lab_role.replaceAll("_", " ")}
                     </p>
-                    <h2 className="mt-3 text-lg font-semibold text-ll-navy">
-                      {membership.lab_groups.name}
-                    </h2>
-                    <p className="mt-1 text-sm text-zinc-600">
-                      {membership.lab_groups.university}
-                    </p>
+                    <h2 className="mt-3 text-lg font-semibold text-ll-navy">{membership.lab_groups.name}</h2>
+                    <p className="mt-1 text-sm text-zinc-600">{membership.lab_groups.university}</p>
                     {membership.lab_groups.tagline ? (
-                      <p className="mt-2 text-sm text-ll-gray line-clamp-2">
-                        {membership.lab_groups.tagline}
-                      </p>
+                      <p className="mt-2 line-clamp-2 text-sm text-ll-gray">{membership.lab_groups.tagline}</p>
                     ) : null}
-                    {/* Pushes Manage lab to the bottom of every card */}
-                    <span className="mt-auto pt-4 inline-block text-sm font-medium text-ll-navy underline">
+                    <span className="mt-auto inline-block pt-4 text-sm font-medium text-ll-navy underline">
                       Manage lab
                     </span>
                   </div>
                 </article>
               </Link>
-            ) : null
+            ) : null,
           )}
         </div>
       )}
