@@ -108,7 +108,7 @@ export function SearchFilterRow({
                 className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium shadow-sm transition ${
                   count > 0
                     ? "border-ll-purple/60 bg-ll-purple/10 text-ll-navy"
-                    : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300"
+                    : "border-ll-bg bg-ll-bg text-ll-navy hover:brightness-90"
                 }`}
               >
                 <span>{section.label}</span>

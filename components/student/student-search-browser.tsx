@@ -172,28 +172,24 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           style={listColStyle}
         >
         <h2 className="mb-3 shrink-0 text-sm font-semibold uppercase tracking-wide text-zinc-500">Matched opportunities</h2>
-        <div className="min-h-0 flex-1 basis-0 overflow-y-auto overflow-x-hidden pr-1 [scrollbar-gutter:stable]">
+        <div className="min-h-0 flex-1 basis-0 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable]">
           {items.map((item) => {
-            const active = item.postingId === (selected?.postingId ?? "");
             const pct = pctFromScore(item.vectorScore);
             return (
               <button
                 key={item.postingId}
                 type="button"
                 onClick={() => setSelectedId(item.postingId)}
-                className={`rounded-xl border p-3 text-left transition-shadow ${
-                  active
-                    ? "border-ll-purple/50 bg-white shadow-md ring-1 ring-ll-purple/20"
-                    : "border-zinc-200 bg-white hover:border-zinc-300"
-                }`}
+                className="group w-full border-b border-zinc-200 border-l-4 border-l-transparent p-4 pl-3 text-left transition-colors last:border-b-0 hover:border-l-ll-purple hover:bg-white"
               >
-                <p className="text-xs font-semibold text-ll-purple">{pct}% match</p>
-                <p className="mt-1 font-semibold text-ll-navy">{item.title}</p>
-                <p className="mt-1 text-xs text-zinc-600">
-                  {item.labName}
-                  <br />
-                  <span className="text-zinc-500">{item.piName}</span>
-                </p>
+                <span
+                  className="inline-block rounded-full bg-zinc-200 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-600 group-hover:bg-ll-purple group-hover:text-white transition-colors"
+                >
+                  {pct}% match
+                </span>
+                <p className="mt-2 font-bold text-ll-navy leading-snug">{item.title}</p>
+                <p className="mt-1 text-xs font-semibold text-zinc-700">{item.labName}</p>
+                <p className="text-xs text-zinc-500">{item.piName}</p>
                 <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
                   Topic: {item.topic}
                 </p>

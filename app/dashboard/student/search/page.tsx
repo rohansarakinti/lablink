@@ -80,7 +80,7 @@ function uniqueNormalized(values: Array<string | null | undefined>) {
     const normalized = trimmed.toLowerCase();
     if (seen.has(normalized)) continue;
     seen.add(normalized);
-    out.push(trimmed);
+    out.push(trimmed.charAt(0).toUpperCase() + trimmed.slice(1));
   }
   return out;
 }
