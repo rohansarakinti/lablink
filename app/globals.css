@@ -233,6 +233,10 @@
     animation-delay: 300ms;
   }
 
+  .ll-delay-400 {
+    animation-delay: 400ms;
+  }
+
   .ll-float-slow {
     animation: ll-float 7s ease-in-out infinite;
   }

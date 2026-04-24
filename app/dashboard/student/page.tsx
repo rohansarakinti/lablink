@@ -349,33 +349,36 @@ export default async function StudentDashboardPage() {
 
   return (
     <div className="w-full max-w-6xl">
-      <div className="mb-8 md:mb-10">
+      <div className="ll-animate-fade-up mb-8 md:mb-10">
         <h1 className="text-4xl font-bold tracking-tight text-ll-navy sm:text-5xl md:text-6xl">Welcome, {firstName}</h1>
-        <p className="mt-3 max-w-2xl text-base text-zinc-600 sm:text-lg">
+        <p className="ll-animate-fade-up ll-delay-100 mt-3 max-w-2xl text-base text-zinc-600 sm:text-lg">
           Here is your LabLink home base — open roles chosen for you, and tools to run your research search.
         </p>
       </div>
 
       <div className="mb-8 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div className="ll-animate-scale-in ll-delay-100 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Applications</p>
-          <p className="mt-1 text-2xl font-bold text-ll-navy">{appCount}</p>
+          <p className="mt-1 text-2xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{appCount}</p>
         </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div className="ll-animate-scale-in ll-delay-200 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">My labs</p>
-          <p className="mt-1 text-2xl font-bold text-ll-navy">{labCount}</p>
+          <p className="mt-1 text-2xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{labCount}</p>
         </div>
       </div>
 
-      <section className="mb-8">
+      <section className="ll-animate-fade-up ll-delay-200 mb-8">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-ll-navy">
-            <Sparkles className="size-5 text-ll-purple" aria-hidden />
+          <h2 className="group flex items-center gap-2 text-lg font-bold text-ll-navy">
+            <Sparkles
+              className="size-5 text-ll-purple transition-transform duration-300 group-hover:rotate-6"
+              aria-hidden
+            />
             Matched for you
           </h2>
           <Link
             href="/dashboard/student/search"
-            className="text-sm font-medium text-ll-navy underline-offset-2 hover:underline"
+            className="text-sm font-medium text-ll-navy underline-offset-2 transition-all duration-200 hover:underline"
           >
             Search all
           </Link>
@@ -389,10 +392,13 @@ export default async function StudentDashboardPage() {
         )}
       </section>
 
-      <section className="mb-10">
+      <section className="ll-animate-fade-up ll-delay-300 mb-10">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-ll-navy">
-            <Building2 className="size-5 text-ll-purple" aria-hidden />
+          <h2 className="group flex items-center gap-2 text-lg font-bold text-ll-navy">
+            <Building2
+              className="size-5 text-ll-purple transition-transform duration-300 group-hover:-translate-y-0.5"
+              aria-hidden
+            />
             Recommended labs
           </h2>
         </div>
@@ -408,7 +414,7 @@ export default async function StudentDashboardPage() {
         )}
       </section>
 
-      <div className="mb-10 space-y-10">
+      <div className="ll-animate-fade-up ll-delay-400 mb-10 space-y-10">
         <RecentApplicationActivity items={recentActivityItems} />
         <StudentForYouFeed
           posts={forYouFeedPosts}
