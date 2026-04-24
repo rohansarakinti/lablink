@@ -18,23 +18,35 @@ export async function SiteNavbar() {
   } = await supabase.auth.getUser();
 
   return (
-    <header className="bg-ll-purple">
-      <div className="flex w-full items-center justify-between pl-4 pr-6 py-1">
+    <header className="ll-animate-fade-in border-b border-white/15 bg-ll-purple/95 backdrop-blur-sm">
+      <div className="flex w-full items-center justify-between py-1 pl-4 pr-6">
         <Link
           href="/"
           aria-label="Go to home"
-          // className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm"
+          className="group rounded-md transition-transform duration-300 ease-out hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ll-purple"
         >
-          <Image src="/LabLink-Logo_logo-White.svg" alt="LabLink logo" width={100} height={100} priority />
+          <Image
+            src="/LabLink-Logo_logo-White.svg"
+            alt="LabLink logo"
+            width={100}
+            height={100}
+            priority
+            className="transition-opacity duration-300 group-hover:opacity-95"
+          />
         </Link>
         {user && !user.is_anonymous ? (
           <form action={signOut}>
             <button
               type="submit"
               aria-label="Sign out"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/10 text-white hover:bg-white/20"
+              className="group flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/10 text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ll-purple"
             >
-              <CircleUserRound aria-hidden="true" size={24} strokeWidth={1.8} />
+              <CircleUserRound
+                aria-hidden="true"
+                size={24}
+                strokeWidth={1.8}
+                className="transition-transform duration-300 group-hover:scale-105"
+              />
             </button>
           </form>
         ) : null}

@@ -16,7 +16,10 @@ export default function Home() {
         </section>
 
         <section className="mt-10 grid gap-5 md:grid-cols-2">
-          <article className="ll-animate-scale-in ll-delay-100 rounded-3xl bg-ll-purple p-7 text-white shadow-sm transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-xl">
+          <Link
+            href="/auth/sign-in?role=student"
+            className="group ll-animate-scale-in ll-delay-100 rounded-3xl bg-ll-purple p-7 text-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-ll-purple"
+          >
             <p className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
               For scholars
             </p>
@@ -26,22 +29,19 @@ export default function Home() {
               accelerate your academic career.
             </p>
             <div className="mt-10 flex items-center gap-4">
-              <Link
-                href="/auth/sign-in?role=student"
-                className="text-sm font-semibold uppercase transition-opacity duration-200 hover:opacity-85"
-              >
+              <span className="text-sm font-semibold uppercase transition-opacity duration-200 group-hover:opacity-85">
                 Sign in / sign up
-              </Link>
-              <Link
-                href="/auth/sign-in?role=student"
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-white/40 text-base transition-transform duration-200 hover:translate-x-1"
-              >
+              </span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-md border border-white/40 text-base transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105 group-focus-visible:translate-x-1 group-focus-visible:scale-105">
                 →
-              </Link>
+              </span>
             </div>
-          </article>
+          </Link>
 
-          <article className="ll-animate-scale-in ll-delay-200 rounded-3xl bg-gradient-to-r from-[#0d2f3a] to-[#0e3f49] p-7 text-white shadow-sm transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-xl">
+          <Link
+            href="/auth/sign-in?role=professor"
+            className="group ll-animate-scale-in ll-delay-200 rounded-3xl bg-gradient-to-r from-[#0d2f3a] to-[#0e3f49] p-7 text-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d2f3a]"
+          >
             <p className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
               For investigators
             </p>
@@ -51,20 +51,14 @@ export default function Home() {
               highest-caliber students globally.
             </p>
             <div className="mt-10 flex items-center gap-4">
-              <Link
-                href="/auth/sign-in?role=professor"
-                className="text-sm font-semibold uppercase transition-opacity duration-200 hover:opacity-85"
-              >
+              <span className="text-sm font-semibold uppercase transition-opacity duration-200 group-hover:opacity-85">
                 Sign in / sign up
-              </Link>
-              <Link
-                href="/auth/sign-in?role=professor"
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-white/40 text-base transition-transform duration-200 hover:translate-x-1"
-              >
+              </span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-md border border-white/40 text-base transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105 group-focus-visible:translate-x-1 group-focus-visible:scale-105">
                 →
-              </Link>
+              </span>
             </div>
-          </article>
+          </Link>
         </section>
 
         <section className="ll-animate-fade-in ll-delay-300 mt-10 overflow-hidden rounded-3xl">

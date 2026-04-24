@@ -48,7 +48,7 @@ export function SignInForm() {
           type="email"
           required
           placeholder="first.last@university.edu"
-          className="w-full rounded-md border bg-zinc-200 px-4 py-3 text-base"
+          className="w-full rounded-md border border-zinc-200 bg-zinc-100 px-4 py-3 text-base transition-all duration-200 outline-none placeholder:text-zinc-400 hover:border-zinc-300 focus:border-ll-purple focus:bg-white focus:shadow-[0_0_0_3px_rgba(197,147,238,0.2)]"
         />
       </div>
       <div className="space-y-2">
@@ -65,7 +65,7 @@ export function SignInForm() {
           name="password"
           type="password"
           required
-          className="w-full rounded-md border bg-zinc-200 px-4 py-3 text-base"
+          className="w-full rounded-md border border-zinc-200 bg-zinc-100 px-4 py-3 text-base transition-all duration-200 outline-none hover:border-zinc-300 focus:border-ll-purple focus:bg-white focus:shadow-[0_0_0_3px_rgba(197,147,238,0.2)]"
         />
       </div>
 
@@ -74,7 +74,7 @@ export function SignInForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-md bg-ll-purple px-4 py-3 text-sm font-semibold uppercase tracking-wider text-white disabled:opacity-60"
+        className="w-full rounded-md bg-ll-purple px-4 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all duration-300 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ll-purple focus-visible:ring-offset-2 disabled:opacity-60"
       >
         {loading ? "Signing in..." : "Sign in"}
       </button>
@@ -92,7 +92,7 @@ export function SignInForm() {
           const href = role ? `/auth/sign-up?role=${role}` : "/auth/sign-up";
           router.push(href);
         }}
-        className="w-full rounded-md border border-zinc-200 bg-zinc-100 px-4 py-3 text-sm font-semibold uppercase tracking-wider text-zinc-700"
+        className="w-full rounded-md border border-zinc-200 bg-zinc-100 px-4 py-3 text-sm font-semibold uppercase tracking-wider text-zinc-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-zinc-300 hover:bg-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ll-purple focus-visible:ring-offset-2"
       >
         Sign up
       </button>

@@ -20,21 +20,21 @@ export default async function SignUpPage(props: { searchParams: SearchParams }) 
   return (
     <main className="min-h-full bg-[#f2f2f2]">
       <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-6 py-16 lg:grid-cols-[1fr_500px] lg:items-center">
-        <section className="mx-auto max-w-xl">
+        <section className="ll-animate-fade-up mx-auto max-w-xl">
           <Image
             src="/lablinkLogo.svg"
             alt="LabLink"
             width={420}
             height={120}
             priority
-            className="h-auto w-[280px] md:w-[420px]"
+            className="ll-float-slow h-auto w-[280px] md:w-[420px]"
           />
-          <p className="mt-6 text-3xl leading-snug text-zinc-600">
+          <p className="ll-animate-fade-up ll-delay-100 mt-6 text-3xl leading-snug text-zinc-600">
             Create your account and start matching with top research opportunities.
           </p>
         </section>
 
-        <section className="rounded-md bg-white p-9 pr-20">
+        <section className="ll-animate-scale-in ll-delay-100 rounded-md bg-white p-9 pr-20 shadow-sm transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-ll-purple">Sign up</h2>
           <p className="mt-2 text-base text-zinc-500">
             Join as <span className="font-semibold">{role}</span>
