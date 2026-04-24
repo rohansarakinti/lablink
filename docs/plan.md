@@ -75,10 +75,10 @@ capture what is currently live in the codebase.
     (single status updates, reviewer notes, bulk move/reject, recommended ranking tab + profile filters)
   - applicant names in posting review open the student's full profile page (same My Profile layout, read-only)
 - Student dashboard is implemented under `/dashboard/student` with a **layout shell** (left sidebar + top search bar):
-  - **Explore** (`/dashboard/student`): large welcome, stats row, **horizontal scroll of AI-matched open roles** (from `match_cache` + `rankMatchesForStudent` refresh), **Discovery** section (placeholder), CTA to applications
+  - **Explore** (`/dashboard/student`): large welcome; stats row (application count, my-labs count); **Matched for you** — paginated carousel of AI-matched **open roles** (from `match_cache` + `rankMatchesForStudent` refresh); **Recommended labs** — carousel of unique labs derived from the same match pool (deduped, up to 12), each linking to **`/dashboard/student/lab/[labId]`**; **Recent activity** — up to 8 applications ordered by `status_updated_at` with role/lab labels and link to all applications; **For you** — published **`lab_posts`** from followed labs + labs in the match/discover interest set (with **community fallback** when needed); posts sorted with **followed labs first**, then recency; each row uses compact **`LabFeedPostCard`** plus a **right column** of up to **six** open **`role_postings`** for **that post’s lab** with links to **`/postings/[id]`** and “All roles” to the student lab page; **student lab profile** at **`/dashboard/student/lab/[labId]`** — lab metadata, open role list, public feed (reuses feed card with `compact`). The old **Discovery placeholder** and bottom **Upcoming deadlines** promo card are **removed**.
   - **Applications** (`/dashboard/student/applications`): applications list + status
   - **Messaging** (`/dashboard/student/messaging`): placeholder
-  - **Lab management** (`/dashboard/student/labs`): student lab memberships
+  - **Lab management** (`/dashboard/student/labs`): student lab memberships (cards: name, university, role, joined)
   - **My profile** (`/dashboard/student/profile`): full editable profile page (all student fields + file uploads)
   - **Search** (`/dashboard/student/search?q=`): **semantic search** — `generate-embedding` **`query_embed`** → **`vector_match_role_postings_by_embedding`** → same **Gemini JSON re-rank** pattern as profile matching (`rankRolePostingsForSearchQuery` in `lib/matching.ts`); includes URL-backed multi-select filters for research field, role type, paid/unpaid, hours, year preference, and university (compact horizontal dropdown row with popout menus); Edge Function **`verify_jwt = false`** in `supabase/config.toml` for ES256 gateway compatibility
 - Student apply flow baseline is implemented at `/postings/[id]`:
@@ -109,9 +109,11 @@ capture what is currently live in the codebase.
 
 ### Not implemented yet (still roadmap)
 
-- `vector_match_lab_posts` + recommended lab-posts feed, mixed with followed-lab content.
-- Student feed ranking/mix, profile completeness scoring banner, and **Discovery** product (beyond placeholder). Discover-specific FTS integration remains roadmap; current search page uses **vectors + LLM rerank** with filter controls.
-- Social lab posts feed, analytics dashboards, cron reminder/email automation, richer notification UX (beyond application-submit inserts).
+- **`vector_match_lab_posts`** RPC + embedding-based ranking for **lab posts** (the **For you** block on Explore already mixes **followed-lab posts** with posts from interest labs + fallback, but it does **not** use a dedicated vector RPC for post ranking yet).
+- Full **Feed tab** product (single default tab, follow buttons on cards, FTS search over `lab_posts` + `role_postings`, mixed “new listings” stream) and **Discover tab** with filters on the dashboard shell — as described in §8 **Target UX** below; **Search** (`/dashboard/student/search`) already covers discovery-style role search with vectors + LLM rerank.
+- Profile completeness **scoring banner** on the dashboard.
+- Discover-specific **FTS** on the home surface; current search page uses **vectors + LLM rerank** with filter controls.
+- Social features polish: **Follow / Following** on student-facing lab cards, analytics dashboards, cron reminder/email automation, richer notification UX (beyond application-submit inserts).
 
 ### Milestone snapshot
 
@@ -119,15 +121,15 @@ capture what is currently live in the codebase.
 - **Onboarding UX polish (tags, shared multiselects, sizing, required/optional cues):** Implemented
 - **Resume/CV AI autofill path:** Implemented (shared client parse + PDF/LLM timeouts + heuristic fallback)
 - **Lab lifecycle (create lab, postings, applications, memberships):** Implemented
-- **Student dashboard baseline + apply flow baseline:** Implemented
+- **Student dashboard (Explore: matches, recommended labs, activity, For you) + student lab page + apply flow baseline:** Implemented
 - **Vector matching (stage 1 shortlist + stage 2 Gemini re-rank) + `match_cache`:** Implemented
 - **Notifications/analytics/automation:** Partial (application-submit notifications; rest planned)
 
 ### Next recommended implementation order
 
-1. Enrich student Explore/Feed UX: use `llm_rank` / `llm_reason` on home/discover consistently and add profile completeness banner. (Search page already has vector + LLM rerank and filter UI.)
-2. Implement `vector_match_lab_posts` + `getRecommendedPosts` + Feed tab mixed stream.
-3. Add social lab posts feed, analytics, and cron/email automation.
+1. Profile completeness banner on Explore; optionally surface **`llm_reason`** on Matched-for-you cards (cache already stores it). (Search page already has vector + LLM rerank and filter UI.)
+2. Implement **`vector_match_lab_posts`** + wire **`getRecommendedPosts`** (or equivalent) into **For you** for stronger post ranking; add Follow/Following on feed cards and the full **Feed / Discover** tab shell if product still wants that split.
+3. Analytics, cron/email automation, and richer notifications.
 
 ---
 
@@ -1879,9 +1881,9 @@ analytics SDK required.
 
 ### Student Dashboard (`/dashboard/student`)
 
-**Shipped (Apr 2026):** sidebar navigation (Explore, Applications, Messaging, Lab management, My profile), top search → `/dashboard/student/search`, Explore home with matched-role row + Discovery placeholder — see **“Implemented now”** at the top of this doc.
+**Shipped (Apr 2026):** sidebar navigation (Explore, Applications, Messaging, Lab management, My profile), top search → `/dashboard/student/search`, and an **Explore** home with: **Matched for you** (matched open roles), **Recommended labs** (carousels + links to **`/dashboard/student/lab/[labId]`**), **Recent activity** (application status lines by `status_updated_at`), and **For you** (lab post stream with a **sidebar of open roles** per post’s lab, followed-first sort, `lab_posts` + `role_postings` reads) — see **“Implemented now”** at the top of this doc. **`/dashboard/student/lab/[labId]`** is the **student** read-only lab view (info, open postings, public feed). Professor lab management remains under **`/labs/[labId]`** (PI/member context).
 
-**Target UX (below):** original tabbed shell — **Feed · Discover · Applications · My Labs** — plus feed/discover features still largely roadmap.
+**Target UX (below):** original tabbed shell — **Feed · Discover · Applications · My Labs** — a fuller shell than the current single **Explore** scroll; tabbed feed/discover features remain largely roadmap even though key ideas (followed-first posts, open roles) already appear on Explore.
 
 **Profile Completeness Banner**
 
@@ -1952,7 +1954,7 @@ On first visit (embedding not yet generated): skeleton loader with copy
 **My Labs Tab** (`/dashboard/student/labs`)
 - Cards for each lab the student has been accepted into
 - Shows: lab name, logo, student's role within the lab, date joined
-- Click → `/labs/[labId]` (read-only member view: Overview + Members tabs only)
+- Browsing a lab as a **student** (not the professor shell): use **`/dashboard/student/lab/[labId]`** (overview-style: lab info, open roles, public feed). **`/labs/[labId]`** is the **lab management** UI for professors/lab members (sidebar layout + `getLabContext` gate), not the default student discovery path.
 
 ### Apply Flow
 
@@ -2321,9 +2323,10 @@ Custom components (no shadcn equivalent) in `components/`:
 /onboarding/student                                6-step student wizard (`wizard.tsx` + `actions.ts`)
 /onboarding/professor                              5-step professor wizard (`wizard.tsx` + `actions.ts`)
 
-/dashboard/student                                 Explore home (matched roles row + discovery placeholder)
+/dashboard/student                                 Explore home: Matched for you, Recommended labs, Recent activity, For you (posts + per-post open roles)
 /dashboard/student/search                          Semantic role search (?q=)
 /dashboard/student/applications                      Applications list
+/dashboard/student/lab/[labId]                     Student lab profile: lab info, open `role_postings`, public `lab_posts` feed
 /dashboard/student/labs                            Student lab memberships ("Lab management")
 /dashboard/student/messaging                       Placeholder
 /dashboard/student/profile                         Full student profile (all `student_profiles` + identity fields; file uploads for avatar, resume, transcript — no user-entered file URLs in UI)
@@ -2449,11 +2452,11 @@ lablink/
 7. Lab management: Members tab, Postings list, Create/Edit Posting form
 8. Posting detail page + Apply modal + application Server Action
 9. Professor applicant review: table, drawer, status update + `handle_application_accepted` trigger verification
-10. Student dashboard: Profile Completeness banner (`computeProfileCompleteness()`) + My Applications (Realtime, deadline chips) + My Labs + Discover tabs
+10. Student dashboard: **Explore** home (match carousel, recommended labs, recent activity, For you + `/dashboard/student/lab/[labId]`) — **shipped in current form**; Profile Completeness banner, Applications Realtime + deadline chips, and a dedicated **Discover** tab on the dashboard are still partial vs this bullet
 11. Lab following: `lab_follows` table + Follow/Unfollow Server Action + feed prioritisation of followed-lab content + `posting_published` / `new_lab_post` notifications to followers
 12. Lab Posts: Create/Edit Post form + media upload to `post-media` bucket + lab posts management tab + public permalink
 13. Edge Function: `generate-embedding` with `student_profiles`, `role_postings`, and `lab_posts` branches + all three DB webhooks
-14. Vector feed: `vector_match_role_postings` RPC + `rankMatchesForStudent` Gemini call + Discover tab; `vector_match_lab_posts` RPC + `getRecommendedPosts` + Feed tab (mixed stream, followed labs first)
+14. Vector feed: `vector_match_role_postings` + `rankMatchesForStudent` — **implemented** on Explore; `lab_posts` “For you” on Explore uses **followed + interest-lab** posts (and fallback), not yet `vector_match_lab_posts` / `getRecommendedPosts` as specified in design notes; full Feed/Discover **tab** UI still partial
 15. Search: unified search bar querying both `role_postings.fts` and `lab_posts.fts`, merged result set
 16. Pipeline analytics: aggregation queries for application funnel, skills gap, follower growth, post views counter + `/labs/[labId]/analytics` page
 17. Deadline reminders: `deadline-reminders` Edge Function + `pg_cron` daily schedule + `deadline_reminder` notification type

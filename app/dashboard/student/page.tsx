@@ -3,7 +3,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { rankMatchesForStudent } from "@/lib/matching";
 import { MatchedForYouCarousel } from "@/components/student/matched-for-you-carousel";
-import { CalendarDays, Compass, Sparkles } from "lucide-react";
+import { RecommendedLabsCarousel, type RecommendedLabItem } from "@/components/student/recommended-labs-carousel";
+import { RecentApplicationActivity, type ApplicationActivityItem } from "@/components/student/recent-application-activity";
+import {
+  StudentForYouFeed,
+  type ForYouFeedLabPosting,
+  type ForYouFeedPost,
+} from "@/components/student/student-for-you-feed";
+import { Building2, Sparkles } from "lucide-react";
 
 function pctFromScore(score: number) {
   return Math.min(100, Math.max(0, Math.round(score * 100)));
@@ -91,10 +98,30 @@ export default async function StudentDashboardPage() {
 
   const { data: applications } = await supabase
     .from("applications")
-    .select("id,posting_id,status,created_at")
+    .select("id,posting_id,status,created_at,status_updated_at")
     .eq("student_id", user.id)
     .order("created_at", { ascending: false })
-    .returns<Array<{ id: string; posting_id: string; status: string; created_at: string }>>();
+    .returns<
+      Array<{ id: string; posting_id: string; status: string; created_at: string; status_updated_at: string }>
+    >();
+
+  const appPostingIdList = Array.from(new Set((applications ?? []).map((a) => a.posting_id)));
+  const { data: applicationPostings } =
+    appPostingIdList.length === 0
+      ? { data: [] as Array<{ id: string; title: string; lab_id: string; lab_groups: { name: string; logo_url: string | null } | null }> }
+      : await supabase
+          .from("role_postings")
+          .select("id, title, lab_id, lab_groups ( name, logo_url )")
+          .in("id", appPostingIdList)
+          .returns<
+            Array<{
+              id: string;
+              title: string;
+              lab_id: string;
+              lab_groups: { name: string; logo_url: string | null } | null;
+            }>
+          >();
+  const applicationPostingById = new Map((applicationPostings ?? []).map((p) => [p.id, p]));
 
   const { data: myLabs } = await supabase
     .from("lab_memberships")
@@ -140,6 +167,181 @@ export default async function StudentDashboardPage() {
       matchPct,
     };
   });
+
+  const recommendedLabItems: RecommendedLabItem[] = [];
+  const seenLabIds = new Set<string>();
+  const maxRecommendedLabs = 12;
+  const pushLabFromPosting = (posting: (typeof discoverPool)[0]) => {
+    if (seenLabIds.has(posting.lab_id)) return;
+    seenLabIds.add(posting.lab_id);
+    const meta = matchMetaByPostingId.get(posting.id);
+    const matchPct = meta?.vector_score != null ? pctFromScore(meta.vector_score) : null;
+    const topic =
+      (posting.lab_groups?.research_fields && posting.lab_groups.research_fields[0]) || "Research";
+    recommendedLabItems.push({
+      id: posting.lab_id,
+      name: posting.lab_groups?.name ?? "Lab",
+      university: posting.lab_groups?.university ?? null,
+      topic: String(topic),
+      matchPct,
+    });
+  };
+  for (const posting of discoverItems) {
+    if (recommendedLabItems.length >= maxRecommendedLabs) break;
+    pushLabFromPosting(posting);
+  }
+  if (recommendedLabItems.length < maxRecommendedLabs) {
+    for (const posting of discoverPool) {
+      if (recommendedLabItems.length >= maxRecommendedLabs) break;
+      pushLabFromPosting(posting);
+    }
+  }
+
+  const recentActivityItems: ApplicationActivityItem[] = [...(applications ?? [])]
+    .sort((a, b) => new Date(b.status_updated_at).getTime() - new Date(a.status_updated_at).getTime())
+    .slice(0, 8)
+    .map((a) => {
+      const p = applicationPostingById.get(a.posting_id);
+      const lab = p?.lab_groups;
+      return {
+        id: a.id,
+        status: a.status,
+        statusUpdatedAt: a.status_updated_at,
+        roleTitle: p?.title ?? "Role posting",
+        labName: lab?.name ?? "Lab",
+        labLogoUrl: lab?.logo_url ?? null,
+      };
+    });
+
+  const { data: followRows } = await supabase
+    .from("lab_follows")
+    .select("lab_id")
+    .eq("student_id", user.id);
+  const followedLabIds = new Set((followRows ?? []).map((r) => r.lab_id));
+
+  const interestLabIdList: string[] = [];
+  const pushUniqueLab = (id: string) => {
+    if (id && !interestLabIdList.includes(id)) interestLabIdList.push(id);
+  };
+  for (const id of followedLabIds) {
+    pushUniqueLab(id);
+  }
+  for (const lab of recommendedLabItems) {
+    pushUniqueLab(lab.id);
+  }
+  for (const row of discoverItems) {
+    pushUniqueLab(row.lab_id);
+  }
+  const interestCap = interestLabIdList.slice(0, 24);
+
+  type ForYouPostRow = {
+    id: string;
+    lab_id: string;
+    caption: string;
+    media: { url: string; type: string; alt?: string }[] | null;
+    created_at: string;
+    author_id: string;
+    lab_groups: { name: string; logo_url: string | null } | { name: string; logo_url: string | null }[] | null;
+    profiles:
+      | { display_name: string | null; avatar_url: string | null }
+      | { display_name: string | null; avatar_url: string | null }[]
+      | null;
+  };
+  const one = <T,>(r: T | T[] | null | undefined) => (Array.isArray(r) ? (r[0] ?? null) : r ?? null);
+
+  let interestList: ForYouPostRow[] = [];
+  if (interestCap.length > 0) {
+    const { data: interest } = await supabase
+      .from("lab_posts")
+      .select(
+        "id, lab_id, caption, media, created_at, author_id, lab_groups ( name, logo_url ), profiles ( display_name, avatar_url )",
+      )
+      .in("lab_id", interestCap)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .limit(40)
+      .returns<ForYouPostRow[]>();
+    interestList = interest ?? [];
+  }
+
+  let communityList: ForYouPostRow[] = [];
+  if (interestList.length === 0) {
+    const { data: community } = await supabase
+      .from("lab_posts")
+      .select(
+        "id, lab_id, caption, media, created_at, author_id, lab_groups ( name, logo_url ), profiles ( display_name, avatar_url )",
+      )
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .returns<ForYouPostRow[]>();
+    communityList = community ?? [];
+  }
+
+  const rawFeed: ForYouPostRow[] = interestList.length > 0 ? interestList : communityList;
+  const isBroadCommunityFeed = interestList.length === 0;
+
+  const forYouFeedPosts: ForYouFeedPost[] = [...rawFeed]
+    .sort((a, b) => {
+      const af = followedLabIds.has(a.lab_id) ? 1 : 0;
+      const bf = followedLabIds.has(b.lab_id) ? 1 : 0;
+      if (af !== bf) {
+        return bf - af;
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    })
+    .slice(0, 12)
+    .map((r) => {
+      const lab = one(r.lab_groups);
+      const prof = one(r.profiles);
+      const media = Array.isArray(r.media) ? r.media : [];
+      return {
+        id: r.id,
+        labId: r.lab_id,
+        caption: r.caption,
+        media,
+        createdAt: r.created_at,
+        labName: lab?.name ?? "Lab",
+        labLogoUrl: lab?.logo_url ?? null,
+        authorDisplayName: prof?.display_name ?? null,
+        authorAvatarUrl: prof?.avatar_url ?? null,
+      };
+    });
+
+  const forYouLabIds = Array.from(new Set(forYouFeedPosts.map((p) => p.labId)));
+  const forYouOpenPostingsByLabId: Record<string, ForYouFeedLabPosting[]> = Object.fromEntries(
+    forYouLabIds.map((id) => [id, [] as ForYouFeedLabPosting[]]),
+  );
+  if (forYouLabIds.length > 0) {
+    type ForYouOpenPostingRow = {
+      id: string;
+      lab_id: string;
+      title: string;
+      application_deadline: string | null;
+      created_at: string;
+    };
+    const { data: openForFeedLabs } = await supabase
+      .from("role_postings")
+      .select("id, lab_id, title, application_deadline, created_at")
+      .in("lab_id", forYouLabIds)
+      .eq("status", "open")
+      .returns<ForYouOpenPostingRow[]>();
+    const byLab = new Map<string, ForYouOpenPostingRow[]>();
+    for (const row of openForFeedLabs ?? []) {
+      if (!byLab.has(row.lab_id)) {
+        byLab.set(row.lab_id, []);
+      }
+      byLab.get(row.lab_id)!.push(row);
+    }
+    for (const [labId, rows] of byLab) {
+      rows.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      forYouOpenPostingsByLabId[labId] = rows.slice(0, 6).map((r) => ({
+        id: r.id,
+        title: r.title,
+        applicationDeadline: r.application_deadline,
+      }));
+    }
+  }
 
   const firstName = (profile?.display_name ?? profile?.email ?? "there").split(/\s+/)[0] ?? "there";
   const appCount = (applications ?? []).length;
@@ -187,33 +389,33 @@ export default async function StudentDashboardPage() {
         )}
       </section>
 
-      <section className="mb-10 rounded-2xl border-2 border-dashed border-ll-purple/30 bg-ll-bg/50 p-8 text-center">
-        <h2 className="flex items-center justify-center gap-2 text-lg font-bold text-ll-navy">
-          <Compass className="size-5" />
-          Discovery
-        </h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-zinc-600">
-          Browsing and recommendations beyond your profile matches are on the way. You will be able to explore labs by field,
-          university, and more.
+      <section className="mb-10">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-ll-navy">
+            <Building2 className="size-5 text-ll-purple" aria-hidden />
+            Recommended labs
+          </h2>
+        </div>
+        <p className="mb-3 max-w-2xl text-sm text-zinc-600">
+          Labs surfaced from the same match scores as your role suggestions — explore their profile, open roles, and public feed in one place.
         </p>
-        <p className="mt-3 text-xs text-zinc-500">This section is a placeholder for upcoming discovery features.</p>
+        {recommendedLabItems.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-sm text-zinc-600">
+            No lab suggestions yet. Complete your profile and check back, or use Search to find opportunities.
+          </div>
+        ) : (
+          <RecommendedLabsCarousel items={recommendedLabItems} />
+        )}
       </section>
 
-      <section className="rounded-2xl border border-zinc-200 bg-gradient-to-br from-white to-zinc-50/80 p-6 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-bold text-ll-navy">Upcoming deadlines</h2>
-            <p className="text-sm text-zinc-600">Track applications from the Applications page.</p>
-          </div>
-          <Link
-            href="/dashboard/student/applications"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-ll-navy px-4 py-2.5 text-sm font-semibold text-white"
-          >
-            <CalendarDays className="size-4" />
-            View applications
-          </Link>
-        </div>
-      </section>
+      <div className="mb-10 space-y-10">
+        <RecentApplicationActivity items={recentActivityItems} />
+        <StudentForYouFeed
+          posts={forYouFeedPosts}
+          emptyFromFallback={isBroadCommunityFeed}
+          openPostingsByLabId={forYouOpenPostingsByLabId}
+        />
+      </div>
     </div>
   );
 }
