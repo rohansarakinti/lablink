@@ -17,7 +17,7 @@ const roles = [
 
 export default function RoleSelectPage() {
   return (
-    <main className="min-h-screen w-full bg-[#f2f2f2] px-6 py-16">
+    <main className="min-h-screen w-full px-6 py-16">
       <div className="mx-auto flex w-full max-w-5xl flex-col justify-center gap-8">
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-semibold text-ll-navy">Choose your role</h1>

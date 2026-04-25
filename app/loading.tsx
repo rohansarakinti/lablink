@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center bg-[#f2f2f2] px-6 py-14">
+    <div className="flex min-h-[50vh] items-center justify-center px-6 py-14">
       <div
         role="status"
         aria-live="polite"

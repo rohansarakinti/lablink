@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="min-h-full bg-[#f2f2f2]">
+    <div className="min-h-full">
       <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-8">
         <section className="ll-animate-fade-up">
           <h1 className="whitespace-nowrap text-[clamp(1.4rem,5vw,4.5rem)] font-bold leading-tight text-black">

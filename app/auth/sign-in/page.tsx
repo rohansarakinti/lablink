@@ -15,7 +15,7 @@ export default async function SignInPage(props: { searchParams: SearchParams }) 
   const role = getRoleLabel(searchParams.role);
 
   return (
-    <main className="min-h-screen w-full bg-[#f2f2f2]">
+    <main className="min-h-screen w-full">
       <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-6 py-16 lg:grid-cols-[1fr_500px] lg:items-center">
         <section className="ll-animate-fade-up mx-auto max-w-xl">
           <Image

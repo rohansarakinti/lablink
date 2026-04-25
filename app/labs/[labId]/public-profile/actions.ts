@@ -16,26 +16,6 @@ function toList(value: FormDataEntryValue | null) {
     .filter(Boolean);
 }
 
-async function uploadLabAsset(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
-  labId: string,
-  file: FormDataEntryValue | null,
-  kind: "banner" | "logo" | "gallery",
-) {
-  if (!(file instanceof File) || file.size === 0) return null;
-  const extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const filePath = `${userId}/lab-${kind}/${labId}/${crypto.randomUUID()}.${extension}`;
-  const { error } = await supabase.storage.from("lab-assets").upload(filePath, file, {
-    cacheControl: "3600",
-    upsert: false,
-    contentType: file.type || undefined,
-  });
-  if (error) return null;
-  const { data } = supabase.storage.from("lab-assets").getPublicUrl(filePath);
-  return data.publicUrl;
-}
-
 export async function saveLabPublicProfile(formData: FormData) {
   const supabase = await createClient();
   const {
@@ -69,16 +49,13 @@ export async function saveLabPublicProfile(formData: FormData) {
     .eq("id", labId)
     .maybeSingle<{ banner_url: string | null; logo_url: string | null; gallery_urls: string[] }>();
 
-  const uploadedBanner = await uploadLabAsset(supabase, user.id, labId, formData.get("banner_file"), "banner");
-  const uploadedLogo = await uploadLabAsset(supabase, user.id, labId, formData.get("logo_file"), "logo");
-
-  const galleryUploads = await Promise.all(
-    formData.getAll("gallery_files").map((entry) => uploadLabAsset(supabase, user.id, labId, entry, "gallery")),
-  );
-  const freshGallery = galleryUploads.filter((url): url is string => Boolean(url));
-  const existingGallery = Array.isArray(existing?.gallery_urls) ? existing.gallery_urls : [];
-  const preserveExistingGallery = String(formData.get("preserve_existing_gallery") ?? "true") !== "false";
-  const galleryUrls = (preserveExistingGallery ? [...existingGallery, ...freshGallery] : freshGallery).slice(0, 8);
+  const bannerUrlFromForm = toNullableText(formData.get("banner_url"));
+  const logoUrlFromForm = toNullableText(formData.get("logo_url"));
+  const galleryUrls = formData
+    .getAll("gallery_urls")
+    .map((v) => String(v).trim())
+    .filter(Boolean)
+    .slice(0, 8);
 
   await supabase
     .from("lab_groups")
@@ -86,8 +63,8 @@ export async function saveLabPublicProfile(formData: FormData) {
       tagline: toNullableText(formData.get("tagline")),
       description: toNullableText(formData.get("description")),
       website_url: toNullableText(formData.get("website_url")),
-      banner_url: uploadedBanner || existing?.banner_url || null,
-      logo_url: uploadedLogo || existing?.logo_url || null,
+      banner_url: bannerUrlFromForm ?? existing?.banner_url ?? null,
+      logo_url: logoUrlFromForm ?? existing?.logo_url ?? null,
       research_fields: toList(formData.get("research_fields")),
       research_tags: toList(formData.get("research_tags")),
       student_fit: toNullableText(formData.get("student_fit")),
