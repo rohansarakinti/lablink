@@ -165,22 +165,6 @@ export default async function ProfessorDashboardPage() {
       <ProfessorPageHeader
         title={`Good afternoon, Prof. ${firstName}`}
         subtitle="Manage labs, triage applicants, and monitor momentum from one workspace."
-        actions={
-          <>
-            <Link
-              href="/dashboard/professor/profile"
-              className="inline-flex rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-ll-navy hover:bg-zinc-50"
-            >
-              View public profile
-            </Link>
-            <Link
-              href="/labs/new"
-              className="inline-flex rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white"
-            >
-              + New posting
-            </Link>
-          </>
-        }
       />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -230,9 +214,6 @@ export default async function ProfessorDashboardPage() {
       <section className="mt-5">
         <div className="mb-3 flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-ll-navy">Your postings</h2>
-          <Link href="/labs/new" className="text-sm font-medium text-ll-navy underline">
-            Create lab
-          </Link>
         </div>
         {postingCards.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-600">

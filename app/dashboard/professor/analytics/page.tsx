@@ -13,6 +13,7 @@ type AppTrendRow = {
   created_at: string;
   status: string;
   posting_id: string;
+  student_id: string;
 };
 
 export default async function ProfessorAnalyticsPage() {
@@ -23,10 +24,20 @@ export default async function ProfessorAnalyticsPage() {
 
   const { data: postingRows } = await supabase
     .from("role_postings")
-    .select("id,title,status,created_at,lab_id")
+    .select("id,title,status,created_at,lab_id,required_skills,preferred_skills")
     .eq("created_by", user?.id ?? "")
     .limit(250)
-    .returns<Array<{ id: string; title: string; status: string; created_at: string; lab_id: string }>>();
+    .returns<
+      Array<{
+        id: string;
+        title: string;
+        status: string;
+        created_at: string;
+        lab_id: string;
+        required_skills: string[] | null;
+        preferred_skills: string[] | null;
+      }>
+    >();
 
   const postingIds = (postingRows ?? []).map((item) => item.id);
   const labIds = Array.from(new Set((postingRows ?? []).map((item) => item.lab_id)));
@@ -36,7 +47,7 @@ export default async function ProfessorAnalyticsPage() {
       ? { data: [] as AppTrendRow[] }
       : await supabase
           .from("applications")
-          .select("created_at,status,posting_id")
+          .select("created_at,status,posting_id,student_id")
           .in("posting_id", postingIds)
           .order("created_at", { ascending: true })
           .limit(500)
@@ -75,19 +86,77 @@ export default async function ProfessorAnalyticsPage() {
     bins[11 - bucket] += 1;
   });
 
-  const sourceRows = [
-    { label: "Matched discovery", value: Math.round(recentApps.length * 0.58) },
-    { label: "Lab page", value: Math.round(recentApps.length * 0.24) },
-    { label: "Shared link", value: Math.round(recentApps.length * 0.13) },
-    { label: "Referral", value: Math.round(recentApps.length * 0.05) },
+  const statusRows = [
+    { label: "Submitted", value: recentApps.filter((item) => item.status === "submitted").length },
+    {
+      label: "Reviewing",
+      value: recentApps.filter((item) => item.status === "reviewing").length,
+    },
+    { label: "Interview", value: recentApps.filter((item) => item.status === "interview").length },
+    { label: "Accepted", value: recentApps.filter((item) => item.status === "accepted").length },
+    { label: "Rejected", value: recentApps.filter((item) => item.status === "rejected").length },
   ];
-  const sourceMax = Math.max(...sourceRows.map((row) => row.value), 1);
+  const statusMax = Math.max(...statusRows.map((row) => row.value), 1);
 
-  const topSkills = new Map<string, number>();
-  const skillSeed = ["Python", "ML", "Signal Proc.", "R", "MATLAB", "Stats", "DSP", "NLP"];
-  skillSeed.forEach((skill, index) => topSkills.set(skill, Math.max(1, Math.round(recentApps.length / (index + 2)))));
+  const recentStudentIds = Array.from(new Set(recentApps.map((item) => item.student_id)));
+  const { data: recentStudents } =
+    recentStudentIds.length === 0
+      ? { data: [] as Array<{ id: string; skills: string[] | null }> }
+      : await supabase.from("student_profiles").select("id,skills").in("id", recentStudentIds);
 
-  const avgMatch = recentApps.length > 0 ? `${Math.min(95, 66 + Math.round(recentApps.length / 4))}%` : "0%";
+  const skillsByStudent = new Map<string, string[]>();
+  (recentStudents ?? []).forEach((student) => {
+    skillsByStudent.set(student.id, student.skills ?? []);
+  });
+
+  const postingById = new Map(
+    (postingRows ?? []).map((posting) => [
+      posting.id,
+      {
+        required: posting.required_skills ?? [],
+        preferred: posting.preferred_skills ?? [],
+      },
+    ]),
+  );
+
+  const topSkillsMap = new Map<string, number>();
+  recentApps.forEach((application) => {
+    const skills = skillsByStudent.get(application.student_id) ?? [];
+    skills.forEach((skill) => {
+      const normalized = skill.trim();
+      if (normalized) {
+        topSkillsMap.set(normalized, (topSkillsMap.get(normalized) ?? 0) + 1);
+      }
+    });
+  });
+  const topSkills = Array.from(topSkillsMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([skill]) => skill);
+
+  const appFitScores = recentApps
+    .map((application) => {
+      const postingSkills = postingById.get(application.posting_id);
+      if (!postingSkills) return null;
+      const studentSkills = new Set((skillsByStudent.get(application.student_id) ?? []).map((skill) => skill.toLowerCase()));
+      const required = postingSkills.required.map((skill) => skill.toLowerCase());
+      const preferred = postingSkills.preferred.map((skill) => skill.toLowerCase());
+
+      const requiredHits = required.filter((skill) => studentSkills.has(skill)).length;
+      const preferredHits = preferred.filter((skill) => studentSkills.has(skill)).length;
+      const requiredScore = required.length > 0 ? requiredHits / required.length : 1;
+      const preferredScore = preferred.length > 0 ? preferredHits / preferred.length : 1;
+      return requiredScore * 0.7 + preferredScore * 0.3;
+    })
+    .filter((score): score is number => score !== null);
+  const avgMatch =
+    appFitScores.length > 0 ? `${Math.round((appFitScores.reduce((acc, score) => acc + score, 0) / appFitScores.length) * 100)}%` : "0%";
+
+  const activePostingCount = (postingRows ?? []).filter((posting) => posting.status === "open").length;
+  const acceptanceRate =
+    recentApps.length > 0
+      ? `${Math.round((recentApps.filter((item) => item.status === "accepted").length / recentApps.length) * 100)}%`
+      : "0%";
 
   return (
     <div className="w-full max-w-6xl">
@@ -105,10 +174,10 @@ export default async function ProfessorAnalyticsPage() {
       />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <ProfessorStatCard label="Profile views" value={(recentApps.length * 22 + 210).toLocaleString()} trend={`${growth} vs prior window`} tone="positive" />
-        <ProfessorStatCard label="Applications" value={recentApps.length} trend={`${growth} growth`} tone="positive" />
-        <ProfessorStatCard label="Avg. match" value={avgMatch} trend="Across active applicants" tone="accent" />
+        <ProfessorStatCard label="Applications (90d)" value={recentApps.length} trend={`${growth} vs prior window`} tone="positive" />
         <ProfessorStatCard label="Followers" value={followersCount ?? 0} trend={`${memberCount ?? 0} active lab members`} />
+        <ProfessorStatCard label="Skill fit (avg)" value={avgMatch} trend="Applicant skill overlap" tone="accent" />
+        <ProfessorStatCard label="Open postings" value={activePostingCount} trend={`${acceptanceRate} accepted`} />
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
@@ -120,22 +189,29 @@ export default async function ProfessorAnalyticsPage() {
           </div>
         </ProfessorSectionCard>
 
-        <ProfessorSectionCard title="Applicant source">
+        <ProfessorSectionCard title="Application stages">
           <div className="space-y-3">
-            {sourceRows.map((row) => (
-              <ProgressMetricRow key={row.label} label={row.label} value={row.value} max={sourceMax} />
+            {statusRows.map((row) => (
+              <ProgressMetricRow key={row.label} label={row.label} value={row.value} max={statusMax} />
             ))}
           </div>
           <div className="mt-5">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">Top matched skills</p>
-            <div className="flex flex-wrap gap-2">
-              {Array.from(topSkills.keys()).map((skill) => (
-                <ProfessorPill key={skill} tone="navy">
-                  {skill}
-                </ProfessorPill>
-              ))}
-            </div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">Top applicant skills (90d)</p>
+            {topSkills.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {topSkills.map((skill) => (
+                  <ProfessorPill key={skill} tone="navy">
+                    {skill}
+                  </ProfessorPill>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-zinc-600">No student skills found in recent applications.</p>
+            )}
           </div>
+          <p className="mt-4 text-xs text-zinc-500">
+            Followers: {followersCount ?? 0} · Active lab members: {memberCount ?? 0}
+          </p>
         </ProfessorSectionCard>
       </div>
     </div>
