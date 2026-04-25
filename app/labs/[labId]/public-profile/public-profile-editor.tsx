@@ -11,11 +11,12 @@ type Props = {
   labId: string;
   lab: LabContext["lab"];
   saved: boolean;
+  error: string | null;
 };
 
 const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp";
 
-export function PublicProfileEditor({ labId, lab, saved }: Props) {
+export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
   const supabase = useMemo(() => createClient(), []);
 
   const [bannerSrc, setBannerSrc] = useState(lab.banner_url || "/window.svg");
@@ -32,6 +33,7 @@ export function PublicProfileEditor({ labId, lab, saved }: Props) {
   const [galleryUploadError, setGalleryUploadError] = useState<string | null>(null);
   const [galleryUploading, setGalleryUploading] = useState(false);
   const [preserveGallery, setPreserveGallery] = useState(true);
+  const isAnyUploadInFlight = bannerUploading || logoUploading || galleryUploading;
 
   const uploadImage = async (userId: string, file: File) => {
     const extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
@@ -145,11 +147,16 @@ export function PublicProfileEditor({ labId, lab, saved }: Props) {
               your lab profile.
             </p>
           </div>
-          <SaveButton />
+          <SaveButton disabled={isAnyUploadInFlight} />
         </div>
         {saved ? (
           <p className="mt-4 rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50/50 px-3 py-2 text-sm font-medium text-emerald-800">
             Public profile saved.
+          </p>
+        ) : null}
+        {error ? (
+          <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
+            Could not save profile: {error}
           </p>
         ) : null}
       </section>
@@ -252,15 +259,16 @@ export function PublicProfileEditor({ labId, lab, saved }: Props) {
   );
 }
 
-function SaveButton() {
+function SaveButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
+  const isDisabled = pending || Boolean(disabled);
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={isDisabled}
       className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-ll-navy to-[#0a5c6a] px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:brightness-105 disabled:opacity-60"
     >
-      {pending ? "Saving..." : "Save public profile"}
+      {pending ? "Saving..." : disabled ? "Wait for uploads..." : "Save public profile"}
     </button>
   );
 }

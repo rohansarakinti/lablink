@@ -7,7 +7,7 @@ export default async function LabPublicProfilePage({
   searchParams,
 }: {
   params: Promise<{ labId: string }>;
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const { labId } = await params;
   const query = await searchParams;
@@ -17,5 +17,5 @@ export default async function LabPublicProfilePage({
     redirect(`/labs/${labId}`);
   }
 
-  return <PublicProfileEditor labId={labId} lab={context.lab} saved={query.saved === "1"} />;
+  return <PublicProfileEditor labId={labId} lab={context.lab} saved={query.saved === "1"} error={query.error ?? null} />;
 }

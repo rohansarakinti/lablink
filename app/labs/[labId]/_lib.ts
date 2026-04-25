@@ -70,11 +70,14 @@ export async function getLabContext(labId: string): Promise<LabContext> {
         .eq("user_id", user.id)
         .maybeSingle<{ lab_role: string }>();
 
-  const { data: labByUserClient } = await supabase
+  const extendedSelect =
+    "id,created_by,name,slug,tagline,description,university,department,website_url,logo_url,banner_url,research_fields,research_tags,gallery_urls,student_fit,expectations";
+  const baseSelect =
+    "id,created_by,name,slug,tagline,description,university,department,website_url,logo_url,banner_url,research_fields,research_tags";
+
+  const userExtended = await supabase
     .from("lab_groups")
-    .select(
-      "id,created_by,name,slug,tagline,description,university,department,website_url,logo_url,banner_url,research_fields,research_tags,gallery_urls,student_fit,expectations",
-    )
+    .select(extendedSelect)
     .eq("id", labId)
     .maybeSingle<
       Pick<
@@ -98,19 +101,10 @@ export async function getLabContext(labId: string): Promise<LabContext> {
       >
     >();
 
-  const adminClient =
-    !labByUserClient && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-      ? createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
-          auth: { persistSession: false, autoRefreshToken: false },
-        })
-      : null;
-
-  const { data: labByAdminClient } = adminClient
-    ? await adminClient
+  const { data: labByUserClient } = userExtended.error
+    ? await supabase
         .from("lab_groups")
-        .select(
-          "id,created_by,name,slug,tagline,description,university,department,website_url,logo_url,banner_url,research_fields,research_tags,gallery_urls,student_fit,expectations",
-        )
+        .select(baseSelect)
         .eq("id", labId)
         .maybeSingle<
           Pick<
@@ -128,14 +122,75 @@ export async function getLabContext(labId: string): Promise<LabContext> {
             | "banner_url"
             | "research_fields"
             | "research_tags"
-            | "gallery_urls"
-            | "student_fit"
-            | "expectations"
           >
         >()
-    : { data: null };
+    : { data: userExtended.data };
 
-  const lab = labByUserClient ?? labByAdminClient;
+  const adminClient =
+    !labByUserClient && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+      ? createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        })
+      : null;
+
+  const labByAdminClient = adminClient
+    ? (() => {
+        const run = async () => {
+          const adminExtended = await adminClient
+            .from("lab_groups")
+            .select(extendedSelect)
+            .eq("id", labId)
+            .maybeSingle<
+              Pick<
+                LabContext["lab"],
+                | "id"
+                | "created_by"
+                | "name"
+                | "slug"
+                | "tagline"
+                | "description"
+                | "university"
+                | "department"
+                | "website_url"
+                | "logo_url"
+                | "banner_url"
+                | "research_fields"
+                | "research_tags"
+                | "gallery_urls"
+                | "student_fit"
+                | "expectations"
+              >
+            >();
+          if (!adminExtended.error) return adminExtended.data;
+          const adminBase = await adminClient
+            .from("lab_groups")
+            .select(baseSelect)
+            .eq("id", labId)
+            .maybeSingle<
+              Pick<
+                LabContext["lab"],
+                | "id"
+                | "created_by"
+                | "name"
+                | "slug"
+                | "tagline"
+                | "description"
+                | "university"
+                | "department"
+                | "website_url"
+                | "logo_url"
+                | "banner_url"
+                | "research_fields"
+                | "research_tags"
+              >
+            >();
+          return adminBase.data;
+        };
+        return run();
+      })()
+    : Promise.resolve(null);
+
+  const lab = labByUserClient ?? (await labByAdminClient);
 
   const membershipRole = membership?.lab_role ?? anyMembership?.lab_role ?? (lab?.created_by === user.id ? "pi" : null);
   if (!membershipRole) {
@@ -155,9 +210,17 @@ export async function getLabContext(labId: string): Promise<LabContext> {
           ...lab,
           research_fields: Array.isArray(lab.research_fields) ? lab.research_fields : [],
           research_tags: Array.isArray(lab.research_tags) ? lab.research_tags : [],
-          gallery_urls: Array.isArray(lab.gallery_urls) ? lab.gallery_urls : [],
-          student_fit: lab.student_fit ?? null,
-          expectations: lab.expectations ?? null,
+          gallery_urls: Array.isArray((lab as { gallery_urls?: unknown }).gallery_urls)
+            ? ((lab as { gallery_urls?: string[] }).gallery_urls ?? [])
+            : [],
+          student_fit:
+            (lab as { student_fit?: string | null }).student_fit === undefined
+              ? null
+              : ((lab as { student_fit?: string | null }).student_fit ?? null),
+          expectations:
+            (lab as { expectations?: string | null }).expectations === undefined
+              ? null
+              : ((lab as { expectations?: string | null }).expectations ?? null),
         }
       : {
           id: labId,

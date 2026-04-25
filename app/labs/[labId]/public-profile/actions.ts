@@ -57,22 +57,54 @@ export async function saveLabPublicProfile(formData: FormData) {
     .filter(Boolean)
     .slice(0, 8);
 
-  await supabase
-    .from("lab_groups")
-    .update({
-      tagline: toNullableText(formData.get("tagline")),
-      description: toNullableText(formData.get("description")),
-      website_url: toNullableText(formData.get("website_url")),
-      banner_url: bannerUrlFromForm || existing?.banner_url || null,
-      logo_url: logoUrlFromForm || existing?.logo_url || null,
-      research_fields: toList(formData.get("research_fields")),
-      research_tags: toList(formData.get("research_tags")),
-      student_fit: toNullableText(formData.get("student_fit")),
-      expectations: toNullableText(formData.get("expectations")),
-      gallery_urls: galleryUrls,
-    })
-    .eq("id", labId);
+  const basePayload = {
+    tagline: toNullableText(formData.get("tagline")),
+    description: toNullableText(formData.get("description")),
+    website_url: toNullableText(formData.get("website_url")),
+    banner_url: bannerUrlFromForm || existing?.banner_url || null,
+    logo_url: logoUrlFromForm || existing?.logo_url || null,
+    research_fields: toList(formData.get("research_fields")),
+    research_tags: toList(formData.get("research_tags")),
+  };
+  const fullPayload: Record<string, string | string[] | null> = {
+    ...basePayload,
+    student_fit: toNullableText(formData.get("student_fit")),
+    expectations: toNullableText(formData.get("expectations")),
+    gallery_urls: galleryUrls,
+  };
+  let payload: Record<string, string | string[] | null> = { ...fullPayload };
+  let lastError: { message: string } | null = null;
 
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const { error } = await supabase.from("lab_groups").update(payload).eq("id", labId);
+    if (!error) {
+      lastError = null;
+      break;
+    }
+
+    lastError = { message: error.message };
+    const missingExpectations = error.message.includes("'expectations'");
+    const missingStudentFit = error.message.includes("'student_fit'");
+    const missingGalleryUrls = error.message.includes("'gallery_urls'");
+
+    if (missingExpectations) {
+      delete payload.expectations;
+      continue;
+    }
+    if (missingStudentFit) {
+      delete payload.student_fit;
+      continue;
+    }
+    if (missingGalleryUrls) {
+      delete payload.gallery_urls;
+      continue;
+    }
+    break;
+  }
+
+  if (lastError) {
+    redirect(`/labs/${labId}/public-profile?error=${encodeURIComponent(lastError.message)}`);
+  }
   revalidatePath(`/labs/${labId}`);
   revalidatePath(`/labs/${labId}/public-profile`);
   revalidatePath(`/dashboard/student/lab/${labId}`);
