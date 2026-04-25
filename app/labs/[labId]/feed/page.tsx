@@ -68,17 +68,20 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
       ) : null}
 
       {!error && posts.length > 0 ? (
-        <ul className="space-y-5">
+        <ul className="flex flex-row flex-wrap items-start justify-start gap-x-4 gap-y-6">
           {posts.map((post) => {
             const author = normalizeProfile(post.profiles);
             const canEdit = context.canManage || post.author_id === context.userId;
             return (
-              <li key={post.id}>
+              <li
+                key={post.id}
+                className="w-full max-w-[16.5rem] shrink-0 sm:w-[17.25rem] sm:max-w-none"
+              >
                 {canEdit ? (
-                  <div className="mb-2 flex justify-end">
+                  <div className="mb-1.5 flex justify-start">
                     <Link
                       href={`/labs/${labId}/feed/${post.id}/edit`}
-                      className="text-xs font-semibold uppercase tracking-wide text-ll-purple"
+                      className="text-[11px] font-semibold uppercase tracking-wide text-ll-purple"
                     >
                       Edit post
                     </Link>

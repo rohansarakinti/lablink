@@ -40,26 +40,33 @@ export function LabFeedPostCard({
 }: LabFeedPostCardProps) {
   const authorLabel = authorDisplayName?.trim() || "Lab member";
 
-  const hPad = compact ? "px-3.5 sm:px-4" : "px-5";
-  const vHeader = compact ? "py-2.5" : "py-4";
-  const vBody = compact ? "py-2.5" : "py-4";
-  const labLogoSize = compact ? "h-9 w-9" : "h-11 w-11";
-  const labSizes = compact ? "36px" : "44px";
-  const nameClass = compact ? "truncate text-[13px] font-semibold text-ll-navy" : "truncate text-sm font-semibold text-ll-navy";
-  const metaText = compact ? "text-[11px]" : "text-xs";
-  const authorSize = compact ? "h-4 w-4" : "h-5 w-5";
-  const authorImgSizes = compact ? "16px" : "20px";
+  const hPad = compact ? "px-2.5 sm:px-3" : "px-3 sm:px-3.5";
+  const vHeader = compact ? "py-2" : "py-2.5";
+  const vBody = compact ? "py-2" : "py-2.5";
+  const labLogoSize = compact ? "h-8 w-8" : "h-9 w-9";
+  const labSizes = compact ? "32px" : "36px";
+  const nameClass = compact ? "truncate text-[12px] font-semibold text-ll-navy" : "truncate text-[13px] font-semibold text-ll-navy";
+  const metaText = compact ? "text-[10px]" : "text-[11px]";
+  const authorSize = compact ? "h-3.5 w-3.5" : "h-4 w-4";
+  const authorImgSizes = compact ? "14px" : "16px";
   const captionClass = compact
-    ? "whitespace-pre-wrap text-[13px] leading-relaxed text-zinc-800"
-    : "whitespace-pre-wrap text-sm leading-relaxed text-zinc-800";
-  const mediaTop = compact ? "mt-2.5" : "mt-4";
-  const singleAspect = compact ? "aspect-[2/1] max-h-48" : "aspect-[16/10]";
-  const borderRadius = compact ? "rounded-xl" : "rounded-2xl";
-  const innerMediaRadius = compact ? "rounded-lg" : "rounded-xl";
+    ? "whitespace-pre-wrap text-[12px] leading-snug text-zinc-800"
+    : "whitespace-pre-wrap text-[13px] leading-snug text-zinc-800";
+  const mediaTop = compact ? "mt-2" : "mt-2.5";
+  /** Narrow “tile” card, left-aligned in the feed column. */
+  const mediaShell = "w-full";
+  const singleFrame = compact ? "relative h-32 w-full sm:h-36" : "relative h-36 w-full sm:h-40";
+  const multiFrame = compact ? "relative h-24 w-full sm:h-28" : "relative h-28 w-full sm:h-32";
+  const borderRadius = compact ? "rounded-md" : "rounded-lg";
+  const innerMediaRadius = compact ? "rounded-md" : "rounded-md";
 
   return (
     <article
-      className={cn("overflow-hidden border border-zinc-200 bg-white shadow-sm", borderRadius, className)}
+      className={cn(
+        "w-full max-w-[16.5rem] self-start overflow-hidden border border-zinc-200 bg-white shadow-sm sm:max-w-[17.25rem]",
+        borderRadius,
+        className,
+      )}
     >
       <div className={`border-b border-zinc-100 ${hPad} ${vHeader}`}>
         <div className={`flex ${compact ? "gap-2.5" : "gap-3"}`}>
@@ -110,32 +117,38 @@ export function LabFeedPostCard({
       <div className={`${hPad} ${vBody}`}>
         <p className={captionClass}>{caption}</p>
         {media.length > 0 ? (
-          <div
-            className={
-              media.length === 1
-                ? `${mediaTop} overflow-hidden ${innerMediaRadius} border border-zinc-100 bg-zinc-50`
-                : `${mediaTop} grid gap-1.5 sm:grid-cols-2 sm:gap-2`
-            }
-          >
-            {media.map((item, i) => (
-              <div
-                key={`${item.url}-${i}`}
-                className={
-                  media.length === 1
-                    ? `relative w-full bg-zinc-100 ${singleAspect}`
-                    : `relative aspect-video overflow-hidden ${innerMediaRadius} border border-zinc-100 bg-zinc-100`
-                }
-              >
-                <Image
-                  src={item.url}
-                  alt={item.alt || `Image ${i + 1}`}
-                  fill
-                  className="object-contain"
-                  sizes={media.length === 1 ? "(max-width:768px) 100vw, 600px" : "(max-width:768px) 100vw, 320px"}
-                  unoptimized
-                />
-              </div>
-            ))}
+          <div className={`${mediaTop} ${mediaShell}`}>
+            <div
+              className={
+                media.length === 1
+                  ? `overflow-hidden ${innerMediaRadius} border border-zinc-100 bg-zinc-50`
+                  : `grid gap-1.5 sm:grid-cols-2 sm:gap-2`
+              }
+            >
+              {media.map((item, i) => (
+                <div
+                  key={`${item.url}-${i}`}
+                  className={
+                    media.length === 1
+                      ? `${singleFrame} overflow-hidden ${innerMediaRadius}`
+                      : `${multiFrame} overflow-hidden ${innerMediaRadius}`
+                  }
+                >
+                  <Image
+                    src={item.url}
+                    alt={item.alt || `Image ${i + 1}`}
+                    fill
+                    className="object-contain"
+                    sizes={
+                      media.length === 1
+                        ? "(max-width: 640px) 90vw, 280px"
+                        : "(max-width: 640px) 45vw, 140px"
+                    }
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         ) : null}
       </div>

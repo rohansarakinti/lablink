@@ -71,7 +71,7 @@ export function StudentForYouFeed({
                       media={post.media}
                       createdAt={post.createdAt}
                       compact
-                      className="h-full !rounded-none border-0 !shadow-none"
+                      className="h-full !max-w-none w-full self-stretch !rounded-none border-0 !shadow-none"
                     />
                   </Link>
                 </div>

@@ -240,11 +240,14 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
         ) : null}
 
         {!postsError && feedPosts.length > 0 ? (
-          <ul className="mt-4 space-y-5">
+          <ul className="mt-4 flex flex-row flex-wrap items-start justify-start gap-x-4 gap-y-6">
             {feedPosts.map((post) => {
               const author = normalizeProfile(post.profiles);
               return (
-                <li key={post.id}>
+                <li
+                  key={post.id}
+                  className="w-full max-w-[16.5rem] shrink-0 sm:w-[17.25rem] sm:max-w-none"
+                >
                   <LabFeedPostCard
                     labName={lab.name}
                     labLogoUrl={lab.logo_url}
