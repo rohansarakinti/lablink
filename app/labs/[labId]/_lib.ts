@@ -72,7 +72,9 @@ export async function getLabContext(labId: string): Promise<LabContext> {
 
   const { data: labByUserClient } = await supabase
     .from("lab_groups")
-    .select("id,created_by,name,slug,tagline,description,university,department,website_url,logo_url,banner_url,research_fields,research_tags")
+    .select(
+      "id,created_by,name,slug,tagline,description,university,department,website_url,logo_url,banner_url,research_fields,research_tags,gallery_urls,student_fit,expectations",
+    )
     .eq("id", labId)
     .maybeSingle<
       Pick<
@@ -90,6 +92,9 @@ export async function getLabContext(labId: string): Promise<LabContext> {
         | "banner_url"
         | "research_fields"
         | "research_tags"
+        | "gallery_urls"
+        | "student_fit"
+        | "expectations"
       >
     >();
 
@@ -103,7 +108,9 @@ export async function getLabContext(labId: string): Promise<LabContext> {
   const { data: labByAdminClient } = adminClient
     ? await adminClient
         .from("lab_groups")
-        .select("id,created_by,name,slug,tagline,description,university,department,website_url,logo_url,banner_url,research_fields,research_tags")
+        .select(
+          "id,created_by,name,slug,tagline,description,university,department,website_url,logo_url,banner_url,research_fields,research_tags,gallery_urls,student_fit,expectations",
+        )
         .eq("id", labId)
         .maybeSingle<
           Pick<
@@ -121,6 +128,9 @@ export async function getLabContext(labId: string): Promise<LabContext> {
             | "banner_url"
             | "research_fields"
             | "research_tags"
+            | "gallery_urls"
+            | "student_fit"
+            | "expectations"
           >
         >()
     : { data: null };
@@ -145,9 +155,9 @@ export async function getLabContext(labId: string): Promise<LabContext> {
           ...lab,
           research_fields: Array.isArray(lab.research_fields) ? lab.research_fields : [],
           research_tags: Array.isArray(lab.research_tags) ? lab.research_tags : [],
-          gallery_urls: [],
-          student_fit: null,
-          expectations: null,
+          gallery_urls: Array.isArray(lab.gallery_urls) ? lab.gallery_urls : [],
+          student_fit: lab.student_fit ?? null,
+          expectations: lab.expectations ?? null,
         }
       : {
           id: labId,
