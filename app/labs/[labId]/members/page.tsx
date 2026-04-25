@@ -52,7 +52,7 @@ export default async function LabMembersPage({
 
   return (
     <div className="overflow-hidden rounded-3xl border border-ll-navy/10 bg-white/95 shadow-lg shadow-ll-navy/5">
-      <div className="bg-gradient-to-r from-ll-bg via-white to-violet-50/50 px-6 py-5 md:px-8">
+      <div className="bg-gradient-to-r from-ll-bg via-white to-ll-purple/10 px-6 py-5 md:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="h-1 w-12 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
@@ -83,9 +83,9 @@ export default async function LabMembersPage({
       </div>
       <div className="px-6 pb-6 pt-2 md:px-8">
         {query.invite_link ? (
-          <div className="mb-4 rounded-xl border border-ll-purple/25 bg-gradient-to-r from-ll-purple/10 to-violet-50/80 p-4 text-xs font-medium text-violet-950">
-            <span className="text-violet-800/90">Invite link:</span>{" "}
-            <span className="break-all font-mono text-violet-950">{query.invite_link}</span>
+          <div className="mb-4 rounded-xl border border-ll-purple/25 bg-gradient-to-r from-ll-purple/10 to-ll-bg/80 p-4 text-xs font-medium text-ll-navy">
+            <span className="text-ll-purple">Invite link:</span>{" "}
+            <span className="break-all font-mono text-ll-navy">{query.invite_link}</span>
           </div>
         ) : null}
 
@@ -136,7 +136,7 @@ export default async function LabMembersPage({
                         </select>
                         <button
                           type="submit"
-                          className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-900 transition hover:bg-teal-100"
+                          className="rounded-full border border-ll-purple/25 bg-ll-purple/10 px-3 py-1 text-xs font-semibold text-ll-navy transition hover:bg-ll-purple/20"
                         >
                           Save
                         </button>

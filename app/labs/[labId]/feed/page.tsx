@@ -35,9 +35,9 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
 
   return (
     <div className="space-y-8">
-      <div className="overflow-hidden rounded-3xl border border-ll-purple/15 bg-gradient-to-br from-ll-bg/50 via-white to-violet-50/40 p-6 shadow-md shadow-ll-navy/5 md:flex md:items-end md:justify-between md:p-8">
+      <div className="overflow-hidden rounded-3xl border border-ll-purple/15 bg-gradient-to-br from-ll-bg/70 via-white to-ll-purple/10 p-6 shadow-md shadow-ll-navy/5 md:flex md:items-end md:justify-between md:p-8">
         <div>
-          <div className="h-1 w-14 rounded-full bg-gradient-to-r from-ll-purple to-pink-400" aria-hidden />
+          <div className="h-1 w-14 rounded-full bg-gradient-to-r from-ll-purple to-ll-navy" aria-hidden />
           <h2 className="mt-3 text-2xl font-semibold text-ll-navy md:text-3xl">Feed</h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-600">
             Share photos and updates from your lab—visible to followers and on your public presence.
@@ -46,7 +46,7 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
         {context.canPostToFeed ? (
           <Link
             href={`/labs/${labId}/feed/new`}
-            className="mt-5 inline-flex w-fit shrink-0 rounded-full bg-gradient-to-r from-ll-purple to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-purple/25 transition hover:brightness-105 md:mt-0"
+            className="mt-5 inline-flex w-fit shrink-0 rounded-full bg-gradient-to-r from-ll-purple to-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-purple/25 transition hover:brightness-105 md:mt-0"
           >
             New post
           </Link>
@@ -60,13 +60,13 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
       ) : null}
 
       {!error && posts.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-ll-purple/20 bg-gradient-to-br from-violet-50/50 via-white to-ll-bg/40 px-6 py-12 text-center">
+        <div className="rounded-3xl border-2 border-dashed border-ll-purple/20 bg-gradient-to-br from-ll-purple/10 via-white to-ll-bg/50 px-6 py-12 text-center">
           <p className="text-sm font-medium text-zinc-700">No posts yet.</p>
           <p className="mt-2 text-sm text-zinc-500">Highlights, milestones, and day-in-the-lab moments belong here.</p>
           {context.canPostToFeed ? (
             <Link
               href={`/labs/${labId}/feed/new`}
-              className="mt-5 inline-flex rounded-full bg-gradient-to-r from-ll-purple to-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:brightness-105"
+              className="mt-5 inline-flex rounded-full bg-gradient-to-r from-ll-purple to-ll-navy px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:brightness-105"
             >
               Create the first post
             </Link>

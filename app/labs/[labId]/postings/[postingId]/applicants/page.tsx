@@ -17,7 +17,7 @@ type ApplicationRow = {
 };
 
 const statusOptions = ["submitted", "reviewing", "interview", "accepted", "rejected"];
-const viewOptions = ["all", "recommended", ...statusOptions] as const;
+const viewOptions = ["recommended", ...statusOptions] as const;
 
 function includesItem(values: string[] | null | undefined, selected: string | undefined) {
   if (!selected || !String(selected).trim()) return true;
@@ -119,22 +119,22 @@ export default async function PostingApplicantsPage({
 
   if (!posting) {
     return (
-      <div className="rounded-3xl border border-amber-200/60 bg-gradient-to-br from-amber-50 to-orange-50/50 p-8 text-center shadow-md">
-        <p className="text-sm font-medium text-amber-950">Posting not found.</p>
+      <div className="rounded-3xl border border-ll-purple/25 bg-gradient-to-br from-ll-bg/70 to-ll-purple/10 p-8 text-center shadow-md">
+        <p className="text-sm font-medium text-ll-navy">Posting not found.</p>
       </div>
     );
   }
 
-  const requestedStatus = viewOptions.includes((query.status ?? "all") as (typeof viewOptions)[number])
-    ? query.status ?? "all"
-    : "all";
+  const requestedStatus = viewOptions.includes((query.status ?? "recommended") as (typeof viewOptions)[number])
+    ? query.status ?? "recommended"
+    : "recommended";
   let request = supabase
     .from("applications")
     .select("id,posting_id,student_id,status,created_at,statement,reviewer_notes,resume_url,transcript_url")
     .eq("posting_id", postingId)
     .order("created_at", { ascending: false });
 
-  if (requestedStatus !== "all" && requestedStatus !== "recommended") {
+  if (requestedStatus !== "recommended") {
     request = request.eq("status", requestedStatus);
   }
 
@@ -274,13 +274,13 @@ export default async function PostingApplicantsPage({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-3xl border border-teal-200/40 bg-gradient-to-br from-teal-50/80 via-white to-violet-50/30 p-6 shadow-lg shadow-teal-900/5 md:p-8">
-        <div className="h-1 w-14 rounded-full bg-gradient-to-r from-teal-600 to-violet-500" aria-hidden />
-        <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-teal-900/80">Applicant review</p>
+      <div className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-gradient-to-br from-ll-bg/70 via-white to-ll-purple/10 p-6 shadow-lg shadow-ll-navy/5 md:p-8">
+        <div className="h-1 w-14 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
+        <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-ll-navy/80">Applicant review</p>
         <h2 className="mt-2 text-2xl font-semibold text-ll-navy md:text-3xl">{posting.title}</h2>
         <Link
           href={`/labs/${labId}/postings`}
-          className="mt-3 inline-flex w-fit items-center gap-1 rounded-full border border-teal-200/80 bg-white/90 px-3 py-1.5 text-sm font-semibold text-teal-900 shadow-sm transition hover:border-violet-300 hover:bg-violet-50/80"
+          className="mt-3 inline-flex w-fit items-center gap-1 rounded-full border border-ll-purple/25 bg-white/90 px-3 py-1.5 text-sm font-semibold text-ll-navy shadow-sm transition hover:border-ll-purple/40 hover:bg-ll-bg/60"
         >
           ← Back to postings
         </Link>
@@ -304,7 +304,7 @@ export default async function PostingApplicantsPage({
         </div>
         <form
           method="get"
-          className="mb-5 grid gap-2 rounded-2xl border border-violet-100 bg-gradient-to-br from-ll-bg/40 to-violet-50/30 p-4 md:grid-cols-4"
+          className="mb-5 grid gap-2 rounded-2xl border border-ll-purple/20 bg-gradient-to-br from-ll-bg/40 to-ll-purple/10 p-4 md:grid-cols-4"
         >
           <input type="hidden" name="status" value={requestedStatus} />
           <select

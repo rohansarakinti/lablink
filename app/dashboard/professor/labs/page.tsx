@@ -39,7 +39,7 @@ export default async function ProfessorLabsPage() {
     <div className="w-full max-w-6xl">
       <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="h-1 w-16 rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-teal-500" aria-hidden />
+          <div className="h-1 w-16 rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-ll-bg" aria-hidden />
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ll-navy md:text-4xl">My labs</h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-600">
             Labs you belong to and quick links to manage them.
@@ -54,7 +54,7 @@ export default async function ProfessorLabsPage() {
       </div>
 
       {labs.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-gradient-to-br from-ll-bg/50 via-white to-violet-50/40 p-10 text-center">
+        <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-gradient-to-br from-ll-bg/70 via-white to-ll-purple/10 p-10 text-center">
           <p className="text-sm font-medium text-zinc-700">
             No labs yet. Create your first lab to start posting opportunities.
           </p>
@@ -75,7 +75,7 @@ export default async function ProfessorLabsPage() {
                 className="group block"
               >
                 <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-white/80 bg-white/95 shadow-md shadow-ll-navy/8 ring-1 ring-zinc-100 transition duration-200 hover:-translate-y-0.5 hover:border-ll-purple/20 hover:shadow-xl hover:shadow-ll-purple/10">
-                  <div className="relative h-48 w-full shrink-0 overflow-hidden bg-gradient-to-br from-ll-bg to-violet-100/50">
+                  <div className="relative h-48 w-full shrink-0 overflow-hidden bg-gradient-to-br from-ll-bg to-ll-purple/10">
                     {membership.lab_groups.banner_url ? (
                       <Image
                         src={membership.lab_groups.banner_url}
@@ -108,15 +108,15 @@ export default async function ProfessorLabsPage() {
                   </div>
 
                   <div className="flex flex-1 flex-col p-5">
-                    <p className="inline-flex self-start rounded-full bg-gradient-to-r from-ll-navy/10 to-violet-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-ll-navy ring-1 ring-ll-navy/10">
+                    <p className="inline-flex self-start rounded-full bg-gradient-to-r from-ll-navy/10 to-ll-purple/15 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-ll-navy ring-1 ring-ll-navy/10">
                       {membership.lab_role.replaceAll("_", " ")}
                     </p>
                     <h2 className="mt-3 text-lg font-semibold text-ll-navy">{membership.lab_groups.name}</h2>
-                    <p className="mt-1 text-sm font-medium text-teal-800/90">{membership.lab_groups.university}</p>
+                    <p className="mt-1 text-sm font-medium text-ll-navy/90">{membership.lab_groups.university}</p>
                     {membership.lab_groups.tagline ? (
                       <p className="mt-2 line-clamp-2 text-sm text-zinc-600">{membership.lab_groups.tagline}</p>
                     ) : null}
-                    <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-semibold text-violet-700 transition group-hover:text-violet-900">
+                    <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-semibold text-ll-purple transition group-hover:text-ll-navy">
                       Manage lab <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
                     </span>
                   </div>

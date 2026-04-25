@@ -24,9 +24,9 @@ export default async function LabOverviewPage({
 
   const stats = [
     { label: "Total members", value: memberCount ?? 0, accent: "from-ll-navy/90 to-[#0a5c6a]" },
-    { label: "Open postings", value: openPostingCount ?? 0, accent: "from-emerald-600 to-teal-500" },
-    { label: "Applications this month", value: appsCount ?? 0, accent: "from-ll-purple to-violet-500" },
-    { label: "Followers", value: followersCount ?? 0, accent: "from-amber-500 to-orange-400" },
+    { label: "Open postings", value: openPostingCount ?? 0, accent: "from-ll-navy to-ll-purple" },
+    { label: "Applications this month", value: appsCount ?? 0, accent: "from-ll-purple to-ll-navy/70" },
+    { label: "Followers", value: followersCount ?? 0, accent: "from-ll-bg to-ll-purple" },
   ];
 
   return (
@@ -75,7 +75,7 @@ export default async function LabOverviewPage({
             {context.lab.research_tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center rounded-full border border-violet-200/80 bg-violet-50/90 px-2.5 py-0.5 text-xs font-medium text-violet-900"
+                className="inline-flex items-center rounded-full border border-ll-purple/25 bg-ll-purple/10 px-2.5 py-0.5 text-xs font-medium text-ll-navy"
               >
                 {tag}
               </span>

@@ -31,7 +31,7 @@ export default async function LabPostingsPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="h-1 w-12 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500" aria-hidden />
+          <div className="h-1 w-12 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
           <h2 className="mt-2 text-2xl font-semibold text-ll-navy">Role postings</h2>
           <p className="mt-1 text-sm text-zinc-600">Open roles, track applicants, and update status.</p>
         </div>
@@ -46,7 +46,7 @@ export default async function LabPostingsPage({
       </div>
 
       {(postings ?? []).length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-gradient-to-br from-ll-bg/60 via-white to-violet-50/40 p-10 text-center">
+        <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-gradient-to-br from-ll-bg/70 via-white to-ll-purple/10 p-10 text-center">
           <p className="text-sm font-medium text-zinc-700">No postings yet.</p>
           <p className="mt-2 text-sm text-zinc-500">Create a role to start recruiting students to your lab.</p>
           {context.canManage ? (
@@ -86,7 +86,7 @@ export default async function LabPostingsPage({
               </p>
               <Link
                 href={`/labs/${labId}/postings/${posting.id}/applicants`}
-                className="mt-4 inline-flex pl-2 text-sm font-semibold text-teal-700 underline decoration-teal-300 decoration-2 underline-offset-4 transition hover:text-teal-900"
+                className="mt-4 inline-flex pl-2 text-sm font-semibold text-ll-navy underline decoration-ll-purple/45 decoration-2 underline-offset-4 transition hover:text-ll-purple"
               >
                 Review applicants →
               </Link>
@@ -109,11 +109,11 @@ export default async function LabPostingsPage({
 function postingStatusBadgeClass(status: string): string {
   switch (status) {
     case "open":
-      return "bg-emerald-100 text-emerald-900 ring-1 ring-emerald-200/80";
+      return "bg-ll-bg text-ll-navy ring-1 ring-ll-navy/15";
     case "closed":
-      return "bg-amber-100 text-amber-950 ring-1 ring-amber-200/80";
+      return "bg-ll-purple/15 text-ll-navy ring-1 ring-ll-purple/25";
     case "draft":
-      return "bg-sky-100 text-sky-900 ring-1 ring-sky-200/80";
+      return "bg-ll-purple/10 text-ll-navy ring-1 ring-ll-purple/20";
     case "archived":
       return "bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200/80";
     default:
@@ -124,11 +124,11 @@ function postingStatusBadgeClass(status: string): string {
 function postingStatusStripeClass(status: string): string {
   switch (status) {
     case "open":
-      return "bg-gradient-to-b from-emerald-500 to-teal-400";
+      return "bg-gradient-to-b from-ll-navy to-ll-purple";
     case "closed":
-      return "bg-gradient-to-b from-amber-500 to-orange-400";
+      return "bg-gradient-to-b from-ll-purple to-ll-navy/70";
     case "draft":
-      return "bg-gradient-to-b from-sky-500 to-blue-400";
+      return "bg-gradient-to-b from-ll-bg to-ll-purple";
     case "archived":
       return "bg-gradient-to-b from-zinc-400 to-zinc-300";
     default:
@@ -147,9 +147,9 @@ function StatusButton({
 }) {
   const styles =
     status === "open"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100"
+      ? "border-ll-navy/20 bg-ll-bg text-ll-navy hover:bg-ll-bg/80"
       : status === "closed"
-        ? "border-amber-200 bg-amber-50 text-amber-950 hover:bg-amber-100"
+        ? "border-ll-purple/25 bg-ll-purple/10 text-ll-navy hover:bg-ll-purple/20"
         : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100";
 
   return (

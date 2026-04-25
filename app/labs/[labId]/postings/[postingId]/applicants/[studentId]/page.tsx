@@ -128,15 +128,15 @@ export default async function ApplicantStudentProfilePage({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-3xl border border-violet-200/40 bg-gradient-to-br from-violet-50/70 via-white to-ll-bg/40 p-6 shadow-lg md:p-8">
+      <div className="overflow-hidden rounded-3xl border border-ll-purple/25 bg-gradient-to-br from-ll-purple/10 via-white to-ll-bg/40 p-6 shadow-lg md:p-8">
         <Link
           href={`/labs/${labId}/postings/${postingId}/applicants`}
-          className="inline-flex w-fit items-center gap-1 rounded-full border border-violet-200 bg-white/90 px-3 py-1.5 text-sm font-semibold text-violet-900 shadow-sm transition hover:bg-violet-50"
+          className="inline-flex w-fit items-center gap-1 rounded-full border border-ll-purple/25 bg-white/90 px-3 py-1.5 text-sm font-semibold text-ll-navy shadow-sm transition hover:bg-ll-bg/50"
         >
           ← Back to applicant review
         </Link>
-        <div className="mt-4 h-1 w-12 rounded-full bg-gradient-to-r from-violet-600 to-ll-purple" aria-hidden />
-        <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-violet-800/90">Applicant profile</p>
+        <div className="mt-4 h-1 w-12 rounded-full bg-gradient-to-r from-ll-purple to-ll-navy" aria-hidden />
+        <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-ll-purple">Applicant profile</p>
         <h2 className="mt-2 text-2xl font-semibold text-ll-navy md:text-3xl">{studentName}</h2>
         <p className="mt-2 text-sm text-zinc-600">
           <span className="font-medium text-zinc-800">{posting.title}</span>
@@ -144,7 +144,7 @@ export default async function ApplicantStudentProfilePage({
           Applied {new Date(application.created_at).toLocaleDateString()}
           <span className="text-zinc-400"> · </span>
           Status:{" "}
-          <span className="rounded-full bg-white/90 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-ll-navy ring-1 ring-violet-200">
+          <span className="rounded-full bg-white/90 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-ll-navy ring-1 ring-ll-purple/25">
             {application.status}
           </span>
         </p>
@@ -152,8 +152,8 @@ export default async function ApplicantStudentProfilePage({
 
       <StudentProfileEditor values={values} saved={false} readOnly />
 
-      <section className="overflow-hidden rounded-3xl border border-teal-100 bg-white/95 p-6 shadow-md md:p-7">
-        <div className="mb-4 h-1 w-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-400" aria-hidden />
+      <section className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-white/95 p-6 shadow-md md:p-7">
+        <div className="mb-4 h-1 w-10 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
         <h3 className="text-lg font-semibold text-ll-navy">Application-specific responses</h3>
         <div className="mt-4 space-y-3 rounded-2xl border border-zinc-100 bg-gradient-to-br from-zinc-50/80 to-white p-4 text-sm text-zinc-700">
           <p>
@@ -164,7 +164,7 @@ export default async function ApplicantStudentProfilePage({
           </p>
         </div>
         <div className="mt-6">
-          <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-teal-900/80">Custom responses</h4>
+          <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-ll-navy/80">Custom responses</h4>
           {customResponses.length === 0 ? (
             <p className="mt-2 text-sm text-zinc-600">No custom question responses submitted.</p>
           ) : (
@@ -172,9 +172,9 @@ export default async function ApplicantStudentProfilePage({
               {customResponses.map(([questionId, answer]) => (
                 <div
                   key={questionId}
-                  className="rounded-xl border border-violet-100 bg-gradient-to-r from-violet-50/50 to-white p-4"
+                  className="rounded-xl border border-ll-purple/20 bg-gradient-to-r from-ll-bg/50 to-white p-4"
                 >
-                  <p className="text-xs font-bold uppercase tracking-wide text-violet-700">Question {questionId}</p>
+                  <p className="text-xs font-bold uppercase tracking-wide text-ll-purple">Question {questionId}</p>
                   <p className="mt-2 text-sm text-zinc-800">{answer}</p>
                 </div>
               ))}

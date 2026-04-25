@@ -138,7 +138,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
       ))}
 
       <section className="overflow-hidden rounded-3xl border border-ll-navy/10 bg-white/95 p-5 shadow-lg shadow-ll-navy/5 md:p-6">
-        <div className="mb-4 h-1 w-14 rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-teal-500" aria-hidden />
+        <div className="mb-4 h-1 w-14 rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-ll-bg" aria-hidden />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold text-ll-navy md:text-2xl">Public profile editor</h2>
@@ -150,7 +150,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
           <SaveButton disabled={isAnyUploadInFlight} />
         </div>
         {saved ? (
-          <p className="mt-4 rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50/50 px-3 py-2 text-sm font-medium text-emerald-800">
+          <p className="mt-4 rounded-xl border border-ll-purple/25 bg-gradient-to-r from-ll-purple/10 to-ll-bg/60 px-3 py-2 text-sm font-medium text-ll-navy">
             Public profile saved.
           </p>
         ) : null}
@@ -161,9 +161,9 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
         ) : null}
       </section>
 
-      <section className="grid gap-5 overflow-hidden rounded-3xl border border-teal-200/30 bg-gradient-to-br from-white via-ll-bg/30 to-violet-50/20 p-5 shadow-md md:p-6 lg:grid-cols-2">
+      <section className="grid gap-5 overflow-hidden rounded-3xl border border-ll-purple/20 bg-gradient-to-br from-white via-ll-bg/35 to-ll-purple/10 p-5 shadow-md md:p-6 lg:grid-cols-2">
         <div className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-teal-800/90">Media</h3>
+          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-ll-navy/85">Media</h3>
 
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Banner</p>
@@ -216,7 +216,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-violet-800/90">Gallery preview</h3>
+          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-ll-purple">Gallery preview</h3>
           <p className="text-xs text-zinc-500">
             Banner: {bannerUrl ? "ready" : "none"} · Logo: {logoUrl ? "ready" : "none"} · Gallery: {galleryUrls.length}
             /8
@@ -242,7 +242,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
         </div>
       </section>
 
-      <section className="grid gap-5 overflow-hidden rounded-3xl border border-violet-200/35 bg-white/95 p-5 shadow-md md:p-6 lg:grid-cols-2">
+      <section className="grid gap-5 overflow-hidden rounded-3xl border border-ll-purple/25 bg-white/95 p-5 shadow-md md:p-6 lg:grid-cols-2">
         <div className="space-y-3">
           <Input label="Tagline" name="tagline" defaultValue={lab.tagline ?? ""} />
           <Input label="Website URL" name="website_url" defaultValue={lab.website_url ?? ""} />
@@ -334,7 +334,7 @@ function CompactUpload({
       </label>
       <label
         htmlFor={inputId}
-        className="flex cursor-pointer items-center justify-between rounded-xl border-2 border-dashed border-ll-purple/30 bg-gradient-to-r from-ll-bg/50 to-violet-50/40 px-3 py-2 text-sm text-zinc-800 transition hover:border-ll-purple/50 hover:from-white hover:to-ll-bg/60"
+        className="flex cursor-pointer items-center justify-between rounded-xl border-2 border-dashed border-ll-purple/30 bg-gradient-to-r from-ll-bg/55 to-ll-purple/10 px-3 py-2 text-sm text-zinc-800 transition hover:border-ll-purple/50 hover:from-white hover:to-ll-bg/60"
       >
         <span className="inline-flex items-center gap-2">
           <Upload className="h-4 w-4" />

@@ -139,10 +139,13 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
                 </td>
                 {showRecommendation ? (
                   <td className="py-3 pr-4 align-top text-zinc-600">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                      Score: {row.recommendationScore != null ? row.recommendationScore.toFixed(3) : "—"}
-                    </p>
-                    <p className="mt-1 text-xs">{row.recommendationReason ?? "—"}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Recommendation score</p>
+                    <div className="mt-1 inline-flex rounded-full border border-ll-purple/30 bg-ll-purple/10 px-3 py-1.5">
+                      <span className="text-lg font-bold tracking-tight text-ll-navy">
+                        {formatRecommendationPercent(row.recommendationScore)}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs">{row.recommendationReason ?? "—"}</p>
                   </td>
                 ) : null}
                 <td className="py-3 align-top">
@@ -196,4 +199,10 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
       </div>
     </div>
   );
+}
+
+function formatRecommendationPercent(score: number | null): string {
+  if (score == null || Number.isNaN(score)) return "—";
+  const normalized = Math.max(0, Math.min(1, score));
+  return `${Math.round(normalized * 100)}%`;
 }
