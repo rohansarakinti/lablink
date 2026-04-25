@@ -77,7 +77,6 @@ capture what is currently live in the codebase.
 - Student dashboard is implemented under `/dashboard/student` with a **layout shell** (left sidebar + top search bar):
   - **Explore** (`/dashboard/student`): large welcome; stats row (application count, my-labs count); **Matched for you** — paginated carousel of AI-matched **open roles** (from `match_cache` + `rankMatchesForStudent` refresh); **Recommended labs** — carousel of unique labs derived from the same match pool (deduped, up to 12), each linking to **`/dashboard/student/lab/[labId]`**; **Recent activity** — up to 8 applications ordered by `status_updated_at` with role/lab labels and link to all applications; **For you** — published **`lab_posts`** from followed labs + labs in the match/discover interest set (with **community fallback** when needed); posts sorted with **followed labs first**, then recency; each row uses compact **`LabFeedPostCard`** plus a **right column** of up to **six** open **`role_postings`** for **that post’s lab** with links to **`/postings/[id]`** and “All roles” to the student lab page; **student lab profile** at **`/dashboard/student/lab/[labId]`** — lab metadata, open role list, public feed (reuses feed card with `compact`). The old **Discovery placeholder** and bottom **Upcoming deadlines** promo card are **removed**.
   - **Applications** (`/dashboard/student/applications`): applications list + status
-  - **Messaging** (`/dashboard/student/messaging`): placeholder
   - **Lab management** (`/dashboard/student/labs`): student lab memberships (cards: name, university, role, joined)
   - **My profile** (`/dashboard/student/profile`): full editable profile page (all student fields + file uploads)
   - **Search** (`/dashboard/student/search?q=`): **semantic search** — `generate-embedding` **`query_embed`** → **`vector_match_role_postings_by_embedding`** → same **Gemini JSON re-rank** pattern as profile matching (`rankRolePostingsForSearchQuery` in `lib/matching.ts`); includes URL-backed multi-select filters for research field, role type, paid/unpaid, hours, year preference, and university (compact horizontal dropdown row with popout menus); Edge Function **`verify_jwt = false`** in `supabase/config.toml` for ES256 gateway compatibility
@@ -1881,7 +1880,7 @@ analytics SDK required.
 
 ### Student Dashboard (`/dashboard/student`)
 
-**Shipped (Apr 2026):** sidebar navigation (Explore, Applications, Messaging, Lab management, My profile), top search → `/dashboard/student/search`, and an **Explore** home with: **Matched for you** (matched open roles), **Recommended labs** (carousels + links to **`/dashboard/student/lab/[labId]`**), **Recent activity** (application status lines by `status_updated_at`), and **For you** (lab post stream with a **sidebar of open roles** per post’s lab, followed-first sort, `lab_posts` + `role_postings` reads) — see **“Implemented now”** at the top of this doc. **`/dashboard/student/lab/[labId]`** is the **student** read-only lab view (info, open postings, public feed). Professor lab management remains under **`/labs/[labId]`** (PI/member context).
+**Shipped (Apr 2026):** sidebar navigation (Explore, Applications, Lab management, My profile), top search → `/dashboard/student/search`, and an **Explore** home with: **Matched for you** (matched open roles), **Recommended labs** (carousels + links to **`/dashboard/student/lab/[labId]`**), **Recent activity** (application status lines by `status_updated_at`), and **For you** (lab post stream with a **sidebar of open roles** per post’s lab, followed-first sort, `lab_posts` + `role_postings` reads) — see **“Implemented now”** at the top of this doc. **`/dashboard/student/lab/[labId]`** is the **student** read-only lab view (info, open postings, public feed). Professor lab management remains under **`/labs/[labId]`** (PI/member context).
 
 **Target UX (below):** original tabbed shell — **Feed · Discover · Applications · My Labs** — a fuller shell than the current single **Explore** scroll; tabbed feed/discover features remain largely roadmap even though key ideas (followed-first posts, open roles) already appear on Explore.
 
@@ -2328,7 +2327,6 @@ Custom components (no shadcn equivalent) in `components/`:
 /dashboard/student/applications                      Applications list
 /dashboard/student/lab/[labId]                     Student lab profile: lab info, open `role_postings`, public `lab_posts` feed
 /dashboard/student/labs                            Student lab memberships ("Lab management")
-/dashboard/student/messaging                       Placeholder
 /dashboard/student/profile                         Full student profile (all `student_profiles` + identity fields; file uploads for avatar, resume, transcript — no user-entered file URLs in UI)
 /dashboard/professor                               Lab grid + recent activity
 
@@ -2378,7 +2376,7 @@ lablink/
 │   │       ├── wizard.tsx
 │   │       └── actions.ts                           # completeProfessorOnboarding
 │   ├── dashboard/
-│   │   ├── student/                                 # layout + Explore, applications, messaging, labs, profile, search routes
+│   │   ├── student/                                 # layout + Explore, applications, labs, profile, search routes
 │   │   └── professor/page.tsx                       # lab grid + activity
 │   ├── labs/
 │   │   ├── new/page.tsx
