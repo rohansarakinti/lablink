@@ -72,29 +72,32 @@ export default async function StudentDashboardPage() {
       }>
     >();
 
-  const { data: discoverPostings } = await supabase
+  type DiscoverPostingRow = {
+    id: string;
+    lab_id: string;
+    title: string;
+    status: string;
+    is_paid: string | null;
+    hours_per_week: string | null;
+    application_deadline: string | null;
+    created_at: string;
+    lab_groups: {
+      name: string;
+      university: string;
+      logo_url: string | null;
+      research_fields: string[] | null;
+    } | null;
+  };
+
+  const { data: recentOpenPostings } = await supabase
     .from("role_postings")
-    .select("id,lab_id,title,status,is_paid,hours_per_week,application_deadline,lab_groups(name,university,logo_url,research_fields)")
+    .select(
+      "id,lab_id,title,status,is_paid,hours_per_week,application_deadline,created_at,lab_groups(name,university,logo_url,research_fields)",
+    )
     .eq("status", "open")
     .order("created_at", { ascending: false })
     .limit(24)
-    .returns<
-      Array<{
-        id: string;
-        lab_id: string;
-        title: string;
-        status: string;
-        is_paid: string | null;
-        hours_per_week: string | null;
-        application_deadline: string | null;
-        lab_groups: {
-          name: string;
-          university: string;
-          logo_url: string | null;
-          research_fields: string[] | null;
-        } | null;
-      }>
-    >();
+    .returns<DiscoverPostingRow[]>();
 
   const { data: applications } = await supabase
     .from("applications")
@@ -104,6 +107,30 @@ export default async function StudentDashboardPage() {
     .returns<
       Array<{ id: string; posting_id: string; status: string; created_at: string; status_updated_at: string }>
     >();
+
+  const matchedPostingIds = Array.from(new Set((cachedMatchesAfter ?? []).map((match) => match.posting_id)));
+  const { data: matchedOpenPostings } =
+    matchedPostingIds.length === 0
+      ? { data: [] as DiscoverPostingRow[] }
+      : await supabase
+          .from("role_postings")
+          .select(
+            "id,lab_id,title,status,is_paid,hours_per_week,application_deadline,created_at,lab_groups(name,university,logo_url,research_fields)",
+          )
+          .in("id", matchedPostingIds)
+          .eq("status", "open")
+          .returns<DiscoverPostingRow[]>();
+
+  const discoverPostingById = new Map<string, DiscoverPostingRow>();
+  for (const posting of matchedOpenPostings ?? []) {
+    discoverPostingById.set(posting.id, posting);
+  }
+  for (const posting of recentOpenPostings ?? []) {
+    if (!discoverPostingById.has(posting.id)) {
+      discoverPostingById.set(posting.id, posting);
+    }
+  }
+  const discoverPostings = Array.from(discoverPostingById.values());
 
   const appPostingIdList = Array.from(new Set((applications ?? []).map((a) => a.posting_id)));
   const { data: applicationPostings } =
@@ -140,7 +167,7 @@ export default async function StudentDashboardPage() {
     >();
 
   const appliedPostingIdSet = new Set((applications ?? []).map((application) => application.posting_id));
-  const discoverPool = (discoverPostings ?? []).filter((posting) => !appliedPostingIdSet.has(posting.id));
+  const discoverPool = discoverPostings.filter((posting) => !appliedPostingIdSet.has(posting.id));
   const discoverById = new Map(discoverPool.map((posting) => [posting.id, posting]));
   const matchMetaByPostingId = new Map(
     (cachedMatchesAfter ?? []).map((match) => [match.posting_id, match]),

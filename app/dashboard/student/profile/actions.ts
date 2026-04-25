@@ -35,13 +35,24 @@ async function uploadProfileAsset(
   userId: string,
   file: FormDataEntryValue | null,
   bucketPathPrefix: string,
+  preserveOriginalName = false,
 ) {
   if (!(file instanceof File) || file.size === 0) return null;
   const extension = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
-  const filePath = `${bucketPathPrefix}/${userId}/${crypto.randomUUID()}.${extension}`;
+  const safeBaseName = file.name
+    .replace(/\.[^/.]+$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80) || "file";
+  const fileName = preserveOriginalName
+    ? `${safeBaseName}.${extension}`
+    : `${crypto.randomUUID()}.${extension}`;
+  const filePath = `${bucketPathPrefix}/${userId}/${fileName}`;
   const { error } = await supabase.storage.from("lab-assets").upload(filePath, file, {
     cacheControl: "3600",
-    upsert: false,
+    upsert: preserveOriginalName,
     contentType: file.type || undefined,
   });
   if (error) return null;
@@ -69,17 +80,13 @@ export async function saveStudentProfile(formData: FormData) {
     redirect("/dashboard/professor");
   }
 
-  const uploadedAvatarUrl = await uploadProfileAsset(
-    supabase,
-    user.id,
-    formData.get("avatar_file"),
-    "avatars",
-  );
+  const avatarUrlFromForm = toNullableText(formData.get("avatar_url"));
   const uploadedResumeUrl = await uploadProfileAsset(
     supabase,
     user.id,
     formData.get("resume_file"),
     "student-profiles",
+    true,
   );
   const uploadedTranscriptUrl = await uploadProfileAsset(
     supabase,
@@ -139,7 +146,7 @@ export async function saveStudentProfile(formData: FormData) {
     .from("profiles")
     .update({
       display_name: toNullableText(formData.get("display_name")),
-      avatar_url: uploadedAvatarUrl || gate.avatar_url || null,
+      avatar_url: avatarUrlFromForm || gate.avatar_url || null,
       email: toNullableText(formData.get("email")),
     })
     .eq("id", user.id);

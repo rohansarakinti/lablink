@@ -2503,3 +2503,60 @@ npx shadcn@latest add sonner alert
 npm install pdfjs-dist                        # transcript PDF parsing (client-side)
 npm install @dnd-kit/core @dnd-kit/sortable   # drag-to-rank interests in onboarding
 ```
+
+---
+
+## 16. Seeded Demo Personas (Anushka + Professor Smith)
+
+Use these accounts after migrations + `supabase/seed.sql` to demo student/professor matching:
+
+- Student: `anushka.bakshi@lablink-demo.test` / `SeedPass123!`
+- Professor: `professor.smith@lablink-demo.test` / `SeedPass123!`
+
+### Anushka Bakshi (Student) profile
+
+- Name/ID: `Anushka Bakshi` (`e2222222-2222-4222-8222-222222222222`)
+- Academic shape: Summit State University, junior, majors in Molecular Biology + Global Health, GPA ~3.9
+- Pre-med + translational orientation: med-school prep motivations, patient exposure, mentorship, clinical correlation interests
+- Wet-lab + quant stack: flow cytometry, ELISA, cell culture, biomarker-oriented analysis, R + Python
+- Seeded activity: follows Smith lab, has multiple applications, receives notifications, has warm `match_cache` rows for Explore
+
+### Professor Jordan Smith (Professor) profile
+
+- Name/ID: `Professor Jordan Smith` (`e1111111-1111-4111-8111-111111111111`)
+- Focus: translational immuno-oncology (tumor microenvironment, immunotherapy biomarkers, myeloid/CD8 dynamics)
+- Mentorship style: undergraduate pre-med/physician-scientist pipeline emphasis with structured training
+- Seeded lab: `Smith Lab — Translational Immuno-Oncology` (`e3333333-3333-4333-8333-333333333333`)
+- Seeded primary posting: `Undergraduate RA — Tumor microenvironment, flow cytometry & translational immuno-oncology` (`e4444444-4444-4444-8444-444444444441`)
+
+### Why this pair should rank strongly
+
+The seed text intentionally aligns the fields used by embedding generation (`student_profiles` and `role_postings`), including overlap on:
+
+- `flow cytometry`, `ELISA`, `cell culture`
+- `R`, `Python`, biomarker analysis
+- translational oncology / tumor microenvironment vocabulary
+- pre-med mentorship and physician-scientist goals
+
+This setup is designed so that after embeddings + rerank, Anushka is naturally a top candidate for Smith's posting without hard-coding a forced match.
+
+### Skit reset utility (re-apply flow)
+
+For demos where Anushka should discover Smith's posting first and apply live during the skit, use:
+
+- Script: `scripts/reset-anushka-smith-application.mjs`
+- NPM command: `npm run reset:anushka-smith`
+
+What it does (idempotent):
+
+- Deletes Anushka's application(s) to Smith's primary posting (`e4444444-4444-4444-8444-444444444441`)
+- Removes any Anushka membership in Smith lab (`e3333333-3333-4333-8333-333333333333`) from prior accepted runs
+- Ensures Smith's primary posting status is `open`
+
+Usage (PowerShell, from repo root):
+
+```powershell
+$env:SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
+$env:SUPABASE_SERVICE_ROLE_KEY="YOUR_SERVICE_ROLE_KEY"
+npm run reset:anushka-smith
+```

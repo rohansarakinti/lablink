@@ -104,7 +104,7 @@ begin
     where table_schema = 'public'
       and table_name = 'profiles'
   ) then
-    raise exception
+    raise exception '%',
       'LabLink seed requires the database schema from supabase/migrations/. '
       || 'public.profiles is missing. In the SQL editor, run ALL migration .sql files in timestamp order '
       || '(start with migrations: first file 20260420120000_foundation_profiles.sql), then run this seed again. '
