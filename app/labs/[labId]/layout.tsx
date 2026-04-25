@@ -6,7 +6,6 @@ const tabs = [
   { href: "members", label: "Members" },
   { href: "feed", label: "Feed" },
   { href: "postings", label: "Role postings" },
-  { href: "applicants", label: "Applicants" },
 ];
 
 export default async function LabLayout({
