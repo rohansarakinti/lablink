@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, FileText, LayoutDashboard, UserRound } from "lucide-react";
+import { BarChart3, LayoutDashboard, UserRound } from "lucide-react";
 
 const nav = [
   { href: "/dashboard/professor", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/professor/applications", label: "Applications", icon: FileText, exact: false },
-  { href: "/dashboard/professor/labs", label: "My labs", icon: Building2, exact: false },
+  { href: "/dashboard/professor/analytics", label: "Analytics", icon: BarChart3, exact: false },
   { href: "/dashboard/professor/profile", label: "My profile", icon: UserRound, exact: false },
 ] as const;
 
@@ -18,7 +17,7 @@ export function ProfessorSidebar({ displayName }: { displayName: string }) {
     <aside className="flex w-full shrink-0 flex-col border-r border-zinc-200/80 bg-white md:w-52 lg:w-56">
       <div className="border-b border-zinc-100 px-4 py-5 md:px-5">
         <p className="text-lg font-semibold leading-tight tracking-tight text-ll-navy">{displayName}</p>
-        <p className="mt-1 text-xs text-zinc-500">Professor</p>
+        <p className="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-500">Professor workspace</p>
       </div>
       <nav className="flex flex-col gap-1 p-3" aria-label="Professor navigation">
         {nav.map(({ href, label, icon: Icon, exact }) => {
