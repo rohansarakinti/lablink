@@ -12,8 +12,11 @@ export default async function NewLabFeedPostPage({ params }: { params: Promise<{
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <Link href={`/labs/${labId}/feed`} className="inline-block text-sm font-medium text-ll-navy underline">
+    <div className="mx-auto max-w-2xl space-y-5">
+      <Link
+        href={`/labs/${labId}/feed`}
+        className="inline-flex items-center gap-1 rounded-full border border-ll-navy/15 bg-white/90 px-3 py-1.5 text-sm font-semibold text-ll-navy shadow-sm transition hover:border-ll-purple/30 hover:bg-ll-bg/60"
+      >
         ← Back to feed
       </Link>
       <LabFeedComposer labId={labId} userId={context.userId} />

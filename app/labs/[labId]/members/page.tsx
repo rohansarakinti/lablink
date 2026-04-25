@@ -51,58 +51,66 @@ export default async function LabMembersPage({
   });
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-ll-navy">Members</h2>
-        {context.canManage ? (
-          <form action={createInviteLink} className="flex items-center gap-2">
-            <input type="hidden" name="lab_id" value={labId} />
-            <select
-              name="invite_role"
-              defaultValue="lab_manager"
-              className="rounded-full border border-zinc-300 px-3 py-2 text-xs text-zinc-700"
-            >
-              <option value="lab_manager">Lab manager</option>
-              <option value="postdoc">Postdoc</option>
-              <option value="grad_researcher">Grad researcher</option>
-            </select>
-            <button
-              type="submit"
-              className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700"
-            >
-              Generate invite link
-            </button>
-          </form>
-        ) : null}
-      </div>
-      {query.invite_link ? (
-        <div className="mb-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700">
-          Invite link: {query.invite_link}
+    <div className="overflow-hidden rounded-3xl border border-ll-navy/10 bg-white/95 shadow-lg shadow-ll-navy/5">
+      <div className="bg-gradient-to-r from-ll-bg via-white to-violet-50/50 px-6 py-5 md:px-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="h-1 w-12 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
+            <h2 className="mt-2 text-xl font-semibold text-ll-navy md:text-2xl">Members</h2>
+            <p className="mt-1 text-sm text-zinc-600">People in this lab and how they participate.</p>
+          </div>
+          {context.canManage ? (
+            <form action={createInviteLink} className="flex flex-wrap items-center gap-2">
+              <input type="hidden" name="lab_id" value={labId} />
+              <select
+                name="invite_role"
+                defaultValue="lab_manager"
+                className="rounded-full border border-ll-navy/15 bg-white px-3 py-2 text-xs font-medium text-ll-navy shadow-sm"
+              >
+                <option value="lab_manager">Lab manager</option>
+                <option value="postdoc">Postdoc</option>
+                <option value="grad_researcher">Grad researcher</option>
+              </select>
+              <button
+                type="submit"
+                className="rounded-full bg-gradient-to-r from-ll-navy to-[#0a5c6a] px-4 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:brightness-105"
+              >
+                Generate invite link
+              </button>
+            </form>
+          ) : null}
         </div>
-      ) : null}
+      </div>
+      <div className="px-6 pb-6 pt-2 md:px-8">
+        {query.invite_link ? (
+          <div className="mb-4 rounded-xl border border-ll-purple/25 bg-gradient-to-r from-ll-purple/10 to-violet-50/80 p-4 text-xs font-medium text-violet-950">
+            <span className="text-violet-800/90">Invite link:</span>{" "}
+            <span className="break-all font-mono text-violet-950">{query.invite_link}</span>
+          </div>
+        ) : null}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-zinc-200 text-sm">
-          <thead>
-            <tr className="text-left text-zinc-500">
-              <th className="py-2 pr-4 font-medium">Name</th>
-              <th className="py-2 pr-4 font-medium">Role</th>
-              <th className="py-2 pr-4 font-medium">University</th>
-              <th className="py-2 pr-4 font-medium">Joined</th>
-              {context.canManage ? <th className="py-2 font-medium">Actions</th> : null}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100">
-            {(members ?? []).map((member) => (
-              <tr key={member.id}>
-                <td className="py-3 pr-4">
-                  <p className="font-medium text-ll-navy">{member.profiles?.display_name ?? member.profiles?.email}</p>
-                </td>
-                <td className="py-3 pr-4">
-                  <span className="rounded-full bg-zinc-100 px-2 py-1 text-xs uppercase text-zinc-700">
-                    {member.lab_role.replaceAll("_", " ")}
-                  </span>
-                </td>
+        <div className="overflow-x-auto rounded-2xl border border-zinc-100 bg-white/80">
+          <table className="min-w-full divide-y divide-zinc-100 text-sm">
+            <thead>
+              <tr className="bg-gradient-to-r from-ll-bg/90 to-white text-left text-xs font-semibold uppercase tracking-wide text-zinc-600">
+                <th className="py-3 pl-4 pr-4">Name</th>
+                <th className="py-3 pr-4">Role</th>
+                <th className="py-3 pr-4">University</th>
+                <th className="py-3 pr-4">Joined</th>
+                {context.canManage ? <th className="py-3 pr-4">Actions</th> : null}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-50">
+              {(members ?? []).map((member) => (
+                <tr key={member.id} className="transition hover:bg-ll-bg/40">
+                  <td className="py-3 pl-4 pr-4">
+                    <p className="font-semibold text-ll-navy">{member.profiles?.display_name ?? member.profiles?.email}</p>
+                  </td>
+                  <td className="py-3 pr-4">
+                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${memberRolePillClass(member.lab_role)}`}>
+                      {member.lab_role.replaceAll("_", " ")}
+                    </span>
+                  </td>
                 <td className="py-3 pr-4 text-zinc-600">
                   {universityById.get(member.user_id) ?? "—"}
                 </td>
@@ -116,7 +124,7 @@ export default async function LabMembersPage({
                         <select
                           name="next_role"
                           defaultValue={member.lab_role}
-                          className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
+                          className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-800 shadow-sm"
                         >
                           <option value="pi">PI</option>
                           <option value="lab_manager">Lab manager</option>
@@ -128,7 +136,7 @@ export default async function LabMembersPage({
                         </select>
                         <button
                           type="submit"
-                          className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700"
+                          className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-900 transition hover:bg-teal-100"
                         >
                           Save
                         </button>
@@ -138,7 +146,7 @@ export default async function LabMembersPage({
                         <input type="hidden" name="membership_id" value={member.id} />
                         <button
                           type="submit"
-                          className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
+                          className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-800 transition hover:bg-red-100"
                         >
                           Remove
                         </button>
@@ -149,8 +157,19 @@ export default async function LabMembersPage({
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
   );
+}
+
+function memberRolePillClass(labRole: string): string {
+  if (labRole === "pi" || labRole === "lab_manager") {
+    return "bg-ll-navy text-white ring-1 ring-ll-navy/20";
+  }
+  if (labRole === "postdoc" || labRole === "grad_researcher") {
+    return "bg-ll-purple/20 text-ll-navy ring-1 ring-ll-purple/30";
+  }
+  return "bg-zinc-100 text-zinc-800 ring-1 ring-zinc-200/80";
 }

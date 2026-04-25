@@ -15,13 +15,16 @@ export default async function NewRolePostingPage({
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-      <h2 className="text-2xl font-semibold text-ll-navy">Create role posting</h2>
-      <p className="mt-2 text-sm text-zinc-600">
-        Define expectations, candidate filters, and publication status for this opportunity.
-      </p>
+    <div className="overflow-hidden rounded-3xl border border-emerald-200/40 bg-white/95 shadow-lg shadow-teal-900/5">
+      <div className="bg-gradient-to-r from-emerald-50/90 via-ll-bg/50 to-white px-6 py-6 md:px-8">
+        <div className="h-1 w-14 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500" aria-hidden />
+        <h2 className="mt-3 text-2xl font-semibold text-ll-navy">Create role posting</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600">
+          Define expectations, candidate filters, and publication status for this opportunity.
+        </p>
+      </div>
 
-      <form action={createRolePosting} className="mt-6 grid gap-4">
+      <form action={createRolePosting} className="grid gap-4 border-t border-zinc-100 px-6 py-6 md:px-8">
         <input type="hidden" name="lab_id" value={labId} />
 
         <Field label="Title" name="title" required />
@@ -139,12 +142,12 @@ export default async function NewRolePostingPage({
           placeholder="resume, transcript, statement_of_interest, interview"
         />
 
-        <div className="flex items-center gap-3 pt-2">
+        <div className="flex flex-wrap items-center gap-3 border-t border-zinc-100 pt-4">
           <button
             type="submit"
             name="publish_now"
             value="false"
-            className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700"
+            className="rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-900 shadow-sm transition hover:bg-sky-100"
           >
             Save draft
           </button>
@@ -152,7 +155,7 @@ export default async function NewRolePostingPage({
             type="submit"
             name="publish_now"
             value="true"
-            className="rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white"
+            className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-900/15 transition hover:brightness-105"
           >
             Publish now
           </button>

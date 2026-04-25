@@ -119,8 +119,8 @@ export default async function PostingApplicantsPage({
 
   if (!posting) {
     return (
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <p className="text-sm text-zinc-600">Posting not found.</p>
+      <div className="rounded-3xl border border-amber-200/60 bg-gradient-to-br from-amber-50 to-orange-50/50 p-8 text-center shadow-md">
+        <p className="text-sm font-medium text-amber-950">Posting not found.</p>
       </div>
     );
   }
@@ -273,32 +273,39 @@ export default async function PostingApplicantsPage({
     });
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <p className="text-xs uppercase tracking-wide text-zinc-500">Applicant review</p>
-        <h2 className="mt-1 text-2xl font-semibold text-ll-navy">{posting.title}</h2>
-        <Link href={`/labs/${labId}/postings`} className="mt-2 inline-block text-sm text-ll-navy underline">
-          Back to postings
+    <div className="space-y-6">
+      <div className="overflow-hidden rounded-3xl border border-teal-200/40 bg-gradient-to-br from-teal-50/80 via-white to-violet-50/30 p-6 shadow-lg shadow-teal-900/5 md:p-8">
+        <div className="h-1 w-14 rounded-full bg-gradient-to-r from-teal-600 to-violet-500" aria-hidden />
+        <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-teal-900/80">Applicant review</p>
+        <h2 className="mt-2 text-2xl font-semibold text-ll-navy md:text-3xl">{posting.title}</h2>
+        <Link
+          href={`/labs/${labId}/postings`}
+          className="mt-3 inline-flex w-fit items-center gap-1 rounded-full border border-teal-200/80 bg-white/90 px-3 py-1.5 text-sm font-semibold text-teal-900 shadow-sm transition hover:border-violet-300 hover:bg-violet-50/80"
+        >
+          ← Back to postings
         </Link>
       </div>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <div className="mb-4 flex flex-wrap gap-2">
+      <div className="overflow-hidden rounded-3xl border border-zinc-100 bg-white/95 p-6 shadow-md md:p-7">
+        <div className="mb-5 flex flex-wrap gap-2">
           {viewOptions.map((status) => (
             <a
               key={status}
               href={buildApplicantListUrl(status)}
-              className={`rounded-full border px-3 py-1 text-xs font-medium uppercase ${
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide shadow-sm transition ${
                 requestedStatus === status
-                  ? "border-ll-navy bg-ll-navy text-white"
-                  : "border-zinc-300 bg-white text-zinc-700"
+                  ? "border-transparent bg-gradient-to-r from-ll-navy to-[#0a5c6a] text-white shadow-md shadow-ll-navy/20"
+                  : "border-zinc-200 bg-white text-zinc-700 hover:border-ll-purple/25 hover:bg-ll-bg/50"
               }`}
             >
               {status}
             </a>
           ))}
         </div>
-        <form method="get" className="mb-5 grid gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 md:grid-cols-4">
+        <form
+          method="get"
+          className="mb-5 grid gap-2 rounded-2xl border border-violet-100 bg-gradient-to-br from-ll-bg/40 to-violet-50/30 p-4 md:grid-cols-4"
+        >
           <input type="hidden" name="status" value={requestedStatus} />
           <select
             name="skills"

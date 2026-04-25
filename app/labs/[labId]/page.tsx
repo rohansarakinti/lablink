@@ -23,25 +23,35 @@ export default async function LabOverviewPage({
     ]);
 
   const stats = [
-    { label: "Total members", value: memberCount ?? 0 },
-    { label: "Open postings", value: openPostingCount ?? 0 },
-    { label: "Applications this month", value: appsCount ?? 0 },
-    { label: "Followers", value: followersCount ?? 0 },
+    { label: "Total members", value: memberCount ?? 0, accent: "from-ll-navy/90 to-[#0a5c6a]" },
+    { label: "Open postings", value: openPostingCount ?? 0, accent: "from-emerald-600 to-teal-500" },
+    { label: "Applications this month", value: appsCount ?? 0, accent: "from-ll-purple to-violet-500" },
+    { label: "Followers", value: followersCount ?? 0, accent: "from-amber-500 to-orange-400" },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 md:grid-cols-4">
+    <div className="space-y-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <article key={stat.label} className="rounded-xl border border-zinc-200 bg-white p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">{stat.label}</p>
-            <p className="mt-2 text-2xl font-semibold text-ll-navy">{stat.value}</p>
+          <article
+            key={stat.label}
+            className="relative overflow-hidden rounded-2xl border border-white/80 bg-white/90 p-5 shadow-md shadow-ll-navy/5 backdrop-blur-sm"
+          >
+            <div className={`absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b ${stat.accent}`} aria-hidden />
+            <p className="pl-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">{stat.label}</p>
+            <p className="mt-3 pl-2 text-3xl font-bold tracking-tight text-ll-navy">{stat.value}</p>
           </article>
         ))}
       </div>
 
-      <article className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <h2 className="text-xl font-semibold text-ll-navy">Public profile preview</h2>
+      <article className="overflow-hidden rounded-3xl border border-ll-navy/10 bg-white/95 p-6 shadow-lg shadow-ll-navy/5 md:p-8">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <div className="h-1 w-16 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
+            <h2 className="mt-3 text-xl font-semibold text-ll-navy md:text-2xl">Public profile preview</h2>
+            <p className="mt-1 text-sm text-zinc-600">What students and visitors see on your lab&apos;s public page.</p>
+          </div>
+        </div>
 
         {context.lab.banner_url ? (
           <img src={context.lab.banner_url} alt="" className="mt-4 h-40 w-full rounded-xl object-cover md:h-48" />
@@ -65,7 +75,7 @@ export default async function LabOverviewPage({
             {context.lab.research_tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-xs text-zinc-700"
+                className="inline-flex items-center rounded-full border border-violet-200/80 bg-violet-50/90 px-2.5 py-0.5 text-xs font-medium text-violet-900"
               >
                 {tag}
               </span>
@@ -99,8 +109,11 @@ export default async function LabOverviewPage({
         ) : null}
 
         {context.lab.website_url ? (
-          <a className="mt-4 inline-block text-sm font-semibold text-ll-navy underline" href={context.lab.website_url}>
-            Visit lab website
+          <a
+            className="mt-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-ll-navy to-[#0a5c6a] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:brightness-105"
+            href={context.lab.website_url}
+          >
+            Visit lab website <span aria-hidden>↗</span>
           </a>
         ) : null}
       </article>

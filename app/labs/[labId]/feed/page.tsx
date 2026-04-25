@@ -34,16 +34,19 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
   const posts = rows ?? [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-8">
+      <div className="overflow-hidden rounded-3xl border border-ll-purple/15 bg-gradient-to-br from-ll-bg/50 via-white to-violet-50/40 p-6 shadow-md shadow-ll-navy/5 md:flex md:items-end md:justify-between md:p-8">
         <div>
-          <h2 className="text-2xl font-semibold text-ll-navy">Feed</h2>
-          <p className="mt-1 text-sm text-zinc-600">Updates from your lab, visible to followers and on your public presence.</p>
+          <div className="h-1 w-14 rounded-full bg-gradient-to-r from-ll-purple to-pink-400" aria-hidden />
+          <h2 className="mt-3 text-2xl font-semibold text-ll-navy md:text-3xl">Feed</h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-600">
+            Share photos and updates from your lab—visible to followers and on your public presence.
+          </p>
         </div>
         {context.canPostToFeed ? (
           <Link
             href={`/labs/${labId}/feed/new`}
-            className="w-fit rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white"
+            className="mt-5 inline-flex w-fit shrink-0 rounded-full bg-gradient-to-r from-ll-purple to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-purple/25 transition hover:brightness-105 md:mt-0"
           >
             New post
           </Link>
@@ -51,16 +54,20 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
       </div>
 
       {error ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p className="rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-orange-50/50 px-4 py-3 text-sm font-medium text-red-900">
           Could not load posts. If you just added this feature, run the latest database migration.
         </p>
       ) : null}
 
       {!error && posts.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-10 text-center">
-          <p className="text-sm text-zinc-600">No posts yet.</p>
+        <div className="rounded-3xl border-2 border-dashed border-ll-purple/20 bg-gradient-to-br from-violet-50/50 via-white to-ll-bg/40 px-6 py-12 text-center">
+          <p className="text-sm font-medium text-zinc-700">No posts yet.</p>
+          <p className="mt-2 text-sm text-zinc-500">Highlights, milestones, and day-in-the-lab moments belong here.</p>
           {context.canPostToFeed ? (
-            <Link href={`/labs/${labId}/feed/new`} className="mt-3 inline-block text-sm font-semibold text-ll-navy underline">
+            <Link
+              href={`/labs/${labId}/feed/new`}
+              className="mt-5 inline-flex rounded-full bg-gradient-to-r from-ll-purple to-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:brightness-105"
+            >
               Create the first post
             </Link>
           ) : null}

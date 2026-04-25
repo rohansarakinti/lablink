@@ -127,40 +127,55 @@ export default async function ApplicantStudentProfilePage({
   const customResponses = Object.entries(application.custom_responses ?? {});
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6">
+    <div className="space-y-6">
+      <div className="overflow-hidden rounded-3xl border border-violet-200/40 bg-gradient-to-br from-violet-50/70 via-white to-ll-bg/40 p-6 shadow-lg md:p-8">
         <Link
           href={`/labs/${labId}/postings/${postingId}/applicants`}
-          className="text-sm text-ll-navy underline"
+          className="inline-flex w-fit items-center gap-1 rounded-full border border-violet-200 bg-white/90 px-3 py-1.5 text-sm font-semibold text-violet-900 shadow-sm transition hover:bg-violet-50"
         >
           ← Back to applicant review
         </Link>
-        <p className="mt-3 text-xs uppercase tracking-wide text-zinc-500">Applicant profile</p>
-        <h2 className="mt-1 text-2xl font-semibold text-ll-navy">{studentName}</h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          {posting.title} · Applied {new Date(application.created_at).toLocaleDateString()} · Status:{" "}
-          <span className="font-medium text-zinc-800">{application.status}</span>
+        <div className="mt-4 h-1 w-12 rounded-full bg-gradient-to-r from-violet-600 to-ll-purple" aria-hidden />
+        <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-violet-800/90">Applicant profile</p>
+        <h2 className="mt-2 text-2xl font-semibold text-ll-navy md:text-3xl">{studentName}</h2>
+        <p className="mt-2 text-sm text-zinc-600">
+          <span className="font-medium text-zinc-800">{posting.title}</span>
+          <span className="text-zinc-400"> · </span>
+          Applied {new Date(application.created_at).toLocaleDateString()}
+          <span className="text-zinc-400"> · </span>
+          Status:{" "}
+          <span className="rounded-full bg-white/90 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-ll-navy ring-1 ring-violet-200">
+            {application.status}
+          </span>
         </p>
       </div>
 
       <StudentProfileEditor values={values} saved={false} readOnly />
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5">
+      <section className="overflow-hidden rounded-3xl border border-teal-100 bg-white/95 p-6 shadow-md md:p-7">
+        <div className="mb-4 h-1 w-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-400" aria-hidden />
         <h3 className="text-lg font-semibold text-ll-navy">Application-specific responses</h3>
-        <div className="mt-3 space-y-2 text-sm text-zinc-700">
-          <p>Statement: {application.statement || "—"}</p>
-          <p>Reviewer notes: {application.reviewer_notes || "—"}</p>
+        <div className="mt-4 space-y-3 rounded-2xl border border-zinc-100 bg-gradient-to-br from-zinc-50/80 to-white p-4 text-sm text-zinc-700">
+          <p>
+            <span className="font-semibold text-ll-navy">Statement:</span> {application.statement || "—"}
+          </p>
+          <p>
+            <span className="font-semibold text-ll-navy">Reviewer notes:</span> {application.reviewer_notes || "—"}
+          </p>
         </div>
-        <div className="mt-4">
-          <h4 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Custom responses</h4>
+        <div className="mt-6">
+          <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-teal-900/80">Custom responses</h4>
           {customResponses.length === 0 ? (
             <p className="mt-2 text-sm text-zinc-600">No custom question responses submitted.</p>
           ) : (
-            <div className="mt-2 space-y-3">
+            <div className="mt-3 space-y-3">
               {customResponses.map(([questionId, answer]) => (
-                <div key={questionId} className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Question {questionId}</p>
-                  <p className="mt-1 text-sm text-zinc-700">{answer}</p>
+                <div
+                  key={questionId}
+                  className="rounded-xl border border-violet-100 bg-gradient-to-r from-violet-50/50 to-white p-4"
+                >
+                  <p className="text-xs font-bold uppercase tracking-wide text-violet-700">Question {questionId}</p>
+                  <p className="mt-2 text-sm text-zinc-800">{answer}</p>
                 </div>
               ))}
             </div>

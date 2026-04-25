@@ -42,16 +42,23 @@ export default async function NewLabPage({
     .maybeSingle<ProfessorProfile>();
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-12">
-      <h1 className="text-3xl font-semibold text-ll-navy">Create a new lab</h1>
-      <p className="mt-2 text-sm text-ll-gray">
-        Set up your lab identity, research focus, and posting settings in two quick steps.
-      </p>
-      <LabCreateForm
-        defaultUniversity={professorProfile?.university ?? ""}
-        error={query.error}
-        errorDetail={query.detail}
+    <main className="relative min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-ll-bg/60 via-white to-violet-50/30">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(197,147,238,0.2),transparent)]"
+        aria-hidden
       />
+      <div className="relative mx-auto w-full max-w-4xl px-6 py-12">
+        <div className="mb-2 h-1 w-16 rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-teal-500" aria-hidden />
+        <h1 className="text-3xl font-semibold tracking-tight text-ll-navy md:text-4xl">Create a new lab</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-600">
+          Set up your lab identity, research focus, and posting settings in two quick steps.
+        </p>
+        <LabCreateForm
+          defaultUniversity={professorProfile?.university ?? ""}
+          error={query.error}
+          errorDetail={query.detail}
+        />
+      </div>
     </main>
   );
 }

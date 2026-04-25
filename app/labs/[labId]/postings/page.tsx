@@ -28,13 +28,17 @@ export default async function LabPostingsPage({
     .returns<PostingRow[]>();
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-ll-navy">Role postings</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="h-1 w-12 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500" aria-hidden />
+          <h2 className="mt-2 text-2xl font-semibold text-ll-navy">Role postings</h2>
+          <p className="mt-1 text-sm text-zinc-600">Open roles, track applicants, and update status.</p>
+        </div>
         {context.canManage ? (
           <Link
             href={`/labs/${labId}/postings/new`}
-            className="rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white"
+            className="w-fit rounded-full bg-gradient-to-r from-ll-navy to-[#0a5c6a] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-navy/25 transition hover:brightness-105"
           >
             New posting
           </Link>
@@ -42,32 +46,53 @@ export default async function LabPostingsPage({
       </div>
 
       {(postings ?? []).length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center text-sm text-zinc-600">
-          No postings yet.
+        <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-gradient-to-br from-ll-bg/60 via-white to-violet-50/40 p-10 text-center">
+          <p className="text-sm font-medium text-zinc-700">No postings yet.</p>
+          <p className="mt-2 text-sm text-zinc-500">Create a role to start recruiting students to your lab.</p>
+          {context.canManage ? (
+            <Link
+              href={`/labs/${labId}/postings/new`}
+              className="mt-5 inline-flex rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-[#0a5c6a]"
+            >
+              Create first posting
+            </Link>
+          ) : null}
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2">
           {(postings ?? []).map((posting) => (
-            <article key={posting.id} className="rounded-2xl border border-zinc-200 bg-white p-5">
-              <div className="flex items-start justify-between gap-3">
+            <article
+              key={posting.id}
+              className="group relative overflow-hidden rounded-3xl border border-zinc-100 bg-white/95 p-6 shadow-md shadow-ll-navy/5 transition hover:border-ll-purple/20 hover:shadow-lg"
+            >
+              <div
+                className={`absolute left-0 top-0 h-full w-1 ${postingStatusStripeClass(posting.status)}`}
+                aria-hidden
+              />
+              <div className="flex items-start justify-between gap-3 pl-2">
                 <h3 className="text-lg font-semibold text-ll-navy">{posting.title}</h3>
-                <span className="rounded-full bg-zinc-100 px-2 py-1 text-xs uppercase text-zinc-700">
+                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${postingStatusBadgeClass(posting.status)}`}>
                   {posting.status}
                 </span>
               </div>
-              <p className="mt-3 text-sm text-zinc-600">Applicants: {posting.applications?.length ?? 0}</p>
-              <p className="mt-1 text-sm text-zinc-600">
-                Deadline: {posting.application_deadline ? new Date(posting.application_deadline).toLocaleDateString() : "Not set"}
+              <p className="mt-4 pl-2 text-sm text-zinc-600">
+                <span className="font-semibold text-ll-navy">{posting.applications?.length ?? 0}</span> applicants
+              </p>
+              <p className="mt-1 pl-2 text-sm text-zinc-600">
+                Deadline:{" "}
+                <span className="font-medium text-zinc-800">
+                  {posting.application_deadline ? new Date(posting.application_deadline).toLocaleDateString() : "Not set"}
+                </span>
               </p>
               <Link
                 href={`/labs/${labId}/postings/${posting.id}/applicants`}
-                className="mt-3 inline-block text-sm font-medium text-ll-navy underline"
+                className="mt-4 inline-flex pl-2 text-sm font-semibold text-teal-700 underline decoration-teal-300 decoration-2 underline-offset-4 transition hover:text-teal-900"
               >
-                Review applicants
+                Review applicants →
               </Link>
 
               {context.canManage ? (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-5 flex flex-wrap gap-2 border-t border-zinc-100 pt-4 pl-2">
                   <StatusButton labId={labId} postingId={posting.id} status="open" />
                   <StatusButton labId={labId} postingId={posting.id} status="closed" />
                   <StatusButton labId={labId} postingId={posting.id} status="archived" />
@@ -81,6 +106,36 @@ export default async function LabPostingsPage({
   );
 }
 
+function postingStatusBadgeClass(status: string): string {
+  switch (status) {
+    case "open":
+      return "bg-emerald-100 text-emerald-900 ring-1 ring-emerald-200/80";
+    case "closed":
+      return "bg-amber-100 text-amber-950 ring-1 ring-amber-200/80";
+    case "draft":
+      return "bg-sky-100 text-sky-900 ring-1 ring-sky-200/80";
+    case "archived":
+      return "bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200/80";
+    default:
+      return "bg-zinc-100 text-zinc-700 ring-1 ring-zinc-200/80";
+  }
+}
+
+function postingStatusStripeClass(status: string): string {
+  switch (status) {
+    case "open":
+      return "bg-gradient-to-b from-emerald-500 to-teal-400";
+    case "closed":
+      return "bg-gradient-to-b from-amber-500 to-orange-400";
+    case "draft":
+      return "bg-gradient-to-b from-sky-500 to-blue-400";
+    case "archived":
+      return "bg-gradient-to-b from-zinc-400 to-zinc-300";
+    default:
+      return "bg-gradient-to-b from-zinc-400 to-zinc-300";
+  }
+}
+
 function StatusButton({
   labId,
   postingId,
@@ -90,6 +145,13 @@ function StatusButton({
   postingId: string;
   status: "open" | "closed" | "archived";
 }) {
+  const styles =
+    status === "open"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100"
+      : status === "closed"
+        ? "border-amber-200 bg-amber-50 text-amber-950 hover:bg-amber-100"
+        : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100";
+
   return (
     <form action={updatePostingStatus}>
       <input type="hidden" name="lab_id" value={labId} />
@@ -97,7 +159,7 @@ function StatusButton({
       <input type="hidden" name="status" value={status} />
       <button
         type="submit"
-        className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-medium capitalize text-zinc-700"
+        className={`rounded-full border px-3 py-1.5 text-xs font-semibold capitalize shadow-sm transition ${styles}`}
       >
         {status}
       </button>

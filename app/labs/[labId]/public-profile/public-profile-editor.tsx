@@ -135,11 +135,12 @@ export function PublicProfileEditor({ labId, lab, saved }: Props) {
         <input key={url} type="hidden" name="gallery_urls" value={url} />
       ))}
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <section className="overflow-hidden rounded-3xl border border-ll-navy/10 bg-white/95 p-5 shadow-lg shadow-ll-navy/5 md:p-6">
+        <div className="mb-4 h-1 w-14 rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-teal-500" aria-hidden />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-xl font-semibold text-ll-navy">Public profile editor</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+            <h2 className="text-xl font-semibold text-ll-navy md:text-2xl">Public profile editor</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600">
               Update media and messaging students see before applying. Images upload immediately; save writes URLs to
               your lab profile.
             </p>
@@ -147,15 +148,15 @@ export function PublicProfileEditor({ labId, lab, saved }: Props) {
           <SaveButton />
         </div>
         {saved ? (
-          <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <p className="mt-4 rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50/50 px-3 py-2 text-sm font-medium text-emerald-800">
             Public profile saved.
           </p>
         ) : null}
       </section>
 
-      <section className="grid gap-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm lg:grid-cols-2">
+      <section className="grid gap-5 overflow-hidden rounded-3xl border border-teal-200/30 bg-gradient-to-br from-white via-ll-bg/30 to-violet-50/20 p-5 shadow-md md:p-6 lg:grid-cols-2">
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-600">Media</h3>
+          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-teal-800/90">Media</h3>
 
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Banner</p>
@@ -208,7 +209,7 @@ export function PublicProfileEditor({ labId, lab, saved }: Props) {
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-600">Gallery preview</h3>
+          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-violet-800/90">Gallery preview</h3>
           <p className="text-xs text-zinc-500">
             Banner: {bannerUrl ? "ready" : "none"} · Logo: {logoUrl ? "ready" : "none"} · Gallery: {galleryUrls.length}
             /8
@@ -234,7 +235,7 @@ export function PublicProfileEditor({ labId, lab, saved }: Props) {
         </div>
       </section>
 
-      <section className="grid gap-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm lg:grid-cols-2">
+      <section className="grid gap-5 overflow-hidden rounded-3xl border border-violet-200/35 bg-white/95 p-5 shadow-md md:p-6 lg:grid-cols-2">
         <div className="space-y-3">
           <Input label="Tagline" name="tagline" defaultValue={lab.tagline ?? ""} />
           <Input label="Website URL" name="website_url" defaultValue={lab.website_url ?? ""} />
@@ -257,7 +258,7 @@ function SaveButton() {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex items-center justify-center rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+      className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-ll-navy to-[#0a5c6a] px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:brightness-105 disabled:opacity-60"
     >
       {pending ? "Saving..." : "Save public profile"}
     </button>
@@ -325,7 +326,7 @@ function CompactUpload({
       </label>
       <label
         htmlFor={inputId}
-        className="flex cursor-pointer items-center justify-between rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
+        className="flex cursor-pointer items-center justify-between rounded-xl border-2 border-dashed border-ll-purple/30 bg-gradient-to-r from-ll-bg/50 to-violet-50/40 px-3 py-2 text-sm text-zinc-800 transition hover:border-ll-purple/50 hover:from-white hover:to-ll-bg/60"
       >
         <span className="inline-flex items-center gap-2">
           <Upload className="h-4 w-4" />

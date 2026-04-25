@@ -112,9 +112,15 @@ export function LabFeedComposer({ labId, userId }: { labId: string; userId: stri
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-ll-navy">Create post</h2>
-      <p className="mt-1 text-sm text-zinc-600">Share photos and a short update with your lab&apos;s followers.</p>
+    <form
+      onSubmit={handleSubmit}
+      className="overflow-hidden rounded-3xl border border-ll-purple/15 bg-white/95 p-6 shadow-lg shadow-ll-purple/10 md:p-8"
+    >
+      <div className="mb-5 h-1 w-12 rounded-full bg-gradient-to-r from-ll-purple to-pink-400" aria-hidden />
+      <h2 className="text-xl font-semibold text-ll-navy">Create post</h2>
+      <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+        Share photos and a short update with your lab&apos;s followers.
+      </p>
 
       <label htmlFor="feed-caption" className="mt-5 block text-sm font-medium text-ll-navy">
         Description
@@ -125,7 +131,7 @@ export function LabFeedComposer({ labId, userId }: { labId: string; userId: stri
         onChange={(e) => setCaption(e.target.value)}
         rows={6}
         placeholder="What would you like to share?"
-        className="mt-2 w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none ring-ll-navy/20 focus:border-ll-navy focus:ring-2"
+        className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm outline-none ring-violet-200/50 focus:border-ll-purple focus:ring-2"
         disabled={submitting}
       />
 
@@ -136,7 +142,7 @@ export function LabFeedComposer({ labId, userId }: { labId: string; userId: stri
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           multiple
-          className="mt-2 block w-full text-sm text-zinc-600 file:mr-3 file:rounded-full file:border-0 file:bg-ll-navy file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-ll-navy/90"
+          className="mt-2 block w-full text-sm text-zinc-600 file:mr-3 file:rounded-full file:border-0 file:bg-gradient-to-r file:from-ll-purple file:to-violet-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:brightness-105"
           disabled={submitting}
           onChange={(e) => {
             onPickFiles(e.target.files);
@@ -166,11 +172,11 @@ export function LabFeedComposer({ labId, userId }: { labId: string; userId: stri
 
       {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
 
-      <div className="mt-6 flex flex-wrap items-center justify-end gap-3">
+      <div className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-zinc-100 pt-5">
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full bg-ll-navy px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="rounded-full bg-gradient-to-r from-ll-purple to-violet-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-ll-purple/25 transition hover:brightness-105 disabled:opacity-50"
         >
           {submitting ? "Publishing…" : "Post"}
         </button>
