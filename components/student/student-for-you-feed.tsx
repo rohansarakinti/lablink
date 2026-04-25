@@ -35,10 +35,10 @@ export function StudentForYouFeed({
   openPostingsByLabId: Record<string, ForYouFeedLabPosting[]>;
 }) {
   return (
-    <section>
+    <section className="ll-animate-fade-up ll-delay-200">
       <div className="mb-3">
-        <h2 className="flex items-center gap-2 text-lg font-bold text-ll-navy">
-          <Rss className="size-5 text-ll-purple" aria-hidden />
+        <h2 className="group flex items-center gap-2 text-lg font-bold text-ll-navy">
+          <Rss className="size-5 text-ll-purple transition-transform duration-300 group-hover:rotate-6" aria-hidden />
           For you
         </h2>
         <p className="mt-1 text-sm text-zinc-600">
@@ -58,7 +58,7 @@ export function StudentForYouFeed({
             return (
               <li
                 key={post.id}
-                className="grid overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm sm:grid-cols-1 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(200px,240px)]"
+                className="grid overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md sm:grid-cols-1 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(200px,240px)]"
               >
                 <div className="min-w-0 bg-white">
                   <Link href={`/dashboard/student/lab/${post.labId}`} className="block h-full min-h-0">
@@ -93,7 +93,7 @@ export function StudentForYouFeed({
                           <li key={item.id}>
                             <Link
                               href={`/postings/${item.id}`}
-                              className="block rounded-lg border border-zinc-200/90 bg-white px-2.5 py-1.5 text-left shadow-sm transition hover:border-ll-purple/30 hover:shadow"
+                              className="block rounded-lg border border-zinc-200/90 bg-white px-2.5 py-1.5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-ll-purple/30 hover:shadow"
                             >
                               <p className="line-clamp-2 text-[12px] font-semibold leading-snug text-ll-navy">{item.title}</p>
                               {dl ? <p className="mt-0.5 text-[10px] text-zinc-500">Deadline {dl}</p> : null}

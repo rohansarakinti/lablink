@@ -55,12 +55,7 @@ export async function saveProfessorProfile(formData: FormData) {
     redirect("/dashboard/student");
   }
 
-  const uploadedAvatarUrl = await uploadProfileAsset(
-    supabase,
-    user.id,
-    formData.get("avatar_file"),
-    "avatars",
-  );
+  const avatarUrlFromForm = toNullableText(formData.get("avatar_url"));
   const uploadedCvUrl = await uploadProfileAsset(
     supabase,
     user.id,
@@ -110,7 +105,7 @@ export async function saveProfessorProfile(formData: FormData) {
     .from("profiles")
     .update({
       display_name: toNullableText(formData.get("display_name")),
-      avatar_url: uploadedAvatarUrl || gate.avatar_url || null,
+      avatar_url: avatarUrlFromForm || gate.avatar_url || null,
       email: toNullableText(formData.get("email")),
     })
     .eq("id", user.id);

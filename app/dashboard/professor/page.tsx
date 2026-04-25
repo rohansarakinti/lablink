@@ -176,7 +176,7 @@ export default async function ProfessorDashboardPage() {
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <ProfessorSectionCard
-          title="Applicant pipeline"
+          title="Applicant Status"
           action={
             <Link href="/dashboard/professor/analytics" className="text-xs font-semibold uppercase tracking-wide text-ll-purple">
               View analytics →

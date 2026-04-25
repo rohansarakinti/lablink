@@ -71,8 +71,19 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
         <ul className="space-y-5">
           {posts.map((post) => {
             const author = normalizeProfile(post.profiles);
+            const canEdit = context.canManage || post.author_id === context.userId;
             return (
               <li key={post.id}>
+                {canEdit ? (
+                  <div className="mb-2 flex justify-end">
+                    <Link
+                      href={`/labs/${labId}/feed/${post.id}/edit`}
+                      className="text-xs font-semibold uppercase tracking-wide text-ll-purple"
+                    >
+                      Edit post
+                    </Link>
+                  </div>
+                ) : null}
                 <LabFeedPostCard
                   labName={context.lab.name}
                   labLogoUrl={context.lab.logo_url}

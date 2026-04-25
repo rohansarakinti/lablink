@@ -40,10 +40,13 @@ export default async function StudentDashboardLayout({ children }: { children: R
     <div className="min-h-[calc(100vh-3.5rem)] bg-zinc-100/90">
       <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] w-full max-w-[1600px]">
         <StudentSidebar displayName={displayName} />
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="ll-animate-fade-in flex min-w-0 flex-1 flex-col">
           <Suspense
             fallback={
-              <div className="h-[52px] border-b border-zinc-200/90 bg-[#fafafa] md:h-[60px]" aria-hidden />
+              <div
+                className="ll-loader-shimmer h-[52px] border-b border-zinc-200/90 bg-linear-to-r from-zinc-100 via-zinc-200 to-zinc-100 md:h-[60px]"
+                aria-hidden
+              />
             }
           >
             <StudentTopSearch />

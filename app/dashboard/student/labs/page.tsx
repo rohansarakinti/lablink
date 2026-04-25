@@ -28,11 +28,11 @@ export default async function StudentLabsPage() {
     >();
 
   return (
-    <div>
+    <div className="ll-animate-fade-up">
       <h1 className="text-2xl font-bold text-ll-navy md:text-3xl">Lab management</h1>
-      <p className="mt-1 text-sm text-zinc-600">Labs where you are an active member.</p>
+      <p className="ll-animate-fade-up ll-delay-100 mt-1 text-sm text-zinc-600">Labs where you are an active member.</p>
 
-      <section className="mt-6">
+      <section className="ll-animate-fade-up ll-delay-200 mt-6">
         {(myLabs ?? []).length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center text-sm text-zinc-600">
             You are not a member of any lab yet.
@@ -41,7 +41,7 @@ export default async function StudentLabsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {(myLabs ?? []).map((membership) =>
               membership.lab_groups ? (
-                <article key={membership.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+                <article key={membership.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md">
                   <h2 className="text-lg font-semibold text-ll-navy">{membership.lab_groups.name}</h2>
                   <p className="mt-1 text-sm text-zinc-600">{membership.lab_groups.university}</p>
                   <p className="mt-2 text-xs uppercase tracking-wide text-zinc-500">

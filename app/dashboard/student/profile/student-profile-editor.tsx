@@ -101,7 +101,7 @@ export function StudentProfileEditor({
 
   return (
     <form action={readOnly ? undefined : saveStudentProfile} className="mx-auto w-full max-w-6xl space-y-5">
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <section className="ll-animate-fade-up rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-ll-navy md:text-4xl">{values.full_name || "My Profile"}</h1>
@@ -119,7 +119,7 @@ export function StudentProfileEditor({
       </section>
 
       <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <section className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <section className="ll-animate-scale-in ll-delay-100 space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <img src={avatarSrc} alt="Student avatar" className="h-64 w-full rounded-2xl object-cover" />
           <input type="hidden" name="avatar_url" value={avatarUrl} />
           <CompactUpload
@@ -166,7 +166,7 @@ export function StudentProfileEditor({
         </section>
 
         <div className="space-y-5">
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <section className="ll-animate-fade-up ll-delay-100 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-xl font-semibold text-ll-navy">Research Biography</h2>
             <Textarea
               label="Biography / experience details"
@@ -179,7 +179,7 @@ export function StudentProfileEditor({
             <Textarea label="Honors / awards" name="honors_or_awards" defaultValue={values.honors_or_awards} rows={3} readOnly={readOnly} />
           </section>
 
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <section className="ll-animate-fade-up ll-delay-200 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-xl font-semibold text-ll-navy">Academic + Skills</h2>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
               <Input label="Major(s)" name="major" defaultValue={values.major} readOnly={readOnly} />
@@ -196,7 +196,7 @@ export function StudentProfileEditor({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <section className="ll-animate-fade-up ll-delay-300 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-xl font-semibold text-ll-navy">Preferences + Goals</h2>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
               <Input label="Role types sought" name="role_types_sought" defaultValue={values.role_types_sought} readOnly={readOnly} />
@@ -209,7 +209,7 @@ export function StudentProfileEditor({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <section className="ll-animate-fade-up ll-delay-400 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-xl font-semibold text-ll-navy">Documents</h2>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
               <CompactUpload
@@ -250,7 +250,7 @@ function SaveButton() {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex items-center justify-center rounded-lg bg-ll-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+      className="inline-flex items-center justify-center rounded-lg bg-ll-navy px-4 py-2 text-sm font-semibold text-white transition-all duration-250 hover:-translate-y-0.5 hover:bg-ll-navy/90 hover:shadow-md disabled:opacity-60"
     >
       {pending ? "Saving..." : "Save profile"}
     </button>
@@ -275,7 +275,7 @@ function Input({
         name={name}
         defaultValue={defaultValue}
         readOnly={readOnly}
-        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-all duration-200 hover:border-zinc-400 focus:border-ll-purple focus:outline-none focus:ring-2 focus:ring-ll-purple/20"
       />
     </label>
   );
@@ -302,7 +302,7 @@ function Textarea({
         defaultValue={defaultValue}
         rows={rows}
         readOnly={readOnly}
-        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-all duration-200 hover:border-zinc-400 focus:border-ll-purple focus:outline-none focus:ring-2 focus:ring-ll-purple/20"
       />
     </label>
   );
@@ -328,7 +328,7 @@ function Select({
         name={name}
         defaultValue={defaultValue}
         disabled={disabled}
-        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-all duration-200 hover:border-zinc-400 focus:border-ll-purple focus:outline-none focus:ring-2 focus:ring-ll-purple/20"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -368,7 +368,7 @@ function CompactUpload({
       </label>
       <label
         htmlFor={inputId}
-        className="flex cursor-pointer items-center justify-between rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
+        className="flex cursor-pointer items-center justify-between rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 transition-all duration-200 hover:border-zinc-400 hover:bg-zinc-100"
       >
         <span className="inline-flex items-center gap-2">
           <Upload className="h-4 w-4" />

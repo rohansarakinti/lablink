@@ -112,7 +112,7 @@ export default async function StudentSearchPage({
 
   if (!query) {
     return (
-      <div className="mx-auto max-w-2xl rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-6 py-16 text-center">
+      <div className="ll-animate-scale-in mx-auto max-w-2xl rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-6 py-16 text-center">
         <h1 className="text-2xl font-bold text-ll-navy">Search roles</h1>
         <p className="mt-2 text-sm text-zinc-600">Enter a search in the bar above, then press Enter to find open postings.</p>
         <p className="mt-3 text-xs text-zinc-500">We use the same vector similarity plus LLM re-ranking as your personalized matches.</p>
@@ -124,7 +124,7 @@ export default async function StudentSearchPage({
 
   if (ranked.length === 0) {
     return (
-      <div>
+      <div className="ll-animate-fade-up">
         <h1 className="text-2xl font-bold text-ll-navy">No matches yet</h1>
         {searchFailure ? (
           <p className="mt-3 rounded-xl border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-900">{searchFailure}</p>
@@ -237,10 +237,10 @@ export default async function StudentSearchPage({
   const clearAllHref = `/dashboard/student/search?q=${encodeURIComponent(query)}`;
 
   return (
-    <div>
+    <div className="ll-animate-fade-up">
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-ll-navy md:text-3xl">Search</h1>
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="ll-animate-fade-up ll-delay-100 mt-1 text-sm text-zinc-600">
           Showing {items.length} result{items.length === 1 ? "" : "s"} for &quot;{query}&quot;
         </p>
       </header>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { Upload } from "lucide-react";
 import { saveProfessorProfile } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 
 export type ProfessorProfileValues = {
   display_name: string;
@@ -33,7 +34,51 @@ export type ProfessorProfileValues = {
 };
 
 export function ProfessorProfileEditor({ values, saved }: { values: ProfessorProfileValues; saved: boolean }) {
-  const avatarSrc = useMemo(() => values.avatar_url || "/window.svg", [values.avatar_url]);
+  const [avatarSrc, setAvatarSrc] = useState(values.avatar_url || "/window.svg");
+  const [avatarUrl, setAvatarUrl] = useState(values.avatar_url || "");
+  const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const supabase = useMemo(() => createClient(), []);
+
+  const onAvatarSelected = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setAvatarUploadError(null);
+    setAvatarUploading(true);
+    setAvatarSrc(URL.createObjectURL(file));
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setAvatarUploadError("Sign in again, then retry the upload.");
+        return;
+      }
+
+      const extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+      const filePath = `avatars/${user.id}/${crypto.randomUUID()}.${extension}`;
+      const { error } = await supabase.storage.from("lab-assets").upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type || undefined,
+      });
+      if (error) {
+        setAvatarUploadError(error.message);
+        return;
+      }
+
+      const { data } = supabase.storage.from("lab-assets").getPublicUrl(filePath);
+      setAvatarUrl(data.publicUrl);
+      setAvatarSrc(data.publicUrl);
+    } catch (error) {
+      setAvatarUploadError(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setAvatarUploading(false);
+      event.target.value = "";
+    }
+  };
 
   return (
     <form action={saveProfessorProfile} className="mx-auto w-full max-w-6xl space-y-5">
@@ -66,12 +111,14 @@ export function ProfessorProfileEditor({ values, saved }: { values: ProfessorPro
       <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
         <section className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <img src={avatarSrc} alt="Profile" className="h-64 w-full rounded-2xl object-cover" />
+          <input type="hidden" name="avatar_url" value={avatarUrl} />
           <CompactUpload
             label="Upload profile photo"
             inputId="avatar_file"
-            name="avatar_file"
             accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
-            helperText="PNG, JPG, or WEBP."
+            helperText={avatarUploadError ?? (avatarUploading ? "Uploading..." : "PNG, JPG, or WEBP.")}
+            badge={avatarUploadError ? "Upload failed" : avatarUploading ? "Uploading..." : "Image"}
+            onChange={onAvatarSelected}
           />
           <Input label="Display name" name="display_name" defaultValue={values.display_name} />
           <Input label="Full name" name="full_name" defaultValue={values.full_name} />
@@ -112,7 +159,6 @@ export function ProfessorProfileEditor({ values, saved }: { values: ProfessorPro
             <CompactUpload
               label="Upload CV (PDF)"
               inputId="cv_file"
-              name="cv_file"
               accept=".pdf,application/pdf"
             />
           </section>
@@ -253,15 +299,17 @@ function Select({
 function CompactUpload({
   label,
   inputId,
-  name,
   helperText,
+  onChange,
   accept = ".pdf",
+  badge = "Upload",
 }: {
   label: string;
   inputId: string;
-  name: string;
   helperText?: string;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   accept?: string;
+  badge?: string;
 }) {
   return (
     <div className="space-y-1">
@@ -276,9 +324,9 @@ function CompactUpload({
           <Upload className="h-4 w-4" />
           Choose file
         </span>
-        <span className="text-xs text-zinc-500">Upload to replace</span>
+        <span className="text-xs text-zinc-500">{badge}</span>
       </label>
-      <input id={inputId} name={name} type="file" accept={accept} className="hidden" />
+      <input id={inputId} name={inputId} type="file" accept={accept} onChange={onChange} className="hidden" />
       {helperText ? <p className="text-xs text-zinc-500">{helperText}</p> : null}
     </div>
   );

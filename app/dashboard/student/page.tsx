@@ -5,6 +5,7 @@ import { rankMatchesForStudent } from "@/lib/matching";
 import { MatchedForYouCarousel } from "@/components/student/matched-for-you-carousel";
 import { RecommendedLabsCarousel, type RecommendedLabItem } from "@/components/student/recommended-labs-carousel";
 import { RecentApplicationActivity, type ApplicationActivityItem } from "@/components/student/recent-application-activity";
+import { ProgressMetricRow } from "@/components/professor/professor-dashboard-ui";
 import {
   StudentForYouFeed,
   type ForYouFeedLabPosting,
@@ -373,6 +374,20 @@ export default async function StudentDashboardPage() {
   const firstName = (profile?.display_name ?? profile?.email ?? "there").split(/\s+/)[0] ?? "there";
   const appCount = (applications ?? []).length;
   const labCount = (myLabs ?? []).filter((m) => m.lab_groups).length;
+  const applicationStatusCounts = new Map<string, number>();
+  for (const application of applications ?? []) {
+    applicationStatusCounts.set(application.status, (applicationStatusCounts.get(application.status) ?? 0) + 1);
+  }
+  const interviewsCount =
+    (applicationStatusCounts.get("interview") ?? 0) + (applicationStatusCounts.get("interviewing") ?? 0);
+  const offeredCount = (applicationStatusCounts.get("offered") ?? 0) + (applicationStatusCounts.get("accepted") ?? 0);
+  const pipelineRows = [
+    { label: "Applied", value: applicationStatusCounts.get("submitted") ?? 0 },
+    { label: "Screening", value: applicationStatusCounts.get("screening") ?? 0 },
+    { label: "Interview", value: interviewsCount },
+    { label: "Offers", value: offeredCount },
+  ];
+  const pipelineMax = Math.max(...pipelineRows.map((row) => row.value), 1);
 
   return (
     <div className="w-full max-w-6xl">
@@ -393,6 +408,24 @@ export default async function StudentDashboardPage() {
           <p className="mt-1 text-2xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{labCount}</p>
         </div>
       </div>
+
+      <section className="ll-animate-fade-up ll-delay-150 mb-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-ll-navy md:text-lg">Application pipeline</h2>
+          <Link href="/dashboard/student/applications" className="text-xs font-semibold uppercase tracking-wide text-ll-purple">
+            View applications →
+          </Link>
+        </div>
+        {appCount === 0 ? (
+          <p className="text-sm text-zinc-600">Apply to open roles to start tracking your pipeline here.</p>
+        ) : (
+          <div className="space-y-3">
+            {pipelineRows.map((row) => (
+              <ProgressMetricRow key={row.label} label={row.label} value={row.value} max={pipelineMax} />
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className="ll-animate-fade-up ll-delay-200 mb-8">
         <div className="mb-3 flex items-center justify-between gap-2">

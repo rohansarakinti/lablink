@@ -42,11 +42,11 @@ export default async function StudentApplicationsPage() {
   const appliedLabById = new Map((appliedLabs ?? []).map((lab) => [lab.id, lab]));
 
   return (
-    <div>
+    <div className="ll-animate-fade-up">
       <h1 className="text-2xl font-bold text-ll-navy md:text-3xl">Applications</h1>
-      <p className="mt-1 text-sm text-zinc-600">Track roles you have applied to.</p>
+      <p className="ll-animate-fade-up ll-delay-100 mt-1 text-sm text-zinc-600">Track roles you have applied to.</p>
 
-      <section className="mt-6 rounded-2xl border border-zinc-200 bg-white p-6">
+      <section className="ll-animate-fade-up ll-delay-200 mt-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
         {(applications ?? []).length === 0 ? (
           <p className="text-sm text-zinc-600">No applications yet.</p>
         ) : (
@@ -55,7 +55,7 @@ export default async function StudentApplicationsPage() {
               const posting = postingById.get(application.posting_id);
               const lab = posting ? appliedLabById.get(posting.lab_id) : null;
               return (
-                <li key={application.id} className="rounded-xl border border-zinc-200 p-4">
+                <li key={application.id} className="rounded-xl border border-zinc-200 p-4 transition-all duration-250 hover:-translate-y-0.5 hover:shadow-sm">
                   <p className="font-medium text-ll-navy">
                     {posting?.title ?? "Role posting"} · {lab?.name ?? "Lab"}
                   </p>

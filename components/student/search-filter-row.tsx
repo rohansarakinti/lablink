@@ -73,7 +73,7 @@ export function SearchFilterRow({
   }
 
   return (
-    <section className="mb-6 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <section className="ll-animate-fade-up ll-delay-100 mb-6 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Filters</h2>
         {hasActiveFilters ? (
@@ -105,10 +105,10 @@ export function SearchFilterRow({
               <button
                 type="button"
                 onClick={() => setOpenKey(isOpen ? null : section.key)}
-                className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium shadow-sm transition ${
+                className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium shadow-sm transition-all duration-200 ${
                   count > 0
                     ? "border-ll-purple/60 bg-ll-purple/10 text-ll-navy"
-                    : "border-ll-bg bg-ll-bg text-ll-navy hover:brightness-90"
+                    : "border-ll-bg bg-ll-bg text-ll-navy hover:-translate-y-0.5 hover:brightness-95"
                 }`}
               >
                 <span>{section.label}</span>
@@ -117,11 +117,11 @@ export function SearchFilterRow({
                     {count}
                   </span>
                 ) : null}
-                <ChevronDown className={`size-4 transition ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`size-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
               </button>
 
               {isOpen ? (
-                <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-zinc-200 bg-white p-2 shadow-xl">
+                <div className="ll-animate-fade-in absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-zinc-200 bg-white p-2 shadow-xl">
                   <div className="max-h-72 overflow-y-auto pr-1">
                     {section.options.map((option) => {
                       const checked = selectedValues.includes(option.value);

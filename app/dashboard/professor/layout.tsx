@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfessorSidebar } from "@/components/professor/professor-sidebar";
-import { ProfessorTopBar } from "@/components/professor/professor-top-bar";
 
 export default async function ProfessorDashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -40,7 +39,6 @@ export default async function ProfessorDashboardLayout({ children }: { children:
       <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] w-full max-w-[1600px]">
         <ProfessorSidebar displayName={displayName} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <ProfessorTopBar />
           <div className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { getLabContext } from "./_lib";
 
 const tabs = [
   { href: "", label: "Overview" },
+  { href: "public-profile", label: "Public profile" },
   { href: "members", label: "Members" },
   { href: "feed", label: "Feed" },
   { href: "postings", label: "Role postings" },

@@ -29,11 +29,11 @@ function statusLabel(status: string) {
 
 export function RecentApplicationActivity({ items }: { items: ApplicationActivityItem[] }) {
   return (
-    <section>
+    <section className="ll-animate-fade-up ll-delay-100">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="flex items-center gap-2 text-lg font-bold text-ll-navy">
-            <Activity className="size-5 text-ll-purple" aria-hidden />
+          <h2 className="group flex items-center gap-2 text-lg font-bold text-ll-navy">
+            <Activity className="size-5 text-ll-purple transition-transform duration-300 group-hover:-translate-y-0.5" aria-hidden />
             Recent activity
           </h2>
           <p className="mt-1 text-sm text-zinc-600">The latest status updates on applications you have submitted.</p>
@@ -55,7 +55,7 @@ export function RecentApplicationActivity({ items }: { items: ApplicationActivit
             <li key={row.id}>
               <Link
                 href="/dashboard/student/applications"
-                className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md sm:gap-4 sm:p-4"
+                className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md sm:gap-4 sm:p-4"
               >
                 <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-zinc-100 bg-zinc-50">
                   {row.labLogoUrl ? (

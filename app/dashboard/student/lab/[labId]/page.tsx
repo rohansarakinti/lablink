@@ -42,7 +42,9 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
 
   const { data: lab } = await supabase
     .from("lab_groups")
-    .select("id,name,university,department,tagline,description,website_url,logo_url,banner_url,research_fields,research_tags")
+    .select(
+      "id,name,university,department,tagline,description,website_url,logo_url,banner_url,research_fields,research_tags,gallery_urls,student_fit,expectations",
+    )
     .eq("id", labId)
     .maybeSingle<{
       id: string;
@@ -56,6 +58,9 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
       banner_url: string | null;
       research_fields: string[];
       research_tags: string[];
+      gallery_urls: string[];
+      student_fit: string | null;
+      expectations: string | null;
     }>();
 
   if (!lab) {
@@ -86,13 +91,13 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
     <div className="w-full max-w-6xl">
       <Link
         href="/dashboard/student"
-        className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-ll-navy hover:underline"
+        className="ll-animate-fade-up mb-6 inline-flex items-center gap-2 text-sm font-medium text-ll-navy transition-transform duration-200 hover:-translate-x-0.5 hover:underline"
       >
         <ArrowLeft className="size-4" aria-hidden />
         Back to Explore
       </Link>
 
-      <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="ll-animate-scale-in ll-delay-100 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
         {lab.banner_url ? (
           <div className="relative h-40 w-full bg-zinc-100 md:h-48">
             <Image src={lab.banner_url} alt="" fill className="object-cover" unoptimized />
@@ -145,6 +150,33 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
 
           {lab.description ? <p className="mt-6 text-sm leading-relaxed text-zinc-700 whitespace-pre-wrap">{lab.description}</p> : null}
 
+          {lab.gallery_urls.length > 0 ? (
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {lab.gallery_urls.slice(0, 8).map((url) => (
+                <div key={url} className="relative h-24 w-full overflow-hidden rounded-lg bg-zinc-100">
+                  <Image src={url} alt="" fill className="object-cover" unoptimized />
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {lab.student_fit || lab.expectations ? (
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Who should apply</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">
+                  {lab.student_fit || "No specific fit guidance provided yet."}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Expectations</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">
+                  {lab.expectations || "No weekly expectations provided yet."}
+                </p>
+              </div>
+            </div>
+          ) : null}
+
           {lab.website_url ? (
             <a
               href={lab.website_url}
@@ -158,7 +190,7 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
         </div>
       </div>
 
-      <section className="mt-10">
+      <section className="ll-animate-fade-up ll-delay-200 mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-ll-navy">Open role postings</h2>
         <p className="mt-1 text-sm text-zinc-600">Active listings from this lab. Apply to join their team.</p>
 
@@ -172,7 +204,7 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
               <li key={p.id}>
                 <Link
                   href={`/postings/${p.id}`}
-                  className="block rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                  className="block rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <h3 className="font-semibold text-ll-navy">{p.title}</h3>
                   <p className="mt-2 text-xs text-zinc-600">
@@ -190,9 +222,9 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
         )}
       </section>
 
-      <section className="mt-10">
-        <h2 className="flex items-center gap-2 text-lg font-bold text-ll-navy">
-          <Sparkles className="size-5 text-ll-purple" aria-hidden />
+      <section className="ll-animate-fade-up ll-delay-300 mt-10">
+        <h2 className="group flex items-center gap-2 text-lg font-bold text-ll-navy">
+          <Sparkles className="size-5 text-ll-purple transition-transform duration-300 group-hover:rotate-6" aria-hidden />
           Lab feed
         </h2>
         <p className="mt-1 text-sm text-zinc-600">Public updates from the lab team.</p>

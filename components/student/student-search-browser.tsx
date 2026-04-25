@@ -164,7 +164,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
       : undefined;
 
   return (
-    <div className="h-fit w-full min-h-0 max-w-full">
+    <div className="ll-animate-fade-up ll-delay-200 h-fit w-full min-h-0 max-w-full">
       <div className="flex min-h-0 w-full max-w-full flex-col gap-4 lg:flex-row lg:items-start lg:gap-5">
         {/* Matched list: on lg, height = measured detail block so the row doesn’t grow with list min-content; scroll inside */}
         <div
@@ -180,7 +180,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
                 key={item.postingId}
                 type="button"
                 onClick={() => setSelectedId(item.postingId)}
-                className="group w-full border-b border-zinc-200 border-l-4 border-l-transparent p-4 pl-3 text-left transition-colors last:border-b-0 hover:border-l-ll-purple hover:bg-white"
+                className="group w-full border-b border-zinc-200 border-l-4 border-l-transparent p-4 pl-3 text-left transition-all duration-200 last:border-b-0 hover:border-l-ll-purple hover:bg-white hover:pl-4"
               >
                 <span
                   className="inline-block rounded-full bg-zinc-200 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-600 group-hover:bg-ll-purple group-hover:text-white transition-colors"
@@ -202,7 +202,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
       {/* Detail: intrinsic height — measured so the list column (lg) can match without flex min-content from long lists */}
       <div
         ref={detailRef}
-        className="min-h-0 w-full min-w-0 max-w-full shrink-0 grow overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm lg:flex-1"
+        className="min-h-0 w-full min-w-0 max-w-full shrink-0 grow overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md lg:flex-1"
       >
         <div
           className={`relative h-[12rem] w-full overflow-hidden rounded-t-2xl rounded-br-[2.25rem] rounded-bl-none bg-gradient-to-br from-ll-navy via-[#0a4a52] to-ll-navy md:h-52 ${
@@ -236,7 +236,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
         <div className="flex flex-wrap items-center gap-3 border-b border-zinc-100 px-5 py-3 md:px-8">
           <Link
             href={`/postings/${selected?.postingId}`}
-            className="inline-flex items-center gap-2 rounded-xl bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ll-navy/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-ll-navy/90 hover:shadow"
           >
             Apply now
             <ArrowRight className="size-4" />
@@ -244,7 +244,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           <button
             type="button"
             title="Coming soon"
-            className="inline-flex items-center gap-2 rounded-xl bg-ll-purple px-5 py-2.5 text-sm font-semibold text-white shadow-sm opacity-90 hover:opacity-100 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-xl bg-ll-purple px-5 py-2.5 text-sm font-semibold text-white shadow-sm opacity-90 transition-all duration-200 hover:-translate-y-0.5 hover:opacity-100 hover:shadow disabled:cursor-not-allowed"
             disabled
           >
             <Save className="size-4" />
@@ -279,7 +279,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
                     return (
                       <div
                         key={skill}
-                        className="flex items-center gap-3 rounded-r-lg border-y border-r border-zinc-200/80 border-l-4 border-l-ll-purple bg-[#f3f4f6] py-2.5 pl-2 pr-3 text-sm font-semibold text-zinc-900 shadow-sm"
+                        className="flex items-center gap-3 rounded-r-lg border-y border-r border-zinc-200/80 border-l-4 border-l-ll-purple bg-[#f3f4f6] py-2.5 pl-2 pr-3 text-sm font-semibold text-zinc-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#eef1f4]"
                       >
                         <span className="flex size-9 shrink-0 items-center justify-center text-ll-navy">
                           <Icon className="size-4" />
