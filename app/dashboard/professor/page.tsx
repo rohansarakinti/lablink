@@ -63,13 +63,14 @@ export default async function ProfessorDashboardPage() {
 
   const { data: postingRows } = await supabase
     .from("role_postings")
-    .select("id,title,status,created_at,application_deadline")
+    .select("id,lab_id,title,status,created_at,application_deadline")
     .eq("created_by", user?.id ?? "")
     .order("created_at", { ascending: false })
     .limit(150)
     .returns<
       Array<{
         id: string;
+        lab_id: string;
         title: string;
         status: string;
         created_at: string;
@@ -234,7 +235,7 @@ export default async function ProfessorDashboardPage() {
                     : "No deadline set"}
                 </p>
                 <Link
-                  href="/dashboard/professor/analytics"
+                  href={`/labs/${posting.lab_id}/postings/${posting.id}/applicants`}
                   className="mt-3 inline-block text-sm font-medium text-ll-navy underline"
                 >
                   Review applicants
