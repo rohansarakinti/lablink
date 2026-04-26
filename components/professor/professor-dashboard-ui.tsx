@@ -13,7 +13,7 @@ export function ProfessorPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm md:p-7">
+    <section className="ll-animate-fade-up rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm md:p-7">
       <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-ll-navy md:text-4xl">{title}</h1>
@@ -44,7 +44,7 @@ export function ProfessorStatCard({
         : "text-zinc-500";
 
   return (
-    <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{label}</p>
       <p className="mt-1 text-3xl font-semibold tracking-tight text-ll-navy">{value}</p>
       {trend ? (
@@ -67,7 +67,7 @@ export function ProfessorSectionCard({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow duration-250 hover:shadow-md">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-ll-navy md:text-lg">{title}</h2>
         {action}

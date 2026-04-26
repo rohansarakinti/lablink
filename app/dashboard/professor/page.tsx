@@ -168,14 +168,14 @@ export default async function ProfessorDashboardPage() {
         subtitle="Manage labs, triage applicants, and monitor momentum from one workspace."
       />
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="ll-animate-fade-up ll-delay-100 mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <ProfessorStatCard label="Active postings" value={activePostingCount} />
         <ProfessorStatCard label="Applicants" value={applicationCount ?? 0} trend={`${weeklyApplications} this week`} tone="positive" />
         <ProfessorStatCard label="Interviews scheduled" value={interviewsCount} trend="Stable pipeline" />
         <ProfessorStatCard label="Review completion" value={reviewRate} trend="Across all applications" tone="accent" />
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+      <div className="ll-animate-fade-up ll-delay-200 mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <ProfessorSectionCard
           title="Applicant Status"
           action={
@@ -197,7 +197,7 @@ export default async function ProfessorDashboardPage() {
           ) : (
             <ul className="space-y-3">
               {interviewRows.map((row) => (
-                <li key={row.id} className="flex items-center justify-between gap-3 rounded-xl border border-zinc-100 bg-zinc-50/70 p-3">
+                <li key={row.id} className="flex items-center justify-between gap-3 rounded-xl border border-zinc-100 bg-zinc-50/70 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-ll-navy">{row.studentName}</p>
                     <p className="truncate text-xs text-zinc-600">{row.postingTitle}</p>
@@ -212,7 +212,7 @@ export default async function ProfessorDashboardPage() {
         </ProfessorSectionCard>
       </div>
 
-      <section className="mt-5">
+      <section className="ll-animate-fade-up ll-delay-300 mt-5">
         <div className="mb-3 flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-ll-navy">Your postings</h2>
         </div>
@@ -223,7 +223,7 @@ export default async function ProfessorDashboardPage() {
         ) : (
           <div className="grid gap-3 md:grid-cols-3">
             {postingCards.map((posting) => (
-              <article key={posting.id} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <article key={posting.id} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md">
                 <h3 className="line-clamp-2 text-sm font-semibold text-ll-navy">{posting.title}</h3>
                 <div className="mt-3 flex items-center gap-2">
                   <ProfessorPill tone={posting.status === "open" ? "positive" : "neutral"}>{posting.status}</ProfessorPill>
@@ -246,7 +246,7 @@ export default async function ProfessorDashboardPage() {
         )}
       </section>
 
-      <section className="mt-8">
+      <section className="ll-animate-fade-up ll-delay-300 mt-8">
         <div className="mb-3 flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-ll-navy">My labs</h2>
           <Link href="/labs/new" className="text-sm font-medium text-ll-navy underline">
@@ -313,7 +313,7 @@ export default async function ProfessorDashboardPage() {
         )}
       </section>
 
-      <section className="mt-8">
+      <section className="ll-animate-fade-up ll-delay-400 mt-8">
         <div className="mb-4 flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-ll-navy">Recent activity</h2>
           <Link href="/dashboard/professor/analytics" className="text-sm font-medium text-ll-navy underline">
@@ -325,7 +325,7 @@ export default async function ProfessorDashboardPage() {
         ) : (
           <ul className="mt-4 space-y-3">
             {recentActivity.map((activity) => (
-              <li key={activity.id} className="rounded-xl border border-zinc-200 bg-white p-4 text-sm shadow-sm">
+              <li key={activity.id} className="rounded-xl border border-zinc-200 bg-white p-4 text-sm shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <p className="font-medium text-ll-navy">
                   {activity.role_postings?.title ?? "Role posting"} at{" "}
                   {activity.role_postings?.lab_groups?.name ?? "your lab"}

@@ -83,12 +83,12 @@ export function ProfessorProfileEditor({ values, saved }: { values: ProfessorPro
   return (
     <form action={saveProfessorProfile} className="mx-auto w-full max-w-6xl space-y-5">
       <p className="text-sm text-zinc-600">
-        <Link href="/dashboard/professor" className="font-medium text-ll-navy underline">
+        <Link href="/dashboard/professor" className="font-medium text-ll-navy underline transition-transform duration-200 hover:-translate-x-0.5">
           ← Overview
         </Link>
       </p>
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <section className="ll-animate-fade-up rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-ll-navy md:text-4xl">
@@ -109,7 +109,7 @@ export function ProfessorProfileEditor({ values, saved }: { values: ProfessorPro
       </section>
 
       <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <section className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <section className="ll-animate-scale-in ll-delay-100 space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <img src={avatarSrc} alt="Profile" className="h-64 w-full rounded-2xl object-cover" />
           <input type="hidden" name="avatar_url" value={avatarUrl} />
           <CompactUpload
@@ -130,7 +130,7 @@ export function ProfessorProfileEditor({ values, saved }: { values: ProfessorPro
         </section>
 
         <div className="space-y-5">
-          <section className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <section className="ll-animate-fade-up ll-delay-100 space-y-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-ll-navy">Online presence & research</h2>
             <Input label="Lab website" name="lab_website" defaultValue={values.lab_website} />
             <Textarea
@@ -163,7 +163,7 @@ export function ProfessorProfileEditor({ values, saved }: { values: ProfessorPro
             />
           </section>
 
-          <section className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <section className="ll-animate-fade-up ll-delay-200 space-y-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-ll-navy">Mentoring & lab</h2>
             <Textarea
               label="Preferred student year (comma-separated, e.g. Sophomore, Junior)"
@@ -191,7 +191,7 @@ export function ProfessorProfileEditor({ values, saved }: { values: ProfessorPro
             <Textarea label="Lab culture (comma-separated)" name="lab_culture" defaultValue={values.lab_culture} rows={2} />
           </section>
 
-          <section className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <section className="ll-animate-fade-up ll-delay-300 space-y-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-ll-navy">Privacy & notifications</h2>
             <Select
               label="Profile visibility"
@@ -233,7 +233,7 @@ function SaveButton() {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex items-center justify-center rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+      className="inline-flex items-center justify-center rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white transition-all duration-250 hover:-translate-y-0.5 hover:bg-ll-navy/90 hover:shadow-md disabled:opacity-60"
     >
       {pending ? "Saving..." : "Save profile"}
     </button>
@@ -247,7 +247,7 @@ function Input({ label, name, defaultValue }: { label: string; name: string; def
       <input
         name={name}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-all duration-200 hover:border-zinc-400 focus:border-ll-purple focus:outline-none focus:ring-2 focus:ring-ll-purple/20"
       />
     </label>
   );
@@ -261,7 +261,7 @@ function Textarea({ label, name, defaultValue, rows = 4 }: { label: string; name
         name={name}
         defaultValue={defaultValue}
         rows={rows}
-        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-all duration-200 hover:border-zinc-400 focus:border-ll-purple focus:outline-none focus:ring-2 focus:ring-ll-purple/20"
       />
     </label>
   );
@@ -284,7 +284,7 @@ function Select({
       <select
         name={name}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-all duration-200 hover:border-zinc-400 focus:border-ll-purple focus:outline-none focus:ring-2 focus:ring-ll-purple/20"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -318,7 +318,7 @@ function CompactUpload({
       </label>
       <label
         htmlFor={inputId}
-        className="flex cursor-pointer items-center justify-between rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
+        className="flex cursor-pointer items-center justify-between rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 transition-all duration-200 hover:border-zinc-400 hover:bg-zinc-100"
       >
         <span className="inline-flex items-center gap-2">
           <Upload className="h-4 w-4" />

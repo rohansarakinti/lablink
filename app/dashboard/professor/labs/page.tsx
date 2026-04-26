@@ -37,7 +37,7 @@ export default async function ProfessorLabsPage() {
 
   return (
     <div className="w-full max-w-6xl">
-      <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="ll-animate-fade-up mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="h-1 w-16 rounded-full bg-ll-purple" aria-hidden />
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ll-navy md:text-4xl">My labs</h1>
@@ -47,14 +47,14 @@ export default async function ProfessorLabsPage() {
         </div>
         <Link
           href="/labs/new"
-          className="w-fit shrink-0 rounded-full bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-navy/20 transition hover:bg-[#004c58]"
+          className="w-fit shrink-0 rounded-full bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-navy/20 transition-all duration-250 hover:-translate-y-0.5 hover:bg-[#004c58] hover:shadow-xl"
         >
           Create lab
         </Link>
       </div>
 
       {labs.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-ll-bg/70 p-10 text-center">
+        <div className="ll-animate-scale-in ll-delay-100 rounded-3xl border-2 border-dashed border-ll-purple/25 bg-ll-bg/70 p-10 text-center">
           <p className="text-sm font-medium text-zinc-700">
             No labs yet. Create your first lab to start posting opportunities.
           </p>
@@ -66,7 +66,7 @@ export default async function ProfessorLabsPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="ll-animate-fade-up ll-delay-100 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {labs.map((membership) =>
             membership.lab_groups ? (
               <Link

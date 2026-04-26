@@ -35,10 +35,10 @@ export default async function ProfessorDashboardLayout({ children }: { children:
   const displayName = profile?.display_name?.trim() || profile?.email || "Professor";
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)]">
+    <div className="min-h-[calc(100vh-3.5rem)] bg-zinc-100/90">
       <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] w-full max-w-[1600px]">
         <ProfessorSidebar displayName={displayName} />
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="ll-animate-fade-in flex min-w-0 flex-1 flex-col">
           <div className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</div>
         </div>
       </div>

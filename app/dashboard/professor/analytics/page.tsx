@@ -166,21 +166,21 @@ export default async function ProfessorAnalyticsPage() {
         actions={
           <Link
             href="/dashboard/professor"
-            className="inline-flex rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-ll-navy hover:bg-zinc-50"
+          className="inline-flex rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-ll-navy transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-50 hover:shadow-sm"
           >
             Back to overview
           </Link>
         }
       />
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="ll-animate-fade-up ll-delay-100 mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <ProfessorStatCard label="Applications (90d)" value={recentApps.length} trend={`${growth} vs prior window`} tone="positive" />
         <ProfessorStatCard label="Followers" value={followersCount ?? 0} trend={`${memberCount ?? 0} active lab members`} />
         <ProfessorStatCard label="Skill fit (avg)" value={avgMatch} trend="Applicant skill overlap" tone="accent" />
         <ProfessorStatCard label="Open postings" value={activePostingCount} trend={`${acceptanceRate} accepted`} />
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+      <div className="ll-animate-fade-up ll-delay-200 mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <ProfessorSectionCard title="Applications over time">
           <SimpleAreaChart points={bins} />
           <div className="mt-2 flex justify-between text-xs text-zinc-500">

@@ -160,10 +160,10 @@ export function ProfessorOnboardingWizard() {
   }
 
   return (
-    <form action={completeProfessorOnboarding} className="mt-2 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
-      <div className="mb-8 space-y-3">
+    <form action={completeProfessorOnboarding} className="ll-animate-scale-in mt-2 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+      <div className="ll-animate-fade-up mb-8 space-y-3">
         <h2 className="text-5xl font-semibold tracking-tight text-ll-navy">{activeHeader.title}</h2>
-        <p className="max-w-3xl text-xl leading-relaxed text-zinc-600">{activeHeader.description}</p>
+        <p className="ll-animate-fade-up ll-delay-100 max-w-3xl text-xl leading-relaxed text-zinc-600">{activeHeader.description}</p>
       </div>
       <div className="hidden">
         {Object.entries(draft).map(([key, value]) => (
@@ -172,7 +172,7 @@ export function ProfessorOnboardingWizard() {
       </div>
       <div className="mb-5 h-3 w-full overflow-hidden rounded-full bg-zinc-100">
         <div
-          className="h-full bg-ll-navy transition-all"
+          className="h-full bg-ll-navy transition-all duration-500"
           style={{ width: `${(step / steps.length) * 100}%` }}
         />
       </div>
@@ -202,7 +202,7 @@ export function ProfessorOnboardingWizard() {
             <button
               type="button"
               onClick={() => cvInputRef.current?.click()}
-              className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center transition hover:bg-zinc-100"
+              className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center transition-all duration-250 hover:-translate-y-0.5 hover:border-zinc-400 hover:bg-zinc-100"
             >
               <span className="rounded-lg border border-zinc-300 bg-white p-3 text-zinc-500">
                 <Upload className="h-7 w-7" />
@@ -471,7 +471,7 @@ export function ProfessorOnboardingWizard() {
               type="button"
               onClick={() => setStep((current) => Math.min(maxStep, current + 1))}
               disabled={!canContinue}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-ll-navy px-6 py-3 text-base font-medium text-white disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-ll-navy px-6 py-3 text-base font-medium text-white transition-all duration-250 hover:-translate-y-0.5 hover:bg-ll-navy/90 hover:shadow-md disabled:opacity-60"
             >
               Continue
               <ArrowRight className="h-5 w-5 shrink-0" aria-hidden />
@@ -480,7 +480,7 @@ export function ProfessorOnboardingWizard() {
         ) : (
           <button
             type="submit"
-            className="rounded-full bg-ll-navy px-6 py-3 text-base font-medium text-white"
+            className="rounded-full bg-ll-navy px-6 py-3 text-base font-medium text-white transition-all duration-250 hover:-translate-y-0.5 hover:bg-ll-navy/90 hover:shadow-md"
           >
             Complete onboarding
           </button>
@@ -531,7 +531,7 @@ function Field({
         onChange={(event) => onChange((prev) => ({ ...prev, [name]: event.target.value }))}
         placeholder={placeholder}
         required={required}
-        className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
+        className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base transition-all duration-200 hover:border-zinc-400 focus:border-ll-purple focus:outline-none focus:ring-2 focus:ring-ll-purple/20"
       />
       {hint ? <p className="text-sm text-ll-gray">{hint}</p> : null}
     </div>
@@ -598,14 +598,14 @@ function TagField({
         }}
         placeholder={placeholder}
         required={required && tags.length === 0}
-        className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
+        className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base transition-all duration-200 hover:border-zinc-400 focus:border-ll-purple focus:outline-none focus:ring-2 focus:ring-ll-purple/20"
       />
       {tags.length > 0 ? (
         <div className="flex flex-wrap gap-2 pt-1">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700"
+              className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors duration-200 hover:border-zinc-400"
             >
               {tag}
               <button
