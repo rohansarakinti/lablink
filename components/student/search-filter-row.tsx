@@ -73,7 +73,7 @@ export function SearchFilterRow({
   }
 
   return (
-    <section className="ll-animate-fade-up ll-delay-100 mb-6 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <section className="ll-animate-fade-up ll-delay-100 relative z-40 mb-6 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Filters</h2>
         {hasActiveFilters ? (
