@@ -161,7 +161,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
         ) : null}
       </section>
 
-      <section className="grid gap-5 overflow-hidden rounded-3xl border border-ll-purple/20 bg-ll-bg/35 p-5 shadow-md md:p-6 lg:grid-cols-2">
+      <section className="grid gap-5 overflow-hidden rounded-3xl border border-ll-purple/20 bg-white p-5 shadow-md md:p-6 lg:grid-cols-2">
         <div className="space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-ll-navy/85">Media</h3>
 

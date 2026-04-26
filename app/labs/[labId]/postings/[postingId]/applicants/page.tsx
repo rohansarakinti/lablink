@@ -274,7 +274,7 @@ export default async function PostingApplicantsPage({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-ll-bg/70 p-6 shadow-lg shadow-ll-navy/5 md:p-8">
+      <div className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-white p-6 shadow-lg shadow-ll-navy/5 md:p-8">
         <div className="h-1 w-14 rounded-full bg-ll-purple" aria-hidden />
         <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-ll-navy/80">Applicant review</p>
         <h2 className="mt-2 text-2xl font-semibold text-ll-navy md:text-3xl">{posting.title}</h2>

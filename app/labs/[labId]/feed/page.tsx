@@ -35,7 +35,7 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
 
   return (
     <div className="space-y-8">
-      <div className="overflow-hidden rounded-3xl border border-ll-purple/15 bg-ll-bg/70 p-6 shadow-md shadow-ll-navy/5 md:flex md:items-end md:justify-between md:p-8">
+      <div className="overflow-hidden rounded-3xl border border-ll-purple/15 bg-white p-6 shadow-md shadow-ll-navy/5 md:flex md:items-end md:justify-between md:p-8">
         <div>
           <div className="h-1 w-14 rounded-full bg-ll-purple" aria-hidden />
           <h2 className="mt-3 text-2xl font-semibold text-ll-navy md:text-3xl">Feed</h2>

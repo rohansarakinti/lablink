@@ -52,7 +52,7 @@ export default async function LabMembersPage({
 
   return (
     <div className="overflow-hidden rounded-3xl border border-ll-navy/10 bg-white/95 shadow-lg shadow-ll-navy/5">
-      <div className="bg-ll-bg/70 px-6 py-5 md:px-8">
+      <div className="bg-white px-6 py-5 md:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="h-1 w-12 rounded-full bg-ll-purple" aria-hidden />
