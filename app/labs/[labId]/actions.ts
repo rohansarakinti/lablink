@@ -208,6 +208,7 @@ export async function updateApplicationStatus(formData: FormData) {
   const postingId = String(formData.get("posting_id") ?? "");
   const applicationId = String(formData.get("application_id") ?? "");
   const status = String(formData.get("status") ?? "");
+  const returnTo = String(formData.get("return_to") ?? "").trim();
 
   if (!applicationStatuses.includes(status as (typeof applicationStatuses)[number])) {
     throw new Error("Invalid application status");
@@ -225,6 +226,7 @@ export async function updateApplicationStatus(formData: FormData) {
 
   revalidatePath(`/labs/${labId}/postings/${postingId}/applicants`);
   revalidatePath(`/labs/${labId}/applicants`);
+  redirect(returnTo || `/labs/${labId}/postings/${postingId}/applicants`);
 }
 
 export async function updateApplicationReviewerNotes(formData: FormData) {
@@ -232,6 +234,7 @@ export async function updateApplicationReviewerNotes(formData: FormData) {
   const postingId = String(formData.get("posting_id") ?? "");
   const applicationId = String(formData.get("application_id") ?? "");
   const reviewerNotes = String(formData.get("reviewer_notes") ?? "").trim();
+  const returnTo = String(formData.get("return_to") ?? "").trim();
 
   const { supabase } = await ensureManager(labId);
 
@@ -244,12 +247,14 @@ export async function updateApplicationReviewerNotes(formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidatePath(`/labs/${labId}/postings/${postingId}/applicants`);
+  redirect(returnTo || `/labs/${labId}/postings/${postingId}/applicants`);
 }
 
 export async function bulkUpdateApplicationStatus(formData: FormData) {
   const labId = String(formData.get("lab_id") ?? "");
   const postingId = String(formData.get("posting_id") ?? "");
   const status = String(formData.get("status") ?? "");
+  const returnTo = String(formData.get("return_to") ?? "").trim();
   const applicationIds = formData
     .getAll("application_ids")
     .map((value) => String(value))
@@ -274,4 +279,5 @@ export async function bulkUpdateApplicationStatus(formData: FormData) {
 
   revalidatePath(`/labs/${labId}/postings/${postingId}/applicants`);
   revalidatePath(`/labs/${labId}/applicants`);
+  redirect(returnTo || `/labs/${labId}/postings/${postingId}/applicants`);
 }

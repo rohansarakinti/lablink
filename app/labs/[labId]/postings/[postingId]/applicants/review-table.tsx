@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { bulkUpdateApplicationStatus, updateApplicationReviewerNotes, updateApplicationStatus } from "../../../actions";
 
 type ReviewRow = {
@@ -31,6 +32,9 @@ type ReviewTableProps = {
 
 export function ReviewTable({ labId, postingId, rows, statusOptions, showRecommendation = false }: ReviewTableProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const returnTo = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
   const allSelected = useMemo(
     () => rows.length > 0 && selectedIds.length === rows.length,
     [rows.length, selectedIds.length],
@@ -51,6 +55,7 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
       <form action={bulkUpdateApplicationStatus} className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
         <input type="hidden" name="lab_id" value={labId} />
         <input type="hidden" name="posting_id" value={postingId} />
+        <input type="hidden" name="return_to" value={returnTo} />
         {selectedIds.map((id) => (
           <input key={id} type="hidden" name="application_ids" value={id} />
         ))}
@@ -154,6 +159,7 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
                       <input type="hidden" name="lab_id" value={labId} />
                       <input type="hidden" name="posting_id" value={postingId} />
                       <input type="hidden" name="application_id" value={row.id} />
+                      <input type="hidden" name="return_to" value={returnTo} />
                       <select
                         name="status"
                         defaultValue={row.status}
@@ -176,6 +182,7 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
                       <input type="hidden" name="lab_id" value={labId} />
                       <input type="hidden" name="posting_id" value={postingId} />
                       <input type="hidden" name="application_id" value={row.id} />
+                      <input type="hidden" name="return_to" value={returnTo} />
                       <textarea
                         name="reviewer_notes"
                         defaultValue={row.reviewerNotes ?? ""}
