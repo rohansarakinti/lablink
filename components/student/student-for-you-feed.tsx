@@ -44,11 +44,11 @@ export function StudentForYouFeed({
         <p className="mt-1 text-sm text-zinc-600">
           {emptyFromFallback
             ? "Recent public updates from the LabLink community."
-            : "Updates from labs you follow and from recommendations based on your profile — newest first, with followed labs at the top."}
+            : "Updates from labs you follow and from recommendations based on your profile, newest first, with followed labs at the top."}
         </p>
       </div>
       {posts.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-sm text-zinc-600">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-base text-zinc-600">
           No posts to show yet. Check back as labs share updates, or follow labs from a lab profile.
         </div>
       ) : (
@@ -70,12 +70,12 @@ export function StudentForYouFeed({
                   />
                 </Link>
                 <div className="mt-1.5 rounded-lg border border-zinc-200 bg-zinc-50/80 px-2.5 py-2">
-                  <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-zinc-500">
+                  <p className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-zinc-500">
                     <Briefcase className="size-3.5 text-zinc-400" aria-hidden />
                     Open roles
                   </p>
                   {sidePostings.length === 0 ? (
-                    <p className="text-[11px] leading-snug text-zinc-500">None right now</p>
+                    <p className="text-xs leading-snug text-zinc-500">None right now</p>
                   ) : (
                     <ul className="space-y-1">
                       {sidePostings.slice(0, 2).map((item) => {
@@ -86,8 +86,8 @@ export function StudentForYouFeed({
                               href={`/postings/${item.id}`}
                               className="block rounded-md border border-zinc-200 bg-white px-2 py-1 text-left transition-colors hover:border-ll-purple/30"
                             >
-                              <p className="line-clamp-1 text-[11px] font-semibold leading-snug text-ll-navy">{item.title}</p>
-                              {dl ? <p className="text-[10px] text-zinc-500">Deadline {dl}</p> : null}
+                              <p className="line-clamp-1 text-xs font-semibold leading-snug text-ll-navy">{item.title}</p>
+                              {dl ? <p className="text-[11px] text-zinc-500">Deadline {dl}</p> : null}
                             </Link>
                           </li>
                         );

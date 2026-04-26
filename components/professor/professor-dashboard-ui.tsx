@@ -107,7 +107,7 @@ export function ProgressMetricRow({
   const width = max > 0 ? Math.max(6, Math.round((value / max) * 100)) : 0;
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-xs text-zinc-600">
+      <div className="flex items-center justify-between text-sm text-zinc-600">
         <span>{label}</span>
         <span className="font-semibold text-zinc-700">{value}</span>
       </div>

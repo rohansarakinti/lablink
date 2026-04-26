@@ -394,30 +394,30 @@ export default async function StudentDashboardPage() {
       <div className="ll-animate-fade-up mb-8 md:mb-10">
         <h1 className="text-4xl font-bold tracking-tight text-ll-navy sm:text-5xl md:text-6xl">Welcome, {firstName}</h1>
         <p className="ll-animate-fade-up ll-delay-100 mt-3 max-w-2xl text-base text-zinc-600 sm:text-lg">
-          Here is your LabLink home base — open roles chosen for you, and tools to run your research search.
+          Here is your LabLink home base, open roles chosen for you, and tools to run your research search.
         </p>
       </div>
 
       <div className="mb-8 grid gap-3 sm:grid-cols-2">
         <div className="ll-animate-scale-in ll-delay-100 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Applications</p>
-          <p className="mt-1 text-2xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{appCount}</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Applications</p>
+          <p className="mt-1 text-3xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{appCount}</p>
         </div>
         <div className="ll-animate-scale-in ll-delay-200 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">My labs</p>
-          <p className="mt-1 text-2xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{labCount}</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">My labs</p>
+          <p className="mt-1 text-3xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{labCount}</p>
         </div>
       </div>
 
       <section className="ll-animate-fade-up ll-delay-150 mb-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-base font-semibold text-ll-navy md:text-lg">Application pipeline</h2>
-          <Link href="/dashboard/student/applications" className="text-xs font-semibold uppercase tracking-wide text-ll-purple">
+          <h2 className="text-xl font-semibold text-ll-navy md:text-2xl">Application pipeline</h2>
+          <Link href="/dashboard/student/applications" className="text-base font-semibold uppercase tracking-wide text-ll-purple">
             View applications →
           </Link>
         </div>
         {appCount === 0 ? (
-          <p className="text-sm text-zinc-600">Apply to open roles to start tracking your pipeline here.</p>
+          <p className="text-lg text-zinc-600">Apply to open roles to start tracking your pipeline here.</p>
         ) : (
           <div className="space-y-3">
             {pipelineRows.map((row) => (
@@ -429,7 +429,7 @@ export default async function StudentDashboardPage() {
 
       <section className="ll-animate-fade-up ll-delay-200 mb-8">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="group flex items-center gap-2 text-lg font-bold text-ll-navy">
+          <h2 className="group flex items-center gap-2 text-xl font-bold text-ll-navy">
             <Sparkles
               className="size-5 text-ll-purple transition-transform duration-300 group-hover:rotate-6"
               aria-hidden
@@ -438,13 +438,13 @@ export default async function StudentDashboardPage() {
           </h2>
           <Link
             href="/dashboard/student/search"
-            className="text-sm font-medium text-ll-navy underline-offset-2 transition-all duration-200 hover:underline"
+            className="text-base font-medium text-ll-navy underline-offset-2 transition-all duration-200 hover:underline"
           >
             Search all
           </Link>
         </div>
         {discoverItems.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-sm text-zinc-600">
+          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-base text-zinc-600">
             No open opportunities right now, or you have applied to every current listing. Check back soon.
           </div>
         ) : (
@@ -454,7 +454,7 @@ export default async function StudentDashboardPage() {
 
       <section className="ll-animate-fade-up ll-delay-300 mb-10">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="group flex items-center gap-2 text-lg font-bold text-ll-navy">
+          <h2 className="group flex items-center gap-2 text-xl font-bold text-ll-navy">
             <Building2
               className="size-5 text-ll-purple transition-transform duration-300 group-hover:-translate-y-0.5"
               aria-hidden
@@ -462,11 +462,11 @@ export default async function StudentDashboardPage() {
             Recommended labs
           </h2>
         </div>
-        <p className="mb-3 max-w-2xl text-sm text-zinc-600">
-          Labs surfaced from the same match scores as your role suggestions — explore their profile, open roles, and public feed in one place.
+        <p className="mb-3 max-w-2xl text-base text-zinc-600">
+          Labs surfaced from the same match scores as your role suggestions, explore their profile, open roles, and public feed in one place.
         </p>
         {recommendedLabItems.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-sm text-zinc-600">
+          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-base text-zinc-600">
             No lab suggestions yet. Complete your profile and check back, or use Search to find opportunities.
           </div>
         ) : (

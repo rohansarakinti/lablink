@@ -51,19 +51,19 @@ export function MatchedForYouCarousel({ items }: { items: MatchedCarouselItem[] 
             className="group flex min-h-[140px] min-w-0 flex-col rounded-2xl border border-zinc-200 bg-white p-2.5 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md sm:min-h-[160px] sm:p-4"
           >
             {posting.matchPct != null ? (
-              <p className="text-[10px] font-bold text-ll-purple transition-opacity duration-200 group-hover:opacity-90 sm:text-xs">{posting.matchPct}% match</p>
+              <p className="text-xs font-bold text-ll-purple transition-opacity duration-200 group-hover:opacity-90 sm:text-sm">{posting.matchPct}% match</p>
             ) : (
-              <p className="text-[10px] font-semibold text-zinc-500 sm:text-xs">Open role</p>
+              <p className="text-xs font-semibold text-zinc-500 sm:text-sm">Open role</p>
             )}
-            <h3 className="mt-1.5 line-clamp-3 text-[11px] font-bold leading-snug text-ll-navy sm:mt-2 sm:line-clamp-2 sm:text-base">
+            <h3 className="mt-1.5 line-clamp-3 text-xs font-bold leading-snug text-ll-navy sm:mt-2 sm:line-clamp-2 sm:text-lg">
               {posting.title}
             </h3>
-            <p className="mt-1 text-[10px] leading-snug text-zinc-600 sm:text-sm">
+            <p className="mt-1 text-xs leading-snug text-zinc-600 sm:text-base">
               <span className="line-clamp-2">{posting.labName}</span>
               <br />
-              <span className="line-clamp-1 text-[9px] text-zinc-500 sm:text-xs">{posting.university}</span>
+              <span className="line-clamp-1 text-[10px] text-zinc-500 sm:text-sm">{posting.university}</span>
             </p>
-            <p className="mt-auto pt-2 text-[8px] font-bold uppercase tracking-wide text-zinc-400 sm:pt-3 sm:text-[10px]">
+            <p className="mt-auto pt-2 text-[10px] font-bold uppercase tracking-wide text-zinc-400 sm:pt-3 sm:text-xs">
               Topic: {String(posting.topic).toUpperCase()}
             </p>
           </Link>

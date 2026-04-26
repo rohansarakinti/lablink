@@ -45,12 +45,12 @@ export function LabFeedPostCard({
   const vBody = compact ? "py-2" : "py-2.5";
   const labLogoSize = compact ? "h-8 w-8" : "h-9 w-9";
   const labSizes = compact ? "32px" : "36px";
-  const nameClass = compact ? "truncate text-[12px] font-semibold text-ll-navy" : "truncate text-[13px] font-semibold text-ll-navy";
-  const metaText = compact ? "text-[10px]" : "text-[11px]";
+  const nameClass = compact ? "truncate text-[13px] font-semibold text-ll-navy" : "truncate text-[13px] font-semibold text-ll-navy";
+  const metaText = compact ? "text-[11px]" : "text-[11px]";
   const authorSize = compact ? "h-3.5 w-3.5" : "h-4 w-4";
   const authorImgSizes = compact ? "14px" : "16px";
   const captionClass = compact
-    ? "whitespace-pre-wrap text-[12px] leading-snug text-zinc-800"
+    ? "whitespace-pre-wrap text-[13px] leading-snug text-zinc-800"
     : "whitespace-pre-wrap text-[13px] leading-snug text-zinc-800";
   const mediaTop = compact ? "mt-2" : "mt-2.5";
   /** Narrow “tile” card, left-aligned in the feed column. */
@@ -78,7 +78,7 @@ export function LabFeedPostCard({
             ) : (
               <span
                 className={`flex h-full w-full items-center justify-center font-semibold text-zinc-500 ${
-                  compact ? "text-[10px]" : "text-xs"
+                  compact ? "text-[11px]" : "text-xs"
                 }`}
               >
                 {labName.slice(0, 1).toUpperCase()}

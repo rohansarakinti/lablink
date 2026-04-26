@@ -46,7 +46,7 @@ export function RecentApplicationActivity({ items }: { items: ApplicationActivit
         </Link>
       </div>
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-sm text-zinc-600">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-4 py-10 text-center text-base text-zinc-600">
           No applications yet. When you apply to a role, status changes from labs will show up here.
         </div>
       ) : (
@@ -67,11 +67,11 @@ export function RecentApplicationActivity({ items }: { items: ApplicationActivit
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-ll-navy">
+                  <p className="text-base font-medium text-ll-navy">
                     <span className="line-clamp-1">{row.roleTitle}</span>{" "}
                     <span className="text-zinc-500">· {row.labName}</span>
                   </p>
-                  <p className="mt-0.5 text-sm text-zinc-700">
+                  <p className="mt-0.5 text-base text-zinc-700">
                     <span className="font-semibold text-zinc-800">{statusLabel(row.status)}</span>
                     <span className="text-zinc-500"> · {formatShortRelativeTime(row.statusUpdatedAt)}</span>
                   </p>

@@ -50,17 +50,17 @@ export function RecommendedLabsCarousel({ items }: { items: RecommendedLabItem[]
             className="group flex min-h-[140px] min-w-0 flex-col rounded-2xl border border-zinc-200 bg-white p-2.5 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md sm:min-h-[160px] sm:p-4"
           >
             {lab.matchPct != null ? (
-              <p className="text-[10px] font-bold text-ll-purple transition-opacity duration-200 group-hover:opacity-90 sm:text-xs">{lab.matchPct}% match</p>
+              <p className="text-xs font-bold text-ll-purple transition-opacity duration-200 group-hover:opacity-90 sm:text-sm">{lab.matchPct}% match</p>
             ) : (
-              <p className="text-[10px] font-semibold text-zinc-500 sm:text-xs">Suggested lab</p>
+              <p className="text-xs font-semibold text-zinc-500 sm:text-sm">Suggested lab</p>
             )}
-            <h3 className="mt-1.5 line-clamp-3 text-[11px] font-bold leading-snug text-ll-navy sm:mt-2 sm:line-clamp-2 sm:text-base">
+            <h3 className="mt-1.5 line-clamp-3 text-xs font-bold leading-snug text-ll-navy sm:mt-2 sm:line-clamp-2 sm:text-lg">
               {lab.name}
             </h3>
-            <p className="mt-1 text-[10px] leading-snug text-zinc-600 sm:text-sm">
+            <p className="mt-1 text-xs leading-snug text-zinc-600 sm:text-base">
               <span className="line-clamp-2">{lab.university}</span>
             </p>
-            <p className="mt-auto pt-2 text-[8px] font-bold uppercase tracking-wide text-zinc-400 sm:pt-3 sm:text-[10px]">
+            <p className="mt-auto pt-2 text-[10px] font-bold uppercase tracking-wide text-zinc-400 sm:pt-3 sm:text-xs">
               Focus: {String(lab.topic).toUpperCase()}
             </p>
           </Link>
