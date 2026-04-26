@@ -13,17 +13,13 @@ export default async function LabLayout({
   const context = await getLabContext(labId);
 
   return (
-    <main className="relative min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-ll-bg/70 via-white to-ll-purple/10">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[min(28rem,50vh)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(197,147,238,0.22),transparent)]"
-        aria-hidden
-      />
+    <main className="relative min-h-screen w-full overflow-x-hidden bg-ll-bg/40">
       <div className="pointer-events-none absolute right-[max(0px,calc(50%-38rem))] top-32 h-64 w-64 rounded-full bg-ll-bg/50 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute left-[max(0px,calc(50%-36rem))] top-48 h-56 w-56 rounded-full bg-ll-purple/15 blur-3xl" aria-hidden />
 
       <div className="relative mx-auto w-full max-w-6xl px-6 py-10">
         <div className="overflow-hidden rounded-3xl border border-white/70 bg-white/85 p-6 shadow-lg shadow-ll-navy/8 backdrop-blur-md md:p-8">
-          <div className="mb-6 h-1 w-full rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-ll-bg" aria-hidden />
+          <div className="mb-6 h-1 w-full rounded-full bg-ll-purple" aria-hidden />
           <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
             <div className="flex min-w-0 flex-1 gap-4">
               {context.lab.logo_url ? (
@@ -37,7 +33,7 @@ export default async function LabLayout({
                 </div>
               ) : (
                 <div
-                  className="hidden h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ll-bg to-ll-purple/20 text-2xl font-bold text-ll-navy shadow-inner sm:flex"
+                  className="hidden h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-ll-bg text-2xl font-bold text-ll-navy shadow-inner sm:flex"
                   aria-hidden
                 >
                   {context.lab.name.slice(0, 1).toUpperCase()}
@@ -59,7 +55,7 @@ export default async function LabLayout({
               </div>
             </div>
             {context.lab.tagline ? (
-              <p className="max-w-md rounded-2xl border border-ll-purple/15 bg-gradient-to-br from-ll-bg/80 to-white/80 px-4 py-3 text-sm italic leading-relaxed text-zinc-700 md:text-right">
+              <p className="max-w-md rounded-2xl border border-ll-purple/15 bg-ll-bg/70 px-4 py-3 text-sm italic leading-relaxed text-zinc-700 md:text-right">
                 {context.lab.tagline}
               </p>
             ) : null}

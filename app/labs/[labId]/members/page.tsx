@@ -52,10 +52,10 @@ export default async function LabMembersPage({
 
   return (
     <div className="overflow-hidden rounded-3xl border border-ll-navy/10 bg-white/95 shadow-lg shadow-ll-navy/5">
-      <div className="bg-gradient-to-r from-ll-bg via-white to-ll-purple/10 px-6 py-5 md:px-8">
+      <div className="bg-ll-bg/70 px-6 py-5 md:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="h-1 w-12 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
+            <div className="h-1 w-12 rounded-full bg-ll-purple" aria-hidden />
             <h2 className="mt-2 text-xl font-semibold text-ll-navy md:text-2xl">Members</h2>
             <p className="mt-1 text-sm text-zinc-600">People in this lab and how they participate.</p>
           </div>
@@ -73,7 +73,7 @@ export default async function LabMembersPage({
               </select>
               <button
                 type="submit"
-                className="rounded-full bg-gradient-to-r from-ll-navy to-[#0a5c6a] px-4 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:brightness-105"
+                className="rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:bg-[#004c58]"
               >
                 Generate invite link
               </button>
@@ -83,7 +83,7 @@ export default async function LabMembersPage({
       </div>
       <div className="px-6 pb-6 pt-2 md:px-8">
         {query.invite_link ? (
-          <div className="mb-4 rounded-xl border border-ll-purple/25 bg-gradient-to-r from-ll-purple/10 to-ll-bg/80 p-4 text-xs font-medium text-ll-navy">
+          <div className="mb-4 rounded-xl border border-ll-purple/25 bg-ll-purple/10 p-4 text-xs font-medium text-ll-navy">
             <span className="text-ll-purple">Invite link:</span>{" "}
             <span className="break-all font-mono text-ll-navy">{query.invite_link}</span>
           </div>
@@ -92,7 +92,7 @@ export default async function LabMembersPage({
         <div className="overflow-x-auto rounded-2xl border border-zinc-100 bg-white/80">
           <table className="min-w-full divide-y divide-zinc-100 text-sm">
             <thead>
-              <tr className="bg-gradient-to-r from-ll-bg/90 to-white text-left text-xs font-semibold uppercase tracking-wide text-zinc-600">
+              <tr className="bg-ll-bg/80 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600">
                 <th className="py-3 pl-4 pr-4">Name</th>
                 <th className="py-3 pr-4">Role</th>
                 <th className="py-3 pr-4">University</th>

@@ -78,16 +78,16 @@ export function LabCreateForm({ defaultUniversity, error, errorDetail }: LabCrea
       action={createLab}
       className="mt-8 overflow-hidden rounded-3xl border border-ll-navy/10 bg-white/95 p-6 shadow-xl shadow-ll-navy/10 backdrop-blur-sm md:p-8"
     >
-      <div className="mb-6 h-1 w-full rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-ll-bg" aria-hidden />
+      <div className="mb-6 h-1 w-full rounded-full bg-ll-purple" aria-hidden />
       {error ? (
-        <div className="mb-4 rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-orange-50/50 px-4 py-3 text-sm text-red-800">
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           <p className="font-semibold">{errorCopy[error] ?? "Something went wrong while creating the lab."}</p>
           {errorDetail ? <p className="mt-1 text-xs opacity-90">{errorDetail}</p> : null}
         </div>
       ) : null}
       <div className="mb-4 h-2.5 w-full overflow-hidden rounded-full bg-zinc-100 ring-1 ring-zinc-200/60">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-ll-navy via-ll-purple to-ll-bg transition-all duration-300"
+          className="h-full rounded-full bg-ll-navy transition-all duration-300"
           style={{ width: page === 1 ? "50%" : "100%" }}
         />
       </div>
@@ -248,7 +248,7 @@ export function LabCreateForm({ defaultUniversity, error, errorDetail }: LabCrea
             type="button"
             onClick={() => setPage(2)}
             disabled={!canContinue}
-            className="rounded-full bg-gradient-to-r from-ll-navy to-[#0a5c6a] px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:brightness-105 disabled:opacity-50"
+            className="rounded-full bg-ll-navy px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:bg-[#004c58] disabled:opacity-50"
           >
             Continue
           </button>
@@ -256,7 +256,7 @@ export function LabCreateForm({ defaultUniversity, error, errorDetail }: LabCrea
           <button
             type="submit"
             disabled={!canSubmit}
-            className="rounded-full bg-gradient-to-r from-ll-purple to-ll-navy px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-purple/25 transition hover:brightness-105 disabled:opacity-50"
+            className="rounded-full bg-ll-purple px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-purple/25 transition hover:bg-ll-navy disabled:opacity-50"
           >
             Create lab
           </button>

@@ -18,6 +18,7 @@ type Row = {
   preferred_skills: string[] | null;
   preferred_year: string[] | null;
   lab_groups: {
+    id: string;
     name: string;
     university: string;
     department: string | null;
@@ -144,7 +145,7 @@ export default async function StudentSearchPage({
   const { data: rows } = await supabase
     .from("role_postings")
     .select(
-      "id, title, description, member_role, is_paid, hours_per_week, application_deadline, min_gpa, required_skills, preferred_skills, preferred_year, lab_groups ( name, university, department, research_fields, research_tags, lab_environment, banner_url, logo_url, created_by )",
+      "id, title, description, member_role, is_paid, hours_per_week, application_deadline, min_gpa, required_skills, preferred_skills, preferred_year, lab_groups ( id, name, university, department, research_fields, research_tags, lab_environment, banner_url, logo_url, created_by )",
     )
     .in("id", order)
     .returns<Row[]>();
@@ -209,6 +210,7 @@ export default async function StudentSearchPage({
         "Research";
       return {
         postingId: r.id,
+        labId: lab?.id ?? "",
         vectorScore: m.vector_score,
         reason: m.reason,
         title: r.title,

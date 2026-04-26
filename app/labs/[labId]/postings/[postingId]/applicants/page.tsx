@@ -119,7 +119,7 @@ export default async function PostingApplicantsPage({
 
   if (!posting) {
     return (
-      <div className="rounded-3xl border border-ll-purple/25 bg-gradient-to-br from-ll-bg/70 to-ll-purple/10 p-8 text-center shadow-md">
+      <div className="rounded-3xl border border-ll-purple/25 bg-ll-bg/70 p-8 text-center shadow-md">
         <p className="text-sm font-medium text-ll-navy">Posting not found.</p>
       </div>
     );
@@ -274,8 +274,8 @@ export default async function PostingApplicantsPage({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-gradient-to-br from-ll-bg/70 via-white to-ll-purple/10 p-6 shadow-lg shadow-ll-navy/5 md:p-8">
-        <div className="h-1 w-14 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
+      <div className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-ll-bg/70 p-6 shadow-lg shadow-ll-navy/5 md:p-8">
+        <div className="h-1 w-14 rounded-full bg-ll-purple" aria-hidden />
         <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-ll-navy/80">Applicant review</p>
         <h2 className="mt-2 text-2xl font-semibold text-ll-navy md:text-3xl">{posting.title}</h2>
         <Link
@@ -294,7 +294,7 @@ export default async function PostingApplicantsPage({
               href={buildApplicantListUrl(status)}
               className={`rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide shadow-sm transition ${
                 requestedStatus === status
-                  ? "border-transparent bg-gradient-to-r from-ll-navy to-[#0a5c6a] text-white shadow-md shadow-ll-navy/20"
+                  ? "border-transparent bg-ll-navy text-white shadow-md shadow-ll-navy/20"
                   : "border-zinc-200 bg-white text-zinc-700 hover:border-ll-purple/25 hover:bg-ll-bg/50"
               }`}
             >
@@ -304,7 +304,7 @@ export default async function PostingApplicantsPage({
         </div>
         <form
           method="get"
-          className="mb-5 grid gap-2 rounded-2xl border border-ll-purple/20 bg-gradient-to-br from-ll-bg/40 to-ll-purple/10 p-4 md:grid-cols-4"
+          className="mb-5 grid gap-2 rounded-2xl border border-ll-purple/20 bg-ll-bg/50 p-4 md:grid-cols-4"
         >
           <input type="hidden" name="status" value={requestedStatus} />
           <select

@@ -128,14 +128,14 @@ export default async function ApplicantStudentProfilePage({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-3xl border border-ll-purple/25 bg-gradient-to-br from-ll-purple/10 via-white to-ll-bg/40 p-6 shadow-lg md:p-8">
+      <div className="overflow-hidden rounded-3xl border border-ll-purple/25 bg-ll-bg/70 p-6 shadow-lg md:p-8">
         <Link
           href={`/labs/${labId}/postings/${postingId}/applicants`}
           className="inline-flex w-fit items-center gap-1 rounded-full border border-ll-purple/25 bg-white/90 px-3 py-1.5 text-sm font-semibold text-ll-navy shadow-sm transition hover:bg-ll-bg/50"
         >
           ← Back to applicant review
         </Link>
-        <div className="mt-4 h-1 w-12 rounded-full bg-gradient-to-r from-ll-purple to-ll-navy" aria-hidden />
+        <div className="mt-4 h-1 w-12 rounded-full bg-ll-purple" aria-hidden />
         <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-ll-purple">Applicant profile</p>
         <h2 className="mt-2 text-2xl font-semibold text-ll-navy md:text-3xl">{studentName}</h2>
         <p className="mt-2 text-sm text-zinc-600">
@@ -153,9 +153,9 @@ export default async function ApplicantStudentProfilePage({
       <StudentProfileEditor values={values} saved={false} readOnly />
 
       <section className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-white/95 p-6 shadow-md md:p-7">
-        <div className="mb-4 h-1 w-10 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
+        <div className="mb-4 h-1 w-10 rounded-full bg-ll-purple" aria-hidden />
         <h3 className="text-lg font-semibold text-ll-navy">Application-specific responses</h3>
-        <div className="mt-4 space-y-3 rounded-2xl border border-zinc-100 bg-gradient-to-br from-zinc-50/80 to-white p-4 text-sm text-zinc-700">
+        <div className="mt-4 space-y-3 rounded-2xl border border-zinc-100 bg-zinc-50/80 p-4 text-sm text-zinc-700">
           <p>
             <span className="font-semibold text-ll-navy">Statement:</span> {application.statement || "—"}
           </p>
@@ -172,7 +172,7 @@ export default async function ApplicantStudentProfilePage({
               {customResponses.map(([questionId, answer]) => (
                 <div
                   key={questionId}
-                  className="rounded-xl border border-ll-purple/20 bg-gradient-to-r from-ll-bg/50 to-white p-4"
+                  className="rounded-xl border border-ll-purple/20 bg-ll-bg/50 p-4"
                 >
                   <p className="text-xs font-bold uppercase tracking-wide text-ll-purple">Question {questionId}</p>
                   <p className="mt-2 text-sm text-zinc-800">{answer}</p>

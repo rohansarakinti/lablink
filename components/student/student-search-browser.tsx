@@ -2,10 +2,11 @@
 
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BarChart3, Beaker, Code, Dna, Microscope, Save } from "lucide-react";
+import { ArrowRight, BarChart3, Beaker, Code, Dna, Microscope } from "lucide-react";
 
 export type StudentSearchResult = {
   postingId: string;
+  labId: string;
   vectorScore: number;
   reason: string;
   title: string;
@@ -241,15 +242,12 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
             Apply now
             <ArrowRight className="size-4" />
           </Link>
-          <button
-            type="button"
-            title="Coming soon"
-            className="inline-flex items-center gap-2 rounded-xl bg-ll-purple px-5 py-2.5 text-sm font-semibold text-white shadow-sm opacity-90 transition-all duration-200 hover:-translate-y-0.5 hover:opacity-100 hover:shadow disabled:cursor-not-allowed"
-            disabled
+          <Link
+            href={selected?.labId ? `/labs/${selected.labId}` : "#"}
+            className="inline-flex items-center gap-2 rounded-xl bg-ll-purple px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-ll-purple/90 hover:shadow"
           >
-            <Save className="size-4" />
-            Save
-          </button>
+            View lab profile
+          </Link>
         </div>
 
         <div className="grid items-stretch gap-0 lg:grid-cols-12">

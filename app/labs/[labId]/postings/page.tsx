@@ -31,14 +31,14 @@ export default async function LabPostingsPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="h-1 w-12 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
+          <div className="h-1 w-12 rounded-full bg-ll-purple" aria-hidden />
           <h2 className="mt-2 text-2xl font-semibold text-ll-navy">Role postings</h2>
           <p className="mt-1 text-sm text-zinc-600">Open roles, track applicants, and update status.</p>
         </div>
         {context.canManage ? (
           <Link
             href={`/labs/${labId}/postings/new`}
-            className="w-fit rounded-full bg-gradient-to-r from-ll-navy to-[#0a5c6a] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-navy/25 transition hover:brightness-105"
+            className="w-fit rounded-full bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-navy/25 transition hover:bg-[#004c58]"
           >
             New posting
           </Link>
@@ -46,7 +46,7 @@ export default async function LabPostingsPage({
       </div>
 
       {(postings ?? []).length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-gradient-to-br from-ll-bg/70 via-white to-ll-purple/10 p-10 text-center">
+        <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-ll-bg/70 p-10 text-center">
           <p className="text-sm font-medium text-zinc-700">No postings yet.</p>
           <p className="mt-2 text-sm text-zinc-500">Create a role to start recruiting students to your lab.</p>
           {context.canManage ? (
@@ -124,15 +124,15 @@ function postingStatusBadgeClass(status: string): string {
 function postingStatusStripeClass(status: string): string {
   switch (status) {
     case "open":
-      return "bg-gradient-to-b from-ll-navy to-ll-purple";
+      return "bg-ll-navy";
     case "closed":
-      return "bg-gradient-to-b from-ll-purple to-ll-navy/70";
+      return "bg-ll-purple";
     case "draft":
-      return "bg-gradient-to-b from-ll-bg to-ll-purple";
+      return "bg-ll-bg";
     case "archived":
-      return "bg-gradient-to-b from-zinc-400 to-zinc-300";
+      return "bg-zinc-300";
     default:
-      return "bg-gradient-to-b from-zinc-400 to-zinc-300";
+      return "bg-zinc-300";
   }
 }
 

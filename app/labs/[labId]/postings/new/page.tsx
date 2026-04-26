@@ -16,8 +16,8 @@ export default async function NewRolePostingPage({
 
   return (
     <div className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-white/95 shadow-lg shadow-ll-navy/5">
-      <div className="bg-gradient-to-r from-ll-bg/80 via-white to-ll-purple/10 px-6 py-6 md:px-8">
-        <div className="h-1 w-14 rounded-full bg-gradient-to-r from-ll-navy to-ll-purple" aria-hidden />
+      <div className="bg-ll-bg/70 px-6 py-6 md:px-8">
+        <div className="h-1 w-14 rounded-full bg-ll-purple" aria-hidden />
         <h2 className="mt-3 text-2xl font-semibold text-ll-navy">Create role posting</h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600">
           Define expectations, candidate filters, and publication status for this opportunity.
@@ -155,7 +155,7 @@ export default async function NewRolePostingPage({
             type="submit"
             name="publish_now"
             value="true"
-            className="rounded-full bg-gradient-to-r from-ll-navy to-ll-purple px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/15 transition hover:brightness-105"
+            className="rounded-full bg-ll-navy px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/15 transition hover:bg-[#004c58]"
           >
             Publish now
           </button>

@@ -52,66 +52,49 @@ export function StudentForYouFeed({
           No posts to show yet. Check back as labs share updates, or follow labs from a lab profile.
         </div>
       ) : (
-        <ul className="space-y-3.5">
+        <ul className="flex flex-row flex-wrap items-start justify-start gap-x-4 gap-y-6">
           {posts.map((post) => {
             const sidePostings = openPostingsByLabId[post.labId] ?? [];
             return (
-              <li
-                key={post.id}
-                className="grid overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md sm:grid-cols-1 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(200px,240px)]"
-              >
-                <div className="min-w-0 bg-white">
-                  <Link href={`/dashboard/student/lab/${post.labId}`} className="block h-full min-h-0">
-                    <LabFeedPostCard
-                      labName={post.labName}
-                      labLogoUrl={post.labLogoUrl}
-                      authorDisplayName={post.authorDisplayName}
-                      authorAvatarUrl={post.authorAvatarUrl}
-                      caption={post.caption}
-                      media={post.media}
-                      createdAt={post.createdAt}
-                      compact
-                      className="h-full !max-w-none w-full self-stretch !rounded-none border-0 !shadow-none"
-                    />
-                  </Link>
-                </div>
-                <aside
-                  className="flex min-h-0 min-w-0 flex-col border-t border-zinc-200 bg-zinc-50/80 p-3 lg:border-l lg:border-t-0 lg:py-3 lg:pl-3 lg:pr-2.5"
-                  aria-label={`Open roles at ${post.labName}`}
-                >
-                  <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-zinc-500">
+              <li key={post.id} className="w-full max-w-[16.5rem] shrink-0 sm:w-[17.25rem] sm:max-w-none">
+                <Link href={`/dashboard/student/lab/${post.labId}`} className="block">
+                  <LabFeedPostCard
+                    labName={post.labName}
+                    labLogoUrl={post.labLogoUrl}
+                    authorDisplayName={post.authorDisplayName}
+                    authorAvatarUrl={post.authorAvatarUrl}
+                    caption={post.caption}
+                    media={post.media}
+                    createdAt={post.createdAt}
+                    compact
+                  />
+                </Link>
+                <div className="mt-1.5 rounded-lg border border-zinc-200 bg-zinc-50/80 px-2.5 py-2">
+                  <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-zinc-500">
                     <Briefcase className="size-3.5 text-zinc-400" aria-hidden />
                     Open roles
                   </p>
                   {sidePostings.length === 0 ? (
-                    <p className="text-xs leading-snug text-zinc-500">No open listings from this lab right now.</p>
+                    <p className="text-[11px] leading-snug text-zinc-500">None right now</p>
                   ) : (
-                    <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-0.5">
-                      {sidePostings.map((item) => {
+                    <ul className="space-y-1">
+                      {sidePostings.slice(0, 2).map((item) => {
                         const dl = formatDeadline(item.applicationDeadline);
                         return (
                           <li key={item.id}>
                             <Link
                               href={`/postings/${item.id}`}
-                              className="block rounded-lg border border-zinc-200/90 bg-white px-2.5 py-1.5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-ll-purple/30 hover:shadow"
+                              className="block rounded-md border border-zinc-200 bg-white px-2 py-1 text-left transition-colors hover:border-ll-purple/30"
                             >
-                              <p className="line-clamp-2 text-[12px] font-semibold leading-snug text-ll-navy">{item.title}</p>
-                              {dl ? <p className="mt-0.5 text-[10px] text-zinc-500">Deadline {dl}</p> : null}
+                              <p className="line-clamp-1 text-[11px] font-semibold leading-snug text-ll-navy">{item.title}</p>
+                              {dl ? <p className="text-[10px] text-zinc-500">Deadline {dl}</p> : null}
                             </Link>
                           </li>
                         );
                       })}
                     </ul>
                   )}
-                  {sidePostings.length > 0 ? (
-                    <Link
-                      href={`/dashboard/student/lab/${post.labId}`}
-                      className="mt-2.5 text-[11px] font-semibold text-ll-navy underline-offset-2 hover:underline"
-                    >
-                      All roles at {post.labName}
-                    </Link>
-                  ) : null}
-                </aside>
+                </div>
               </li>
             );
           })}

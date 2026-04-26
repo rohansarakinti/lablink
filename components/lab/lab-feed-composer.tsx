@@ -116,7 +116,7 @@ export function LabFeedComposer({ labId, userId }: { labId: string; userId: stri
       onSubmit={handleSubmit}
       className="overflow-hidden rounded-3xl border border-ll-purple/15 bg-white/95 p-6 shadow-lg shadow-ll-navy/10 md:p-8"
     >
-      <div className="mb-5 h-1 w-12 rounded-full bg-gradient-to-r from-ll-purple to-ll-navy" aria-hidden />
+      <div className="mb-5 h-1 w-12 rounded-full bg-ll-purple" aria-hidden />
       <h2 className="text-xl font-semibold text-ll-navy">Create post</h2>
       <p className="mt-2 text-sm leading-relaxed text-zinc-600">
         Share photos and a short update with your lab&apos;s followers.
@@ -142,7 +142,7 @@ export function LabFeedComposer({ labId, userId }: { labId: string; userId: stri
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           multiple
-          className="mt-2 block w-full text-sm text-zinc-600 file:mr-3 file:rounded-full file:border-0 file:bg-gradient-to-r file:from-ll-purple file:to-ll-navy file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:brightness-105"
+          className="mt-2 block w-full text-sm text-zinc-600 file:mr-3 file:rounded-full file:border-0 file:bg-ll-purple file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-ll-navy"
           disabled={submitting}
           onChange={(e) => {
             onPickFiles(e.target.files);
@@ -176,7 +176,7 @@ export function LabFeedComposer({ labId, userId }: { labId: string; userId: stri
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full bg-gradient-to-r from-ll-purple to-ll-navy px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-ll-purple/25 transition hover:brightness-105 disabled:opacity-50"
+          className="rounded-full bg-ll-purple px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-ll-purple/25 transition hover:bg-ll-navy disabled:opacity-50"
         >
           {submitting ? "Publishing…" : "Post"}
         </button>
