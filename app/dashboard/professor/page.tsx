@@ -279,7 +279,7 @@ export default async function ProfessorDashboardPage() {
                                 src={membership.lab_groups.logo_url}
                                 alt=""
                                 fill
-                                className="object-cover"
+                                className="object-contain p-1"
                                 sizes="80px"
                                 unoptimized
                               />

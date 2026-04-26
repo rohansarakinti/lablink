@@ -107,7 +107,7 @@ export default async function StudentLabProfilePage({ params }: { params: Promis
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
             <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 sm:h-24 sm:w-24">
               {lab.logo_url ? (
-                <Image src={lab.logo_url} alt="" fill className="object-cover" unoptimized />
+                <Image src={lab.logo_url} alt="" fill className="object-contain p-1" unoptimized />
               ) : (
                 <span className="flex h-full w-full items-center justify-center text-2xl font-bold text-zinc-500">
                   {lab.name.slice(0, 1).toUpperCase()}

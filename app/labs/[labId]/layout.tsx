@@ -28,7 +28,7 @@ export default async function LabLayout({
                   <img
                     src={context.lab.logo_url}
                     alt=""
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain p-1"
                   />
                 </div>
               ) : (

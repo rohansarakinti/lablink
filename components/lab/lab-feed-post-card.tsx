@@ -74,7 +74,7 @@ export function LabFeedPostCard({
             className={`relative ${labLogoSize} shrink-0 overflow-hidden rounded-full bg-zinc-100 ring-1 ring-zinc-200`}
           >
             {labLogoUrl ? (
-              <Image src={labLogoUrl} alt="" fill className="object-cover" sizes={labSizes} unoptimized />
+              <Image src={labLogoUrl} alt="" fill className="object-contain p-1" sizes={labSizes} unoptimized />
             ) : (
               <span
                 className={`flex h-full w-full items-center justify-center font-semibold text-zinc-500 ${

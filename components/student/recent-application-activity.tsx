@@ -59,7 +59,7 @@ export function RecentApplicationActivity({ items }: { items: ApplicationActivit
               >
                 <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-zinc-100 bg-zinc-50">
                   {row.labLogoUrl ? (
-                    <Image src={row.labLogoUrl} alt="" fill className="object-cover" unoptimized />
+                    <Image src={row.labLogoUrl} alt="" fill className="object-contain p-1" unoptimized />
                   ) : (
                     <span className="flex h-full w-full items-center justify-center text-sm font-bold text-zinc-500">
                       {row.labName.slice(0, 1).toUpperCase()}

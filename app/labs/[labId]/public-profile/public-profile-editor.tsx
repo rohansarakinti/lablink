@@ -180,7 +180,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
 
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Logo</p>
-            <img src={logoSrc} alt="" className="mx-auto h-32 w-32 rounded-2xl border border-zinc-200 object-cover" />
+            <img src={logoSrc} alt="" className="mx-auto h-32 w-32 rounded-2xl border border-zinc-200 object-contain p-1" />
             <CompactUpload
               label="Upload logo"
               inputId="lab_logo_file"
