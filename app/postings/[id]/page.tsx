@@ -147,7 +147,7 @@ export default async function PostingDetailPage({
         </section>
       ) : (
         <section className="mt-6 rounded-2xl border border-zinc-200 bg-white p-6">
-          <h2 className="text-xl font-semibold text-ll-navy">Apply</h2>
+          <h2 className="text-2xl font-semibold text-ll-navy">Apply</h2>
           {errorText ? (
             <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-base text-red-700">
               {errorText}
@@ -158,14 +158,14 @@ export default async function PostingDetailPage({
             <input type="hidden" name="posting_id" value={posting.id} />
 
             <div className="space-y-3">
-              <p className="text-base font-medium text-ll-navy">Resume</p>
+              <p className="text-lg font-medium text-ll-navy">Resume</p>
               {studentProfile?.resume_url ? (
                 <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-                  <label className="flex items-center gap-2 text-base text-zinc-700">
+                  <label className="flex items-center gap-2 text-lg text-zinc-700">
                     <input type="radio" name="resume_source" value="profile" defaultChecked />
                     Use resume linked in your profile
                   </label>
-                  <label className="flex items-center gap-2 text-base text-zinc-700">
+                  <label className="flex items-center gap-2 text-lg text-zinc-700">
                     <input type="radio" name="resume_source" value="upload" />
                     Upload a new resume for this application
                   </label>
@@ -196,14 +196,14 @@ export default async function PostingDetailPage({
 
             {showStatement ? (
               <div className="space-y-2">
-                <label htmlFor="statement" className="text-base font-medium text-ll-navy">
+                <label htmlFor="statement" className="text-lg font-medium text-ll-navy">
                   Statement of interest
                 </label>
                 <textarea
                   id="statement"
                   name="statement"
                   rows={5}
-                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-base"
+                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-lg"
                   placeholder="Why are you a strong fit for this role?"
                 />
               </div>
@@ -212,8 +212,8 @@ export default async function PostingDetailPage({
             <CustomResponsesField questions={customQuestions} />
 
             <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-              <p className="text-sm uppercase tracking-wide text-zinc-500">Evaluation methods</p>
-              <p className="mt-2 text-base text-zinc-700">
+              <p className="text-base uppercase tracking-wide text-zinc-500">Evaluation methods</p>
+              <p className="mt-2 text-lg text-zinc-700">
                 {(evalMethods.length ? evalMethods : ["resume"])
                   .map((method) => evalMethodLabels[method] ?? method)
                   .join(" · ")}
@@ -222,7 +222,7 @@ export default async function PostingDetailPage({
 
             <button
               type="submit"
-              className="rounded-full bg-ll-navy px-4 py-2 text-base font-semibold text-white"
+              className="rounded-full bg-ll-navy px-5 py-2.5 text-lg font-semibold text-white"
             >
               Submit application
             </button>
@@ -248,10 +248,10 @@ function CustomResponsesField({ questions }: { questions: CustomQuestion[] }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-base font-medium text-ll-navy">Custom questions</p>
+      <p className="text-lg font-medium text-ll-navy">Custom questions</p>
       {normalized.map((question) => (
         <div key={question.id} className="space-y-2">
-          <label htmlFor={`question-${question.id}`} className="text-base text-zinc-700">
+          <label htmlFor={`question-${question.id}`} className="text-lg text-zinc-700">
             {question.prompt}
           </label>
           <textarea
@@ -259,7 +259,7 @@ function CustomResponsesField({ questions }: { questions: CustomQuestion[] }) {
             name={`custom_question_${question.id}`}
             rows={3}
             required={question.required}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-base"
+            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-lg"
           />
         </div>
       ))}
