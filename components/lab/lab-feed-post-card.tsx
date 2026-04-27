@@ -43,20 +43,20 @@ export function LabFeedPostCard({
   const hPad = compact ? "px-2.5 sm:px-3" : "px-3 sm:px-3.5";
   const vHeader = compact ? "py-2" : "py-2.5";
   const vBody = compact ? "py-2" : "py-2.5";
-  const labLogoSize = compact ? "h-8 w-8" : "h-9 w-9";
-  const labSizes = compact ? "32px" : "36px";
-  const nameClass = compact ? "truncate text-[13px] font-semibold text-ll-navy" : "truncate text-[13px] font-semibold text-ll-navy";
-  const metaText = compact ? "text-[11px]" : "text-[11px]";
-  const authorSize = compact ? "h-3.5 w-3.5" : "h-4 w-4";
-  const authorImgSizes = compact ? "14px" : "16px";
+  const labLogoSize = compact ? "h-9 w-9" : "h-10 w-10";
+  const labSizes = compact ? "36px" : "40px";
+  const nameClass = compact ? "truncate text-base font-semibold text-ll-navy" : "truncate text-lg font-semibold text-ll-navy";
+  const metaText = compact ? "text-sm" : "text-base";
+  const authorSize = compact ? "h-4 w-4" : "h-4.5 w-4.5";
+  const authorImgSizes = compact ? "16px" : "18px";
   const captionClass = compact
-    ? "whitespace-pre-wrap text-[13px] leading-snug text-zinc-800"
-    : "whitespace-pre-wrap text-[13px] leading-snug text-zinc-800";
+    ? "whitespace-pre-wrap text-base leading-snug text-zinc-800"
+    : "whitespace-pre-wrap text-lg leading-snug text-zinc-800";
   const mediaTop = compact ? "mt-2" : "mt-2.5";
   /** Narrow “tile” card, left-aligned in the feed column. */
   const mediaShell = "w-full";
-  const singleFrame = compact ? "relative h-32 w-full sm:h-36" : "relative h-36 w-full sm:h-40";
-  const multiFrame = compact ? "relative h-24 w-full sm:h-28" : "relative h-28 w-full sm:h-32";
+  const singleFrame = compact ? "relative h-36 w-full sm:h-40" : "relative h-40 w-full sm:h-44";
+  const multiFrame = compact ? "relative h-28 w-full sm:h-32" : "relative h-32 w-full sm:h-36";
   const borderRadius = compact ? "rounded-md" : "rounded-lg";
   const innerMediaRadius = compact ? "rounded-md" : "rounded-md";
 
@@ -78,7 +78,7 @@ export function LabFeedPostCard({
             ) : (
               <span
                 className={`flex h-full w-full items-center justify-center font-semibold text-zinc-500 ${
-                  compact ? "text-[11px]" : "text-xs"
+                  compact ? "text-sm" : "text-base"
                 }`}
               >
                 {labName.slice(0, 1).toUpperCase()}
