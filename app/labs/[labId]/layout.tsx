@@ -42,20 +42,20 @@ export default async function LabLayout({
               <div className="min-w-0">
                 <Link
                   href="/dashboard/professor"
-                  className="inline-flex items-center gap-1 rounded-full border border-ll-navy/15 bg-ll-bg/50 px-3 py-1 text-xs font-semibold text-ll-navy transition hover:border-ll-purple/30 hover:bg-white"
+                  className="inline-flex items-center gap-1 rounded-full border border-ll-navy/15 bg-ll-bg/50 px-3 py-1 text-sm font-semibold text-ll-navy transition hover:border-ll-purple/30 hover:bg-white"
                 >
                   <span aria-hidden>←</span> Back to dashboard
                 </Link>
-                <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-ll-purple">Lab management</p>
+                <p className="mt-3 text-sm font-bold uppercase tracking-[0.2em] text-ll-purple">Lab management</p>
                 <h1 className="mt-1 text-3xl font-semibold tracking-tight text-ll-navy md:text-4xl">{context.lab.name}</h1>
-                <p className="mt-2 text-sm text-zinc-600">
+                <p className="mt-2 text-base text-zinc-600">
                   {context.lab.university}
                   {context.lab.department ? ` · ${context.lab.department}` : ""}
                 </p>
               </div>
             </div>
             {context.lab.tagline ? (
-              <p className="max-w-md rounded-2xl border border-ll-purple/15 bg-ll-bg/70 px-4 py-3 text-sm italic leading-relaxed text-zinc-700 md:text-right">
+              <p className="max-w-md rounded-2xl border border-ll-purple/15 bg-ll-bg/70 px-4 py-3 text-base italic leading-relaxed text-zinc-700 md:text-right">
                 {context.lab.tagline}
               </p>
             ) : null}

@@ -32,8 +32,8 @@ export function LabManagementNav({ labId }: { labId: string }) {
             href={`${base}${tab.href ? `/${tab.href}` : ""}`}
             className={
               active
-                ? "rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/25 ring-2 ring-ll-purple/30 transition hover:bg-[#004c58]"
-                : "rounded-full border border-zinc-200/90 bg-white/80 px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm backdrop-blur-sm transition hover:border-ll-purple/25 hover:bg-ll-bg/60 hover:text-ll-navy"
+                ? "rounded-full bg-ll-navy px-4 py-2 text-base font-semibold text-white shadow-md shadow-ll-navy/25 ring-2 ring-ll-purple/30 transition hover:bg-[#004c58]"
+                : "rounded-full border border-zinc-200/90 bg-white/80 px-4 py-2 text-base font-medium text-zinc-700 shadow-sm backdrop-blur-sm transition hover:border-ll-purple/25 hover:bg-ll-bg/60 hover:text-ll-navy"
             }
           >
             {tab.label}

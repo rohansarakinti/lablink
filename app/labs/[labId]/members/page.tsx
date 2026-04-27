@@ -57,7 +57,7 @@ export default async function LabMembersPage({
           <div>
             <div className="h-1 w-12 rounded-full bg-ll-purple" aria-hidden />
             <h2 className="mt-2 text-xl font-semibold text-ll-navy md:text-2xl">Members</h2>
-            <p className="mt-1 text-sm text-zinc-600">People in this lab and how they participate.</p>
+            <p className="mt-1 text-base text-zinc-600">People in this lab and how they participate.</p>
           </div>
           {context.canManage ? (
             <form action={createInviteLink} className="flex flex-wrap items-center gap-2">
@@ -65,7 +65,7 @@ export default async function LabMembersPage({
               <select
                 name="invite_role"
                 defaultValue="lab_manager"
-                className="rounded-full border border-ll-navy/15 bg-white px-3 py-2 text-xs font-medium text-ll-navy shadow-sm"
+                className="rounded-full border border-ll-navy/15 bg-white px-3 py-2 text-sm font-medium text-ll-navy shadow-sm"
               >
                 <option value="lab_manager">Lab manager</option>
                 <option value="postdoc">Postdoc</option>
@@ -73,7 +73,7 @@ export default async function LabMembersPage({
               </select>
               <button
                 type="submit"
-                className="rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:bg-[#004c58]"
+                className="rounded-full bg-ll-navy px-4 py-2 text-base font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:bg-[#004c58]"
               >
                 Generate invite link
               </button>
@@ -83,16 +83,16 @@ export default async function LabMembersPage({
       </div>
       <div className="px-6 pb-6 pt-2 md:px-8">
         {query.invite_link ? (
-          <div className="mb-4 rounded-xl border border-ll-purple/25 bg-ll-purple/10 p-4 text-xs font-medium text-ll-navy">
+          <div className="mb-4 rounded-xl border border-ll-purple/25 bg-ll-purple/10 p-4 text-sm font-medium text-ll-navy">
             <span className="text-ll-purple">Invite link:</span>{" "}
             <span className="break-all font-mono text-ll-navy">{query.invite_link}</span>
           </div>
         ) : null}
 
         <div className="overflow-x-auto rounded-2xl border border-zinc-100 bg-white/80">
-          <table className="min-w-full divide-y divide-zinc-100 text-sm">
+          <table className="min-w-full divide-y divide-zinc-100 text-base">
             <thead>
-              <tr className="bg-ll-bg/80 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600">
+              <tr className="bg-ll-bg/80 text-left text-sm font-semibold uppercase tracking-wide text-zinc-600">
                 <th className="py-3 pl-4 pr-4">Name</th>
                 <th className="py-3 pr-4">Role</th>
                 <th className="py-3 pr-4">University</th>
@@ -107,7 +107,7 @@ export default async function LabMembersPage({
                     <p className="font-semibold text-ll-navy">{member.profiles?.display_name ?? member.profiles?.email}</p>
                   </td>
                   <td className="py-3 pr-4">
-                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${memberRolePillClass(member.lab_role)}`}>
+                    <span className={`inline-flex rounded-full px-2.5 py-1 text-sm font-semibold uppercase tracking-wide ${memberRolePillClass(member.lab_role)}`}>
                       {member.lab_role.replaceAll("_", " ")}
                     </span>
                   </td>
@@ -124,7 +124,7 @@ export default async function LabMembersPage({
                         <select
                           name="next_role"
                           defaultValue={member.lab_role}
-                          className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-800 shadow-sm"
+                          className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-800 shadow-sm"
                         >
                           <option value="pi">PI</option>
                           <option value="lab_manager">Lab manager</option>
@@ -136,7 +136,7 @@ export default async function LabMembersPage({
                         </select>
                         <button
                           type="submit"
-                          className="rounded-full border border-ll-purple/25 bg-ll-purple/10 px-3 py-1 text-xs font-semibold text-ll-navy transition hover:bg-ll-purple/20"
+                          className="rounded-full border border-ll-purple/25 bg-ll-purple/10 px-3 py-1 text-sm font-semibold text-ll-navy transition hover:bg-ll-purple/20"
                         >
                           Save
                         </button>
@@ -146,7 +146,7 @@ export default async function LabMembersPage({
                         <input type="hidden" name="membership_id" value={member.id} />
                         <button
                           type="submit"
-                          className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-800 transition hover:bg-red-100"
+                          className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-sm font-semibold text-red-800 transition hover:bg-red-100"
                         >
                           Remove
                         </button>

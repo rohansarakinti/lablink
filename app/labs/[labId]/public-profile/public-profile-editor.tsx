@@ -142,7 +142,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold text-ll-navy md:text-2xl">Public profile editor</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600">
+            <p className="mt-2 max-w-2xl text-base leading-relaxed text-zinc-600">
               Update media and messaging students see before applying. Images upload immediately; save writes URLs to
               your lab profile.
             </p>
@@ -150,12 +150,12 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
           <SaveButton disabled={isAnyUploadInFlight} />
         </div>
         {saved ? (
-          <p className="mt-4 rounded-xl border border-ll-purple/25 bg-ll-purple/10 px-3 py-2 text-sm font-medium text-ll-navy">
+          <p className="mt-4 rounded-xl border border-ll-purple/25 bg-ll-purple/10 px-3 py-2 text-base font-medium text-ll-navy">
             Public profile saved.
           </p>
         ) : null}
         {error ? (
-          <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
+          <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-base font-medium text-rose-700">
             Could not save profile: {error}
           </p>
         ) : null}
@@ -163,10 +163,10 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
 
       <section className="grid gap-5 overflow-hidden rounded-3xl border border-ll-purple/20 bg-white p-5 shadow-md md:p-6 lg:grid-cols-2">
         <div className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-ll-navy/85">Media</h3>
+          <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-ll-navy/85">Media</h3>
 
           <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Banner</p>
+            <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">Banner</p>
             <img src={bannerSrc} alt="" className="h-40 w-full rounded-xl border border-zinc-200 object-cover" />
             <CompactUpload
               label="Upload banner image"
@@ -179,7 +179,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Logo</p>
+            <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">Logo</p>
             <img src={logoSrc} alt="" className="mx-auto h-32 w-32 rounded-2xl border border-zinc-200 object-contain p-1" />
             <CompactUpload
               label="Upload logo"
@@ -204,7 +204,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
               badge={galleryUploadError ? "Upload failed" : galleryUploading ? "Uploading..." : "Images"}
               onChange={onGallerySelected}
             />
-            <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-zinc-700">
+            <label className="inline-flex cursor-pointer items-center gap-2 text-base text-zinc-700">
               <input
                 type="checkbox"
                 checked={preserveGallery}
@@ -216,8 +216,8 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-ll-purple">Gallery preview</h3>
-          <p className="text-xs text-zinc-500">
+          <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-ll-purple">Gallery preview</h3>
+          <p className="text-sm text-zinc-500">
             Banner: {bannerUrl ? "ready" : "none"} · Logo: {logoUrl ? "ready" : "none"} · Gallery: {galleryUrls.length}
             /8
           </p>
@@ -229,7 +229,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
                   <button
                     type="button"
                     onClick={() => setGalleryUrls((prev) => prev.filter((u) => u !== url))}
-                    className="absolute right-1 top-1 rounded-full bg-zinc-900/85 px-1.5 py-0.5 text-[10px] font-medium text-white"
+                    className="absolute right-1 top-1 rounded-full bg-zinc-900/85 px-1.5 py-0.5 text-xs font-medium text-white"
                   >
                     Remove
                   </button>
@@ -237,7 +237,7 @@ export function PublicProfileEditor({ labId, lab, saved, error }: Props) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-zinc-500">No gallery images yet.</p>
+            <p className="text-base text-zinc-500">No gallery images yet.</p>
           )}
         </div>
       </section>
@@ -266,7 +266,7 @@ function SaveButton({ disabled }: { disabled?: boolean }) {
     <button
       type="submit"
       disabled={isDisabled}
-      className="inline-flex items-center justify-center rounded-full bg-ll-navy px-5 py-2 text-sm font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:bg-[#004c58] disabled:opacity-60"
+      className="inline-flex items-center justify-center rounded-full bg-ll-navy px-5 py-2 text-base font-semibold text-white shadow-md shadow-ll-navy/20 transition hover:bg-[#004c58] disabled:opacity-60"
     >
       {pending ? "Saving..." : disabled ? "Wait for uploads..." : "Save public profile"}
     </button>
@@ -276,11 +276,11 @@ function SaveButton({ disabled }: { disabled?: boolean }) {
 function Input({ label, name, defaultValue }: { label: string; name: string; defaultValue?: string }) {
   return (
     <label className="block space-y-1">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</span>
+      <span className="text-sm font-medium uppercase tracking-wide text-zinc-500">{label}</span>
       <input
         name={name}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base text-zinc-900"
       />
     </label>
   );
@@ -299,12 +299,12 @@ function Textarea({
 }) {
   return (
     <label className="block space-y-1">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</span>
+      <span className="text-sm font-medium uppercase tracking-wide text-zinc-500">{label}</span>
       <textarea
         name={name}
         defaultValue={defaultValue}
         rows={rows}
-        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base text-zinc-900"
       />
     </label>
   );
@@ -329,18 +329,18 @@ function CompactUpload({
 }) {
   return (
     <div className="space-y-1">
-      <label htmlFor={inputId} className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <label htmlFor={inputId} className="text-sm font-medium uppercase tracking-wide text-zinc-500">
         {label}
       </label>
       <label
         htmlFor={inputId}
-        className="flex cursor-pointer items-center justify-between rounded-xl border-2 border-dashed border-ll-purple/30 bg-ll-bg/55 px-3 py-2 text-sm text-zinc-800 transition hover:border-ll-purple/50 hover:bg-white"
+        className="flex cursor-pointer items-center justify-between rounded-xl border-2 border-dashed border-ll-purple/30 bg-ll-bg/55 px-3 py-2 text-base text-zinc-800 transition hover:border-ll-purple/50 hover:bg-white"
       >
         <span className="inline-flex items-center gap-2">
           <Upload className="h-4 w-4" />
           Choose file
         </span>
-        <span className="text-xs text-zinc-500">{badge}</span>
+        <span className="text-sm text-zinc-500">{badge}</span>
       </label>
       <input
         id={inputId}
@@ -350,7 +350,7 @@ function CompactUpload({
         onChange={onChange}
         className="hidden"
       />
-      {helperText ? <p className="text-xs text-zinc-500">{helperText}</p> : null}
+      {helperText ? <p className="text-sm text-zinc-500">{helperText}</p> : null}
     </div>
   );
 }

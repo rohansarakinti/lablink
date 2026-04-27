@@ -17,7 +17,7 @@ export function ProfessorPageHeader({
       <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-ll-navy md:text-4xl">{title}</h1>
-          {subtitle ? <p className="mt-2 max-w-3xl text-sm text-zinc-600 md:text-base">{subtitle}</p> : null}
+          {subtitle ? <p className="mt-2 max-w-3xl text-base text-zinc-600 md:text-lg">{subtitle}</p> : null}
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
@@ -45,10 +45,10 @@ export function ProfessorStatCard({
 
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{label}</p>
       <p className="mt-1 text-3xl font-semibold tracking-tight text-ll-navy">{value}</p>
       {trend ? (
-        <p className={`mt-2 inline-flex items-center gap-1 text-xs font-medium ${trendClass}`}>
+        <p className={`mt-2 inline-flex items-center gap-1 text-sm font-medium ${trendClass}`}>
           {tone === "positive" ? <ArrowUpRight className="size-3.5" aria-hidden /> : <Minus className="size-3.5" aria-hidden />}
           {trend}
         </p>
@@ -69,7 +69,7 @@ export function ProfessorSectionCard({
   return (
     <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow duration-250 hover:shadow-md">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-ll-navy md:text-lg">{title}</h2>
+        <h2 className="text-lg font-semibold text-ll-navy md:text-xl">{title}</h2>
         {action}
       </div>
       {children}
@@ -92,7 +92,7 @@ export function ProfessorPill({
         : tone === "positive"
           ? "bg-emerald-100 text-emerald-700"
           : "bg-zinc-100 text-zinc-700";
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes}`}>{children}</span>;
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-sm font-semibold ${classes}`}>{children}</span>;
 }
 
 export function ProgressMetricRow({

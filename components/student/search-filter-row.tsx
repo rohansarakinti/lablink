@@ -75,12 +75,12 @@ export function SearchFilterRow({
   return (
     <section className="ll-animate-fade-up ll-delay-100 relative z-40 mb-6 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Filters</h2>
+        <h2 className="text-base font-semibold uppercase tracking-wide text-zinc-500">Filters</h2>
         {hasActiveFilters ? (
           <button
             type="button"
             onClick={clearAll}
-            className="text-xs font-medium text-ll-navy underline-offset-2 hover:underline"
+            className="text-sm font-medium text-ll-navy underline-offset-2 hover:underline"
           >
             Clear all
           </button>
@@ -105,7 +105,7 @@ export function SearchFilterRow({
               <button
                 type="button"
                 onClick={() => setOpenKey(isOpen ? null : section.key)}
-                className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium shadow-sm transition-all duration-200 ${
+                className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-base font-medium shadow-sm transition-all duration-200 ${
                   count > 0
                     ? "border-ll-purple/60 bg-ll-purple/10 text-ll-navy"
                     : "border-ll-bg bg-ll-bg text-ll-navy hover:-translate-y-0.5 hover:brightness-95"
@@ -113,7 +113,7 @@ export function SearchFilterRow({
               >
                 <span>{section.label}</span>
                 {count > 0 ? (
-                  <span className="rounded-full bg-ll-navy px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                  <span className="rounded-full bg-ll-navy px-1.5 py-0.5 text-xs font-semibold text-white">
                     {count}
                   </span>
                 ) : null}
@@ -128,7 +128,7 @@ export function SearchFilterRow({
                       return (
                         <label
                           key={`${section.key}-${option.value}`}
-                          className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+                          className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-base text-zinc-700 hover:bg-zinc-50"
                         >
                           <input
                             type="checkbox"

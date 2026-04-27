@@ -33,12 +33,12 @@ export default async function LabPostingsPage({
         <div>
           <div className="h-1 w-12 rounded-full bg-ll-purple" aria-hidden />
           <h2 className="mt-2 text-2xl font-semibold text-ll-navy">Role postings</h2>
-          <p className="mt-1 text-sm text-zinc-600">Open roles, track applicants, and update status.</p>
+          <p className="mt-1 text-base text-zinc-600">Open roles, track applicants, and update status.</p>
         </div>
         {context.canManage ? (
           <Link
             href={`/labs/${labId}/postings/new`}
-            className="w-fit rounded-full bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-navy/25 transition hover:bg-[#004c58]"
+            className="w-fit rounded-full bg-ll-navy px-5 py-2.5 text-base font-semibold text-white shadow-lg shadow-ll-navy/25 transition hover:bg-[#004c58]"
           >
             New posting
           </Link>
@@ -47,12 +47,12 @@ export default async function LabPostingsPage({
 
       {(postings ?? []).length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-ll-purple/25 bg-ll-bg/70 p-10 text-center">
-          <p className="text-sm font-medium text-zinc-700">No postings yet.</p>
-          <p className="mt-2 text-sm text-zinc-500">Create a role to start recruiting students to your lab.</p>
+          <p className="text-base font-medium text-zinc-700">No postings yet.</p>
+          <p className="mt-2 text-base text-zinc-500">Create a role to start recruiting students to your lab.</p>
           {context.canManage ? (
             <Link
               href={`/labs/${labId}/postings/new`}
-              className="mt-5 inline-flex rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-[#0a5c6a]"
+              className="mt-5 inline-flex rounded-full bg-ll-navy px-4 py-2 text-base font-semibold text-white shadow-md transition hover:bg-[#0a5c6a]"
             >
               Create first posting
             </Link>
@@ -70,15 +70,15 @@ export default async function LabPostingsPage({
                 aria-hidden
               />
               <div className="flex items-start justify-between gap-3 pl-2">
-                <h3 className="text-lg font-semibold text-ll-navy">{posting.title}</h3>
-                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${postingStatusBadgeClass(posting.status)}`}>
+                <h3 className="text-xl font-semibold text-ll-navy">{posting.title}</h3>
+                <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${postingStatusBadgeClass(posting.status)}`}>
                   {posting.status}
                 </span>
               </div>
-              <p className="mt-4 pl-2 text-sm text-zinc-600">
+              <p className="mt-4 pl-2 text-base text-zinc-600">
                 <span className="font-semibold text-ll-navy">{posting.applications?.length ?? 0}</span> applicants
               </p>
-              <p className="mt-1 pl-2 text-sm text-zinc-600">
+              <p className="mt-1 pl-2 text-base text-zinc-600">
                 Deadline:{" "}
                 <span className="font-medium text-zinc-800">
                   {posting.application_deadline ? new Date(posting.application_deadline).toLocaleDateString() : "Not set"}
@@ -86,7 +86,7 @@ export default async function LabPostingsPage({
               </p>
               <Link
                 href={`/labs/${labId}/postings/${posting.id}/applicants`}
-                className="mt-4 inline-flex pl-2 text-sm font-semibold text-ll-navy underline decoration-ll-purple/45 decoration-2 underline-offset-4 transition hover:text-ll-purple"
+                className="mt-4 inline-flex pl-2 text-base font-semibold text-ll-navy underline decoration-ll-purple/45 decoration-2 underline-offset-4 transition hover:text-ll-purple"
               >
                 Review applicants →
               </Link>
@@ -159,7 +159,7 @@ function StatusButton({
       <input type="hidden" name="status" value={status} />
       <button
         type="submit"
-        className={`rounded-full border px-3 py-1.5 text-xs font-semibold capitalize shadow-sm transition ${styles}`}
+        className={`rounded-full border px-3 py-1.5 text-sm font-semibold capitalize shadow-sm transition ${styles}`}
       >
         {status}
       </button>

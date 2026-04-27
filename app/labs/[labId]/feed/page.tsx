@@ -39,14 +39,14 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
         <div>
           <div className="h-1 w-14 rounded-full bg-ll-purple" aria-hidden />
           <h2 className="mt-3 text-2xl font-semibold text-ll-navy md:text-3xl">Feed</h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-600">
+          <p className="mt-2 max-w-xl text-base leading-relaxed text-zinc-600">
             Share photos and updates from your lab—visible to followers and on your public presence.
           </p>
         </div>
         {context.canPostToFeed ? (
           <Link
             href={`/labs/${labId}/feed/new`}
-            className="mt-5 inline-flex w-fit shrink-0 rounded-full bg-ll-purple px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-ll-purple/25 transition hover:bg-ll-navy md:mt-0"
+            className="mt-5 inline-flex w-fit shrink-0 rounded-full bg-ll-purple px-5 py-2.5 text-base font-semibold text-white shadow-lg shadow-ll-purple/25 transition hover:bg-ll-navy md:mt-0"
           >
             New post
           </Link>
@@ -54,19 +54,19 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
       </div>
 
       {error ? (
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-900">
+        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-base font-medium text-red-900">
           Could not load posts. If you just added this feature, run the latest database migration.
         </p>
       ) : null}
 
       {!error && posts.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-ll-purple/20 bg-ll-bg/60 px-6 py-12 text-center">
-          <p className="text-sm font-medium text-zinc-700">No posts yet.</p>
-          <p className="mt-2 text-sm text-zinc-500">Highlights, milestones, and day-in-the-lab moments belong here.</p>
+          <p className="text-base font-medium text-zinc-700">No posts yet.</p>
+          <p className="mt-2 text-base text-zinc-500">Highlights, milestones, and day-in-the-lab moments belong here.</p>
           {context.canPostToFeed ? (
             <Link
               href={`/labs/${labId}/feed/new`}
-              className="mt-5 inline-flex rounded-full bg-ll-purple px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-ll-navy"
+              className="mt-5 inline-flex rounded-full bg-ll-purple px-4 py-2 text-base font-semibold text-white shadow-md transition hover:bg-ll-navy"
             >
               Create the first post
             </Link>
@@ -88,7 +88,7 @@ export default async function LabFeedPage({ params }: { params: Promise<{ labId:
                   <div className="mb-1.5 flex justify-start">
                     <Link
                       href={`/labs/${labId}/feed/${post.id}/edit`}
-                      className="text-[11px] font-semibold uppercase tracking-wide text-ll-purple"
+                      className="text-xs font-semibold uppercase tracking-wide text-ll-purple"
                     >
                       Edit post
                     </Link>

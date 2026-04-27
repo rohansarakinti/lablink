@@ -59,14 +59,14 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
         {selectedIds.map((id) => (
           <input key={id} type="hidden" name="application_ids" value={id} />
         ))}
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-600">
+        <p className="text-sm font-medium uppercase tracking-wide text-zinc-600">
           Bulk actions ({selectedIds.length} selected)
         </p>
         <button
           type="submit"
           name="status"
           value="reviewing"
-          className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-700"
+          className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-sm font-medium text-zinc-700"
         >
           Move selected to reviewing
         </button>
@@ -74,18 +74,18 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
           type="submit"
           name="status"
           value="rejected"
-          className="rounded-full border border-red-300 bg-white px-3 py-1 text-xs font-medium text-red-700"
+          className="rounded-full border border-red-300 bg-white px-3 py-1 text-sm font-medium text-red-700"
         >
           Reject selected
         </button>
       </form>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-zinc-200 text-sm">
+        <table className="min-w-full divide-y divide-zinc-200 text-base">
           <thead>
             <tr className="text-left text-zinc-500">
               <th className="py-2 pr-4 font-medium">
-                <button type="button" onClick={toggleAll} className="text-xs underline">
+                <button type="button" onClick={toggleAll} className="text-sm underline">
                   {allSelected ? "Clear all" : "Select all"}
                 </button>
               </th>
@@ -144,13 +144,13 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
                 </td>
                 {showRecommendation ? (
                   <td className="py-3 pr-4 align-top text-zinc-600">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Recommendation score</p>
+                    <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Recommendation score</p>
                     <div className="mt-1 inline-flex rounded-full border border-ll-purple/30 bg-ll-purple/10 px-3 py-1.5">
                       <span className="text-lg font-bold tracking-tight text-ll-navy">
                         {formatRecommendationPercent(row.recommendationScore)}
                       </span>
                     </div>
-                    <p className="mt-2 text-xs">{row.recommendationReason ?? "—"}</p>
+                    <p className="mt-2 text-sm">{row.recommendationReason ?? "—"}</p>
                   </td>
                 ) : null}
                 <td className="py-3 align-top">
@@ -163,7 +163,7 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
                       <select
                         name="status"
                         defaultValue={row.status}
-                        className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
+                        className="rounded-full border border-zinc-300 px-3 py-1 text-sm text-zinc-700"
                       >
                         {statusOptions.map((status) => (
                           <option key={`${row.id}-${status}`} value={status}>
@@ -173,7 +173,7 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
                       </select>
                       <button
                         type="submit"
-                        className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700"
+                        className="rounded-full border border-zinc-300 px-3 py-1 text-sm font-medium text-zinc-700"
                       >
                         Update
                       </button>
@@ -188,11 +188,11 @@ export function ReviewTable({ labId, postingId, rows, statusOptions, showRecomme
                         defaultValue={row.reviewerNotes ?? ""}
                         rows={3}
                         placeholder="Private reviewer notes"
-                        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-xs"
+                        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
                       />
                       <button
                         type="submit"
-                        className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700"
+                        className="rounded-full border border-zinc-300 px-3 py-1 text-sm font-medium text-zinc-700"
                       >
                         Save notes
                       </button>

@@ -38,7 +38,7 @@ export default async function LabOverviewPage({
             className="relative overflow-hidden rounded-2xl border border-white/80 bg-white/90 p-5 shadow-md shadow-ll-navy/5 backdrop-blur-sm"
           >
             <div className={`absolute left-0 top-0 h-full w-1.5 ${stat.accent}`} aria-hidden />
-            <p className="pl-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">{stat.label}</p>
+            <p className="pl-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">{stat.label}</p>
             <p className="mt-3 pl-2 text-3xl font-bold tracking-tight text-ll-navy">{stat.value}</p>
           </article>
         ))}
@@ -49,7 +49,7 @@ export default async function LabOverviewPage({
           <div>
             <div className="h-1 w-16 rounded-full bg-ll-purple" aria-hidden />
             <h2 className="mt-3 text-xl font-semibold text-ll-navy md:text-2xl">Public profile preview</h2>
-            <p className="mt-1 text-sm text-zinc-600">What students and visitors see on your lab&apos;s public page.</p>
+            <p className="mt-1 text-base text-zinc-600">What students and visitors see on your lab&apos;s public page.</p>
           </div>
         </div>
 
@@ -57,8 +57,8 @@ export default async function LabOverviewPage({
           <img src={context.lab.banner_url} alt="" className="mt-4 h-40 w-full rounded-xl object-cover md:h-48" />
         ) : null}
 
-        {context.lab.tagline ? <p className="mt-4 text-sm font-medium text-zinc-700">{context.lab.tagline}</p> : null}
-        <p className="mt-3 whitespace-pre-wrap text-sm text-zinc-600">
+        {context.lab.tagline ? <p className="mt-4 text-base font-medium text-zinc-700">{context.lab.tagline}</p> : null}
+        <p className="mt-3 whitespace-pre-wrap text-base text-zinc-600">
           {context.lab.description || "No lab description added yet."}
         </p>
 
@@ -67,7 +67,7 @@ export default async function LabOverviewPage({
             {context.lab.research_fields.map((field) => (
               <span
                 key={field}
-                className="inline-flex items-center rounded-full border border-ll-purple/20 bg-ll-bg px-2.5 py-0.5 text-xs font-medium text-ll-navy"
+                className="inline-flex items-center rounded-full border border-ll-purple/20 bg-ll-bg px-2.5 py-0.5 text-sm font-medium text-ll-navy"
               >
                 {field}
               </span>
@@ -75,7 +75,7 @@ export default async function LabOverviewPage({
             {context.lab.research_tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center rounded-full border border-ll-purple/25 bg-ll-purple/10 px-2.5 py-0.5 text-xs font-medium text-ll-navy"
+                className="inline-flex items-center rounded-full border border-ll-purple/25 bg-ll-purple/10 px-2.5 py-0.5 text-sm font-medium text-ll-navy"
               >
                 {tag}
               </span>
@@ -94,14 +94,14 @@ export default async function LabOverviewPage({
         {context.lab.student_fit || context.lab.expectations ? (
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Who should apply</p>
-              <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Who should apply</p>
+              <p className="mt-1 whitespace-pre-wrap text-base text-zinc-700">
                 {context.lab.student_fit || "Add guidance for student fit in Public profile."}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Expectations</p>
-              <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Expectations</p>
+              <p className="mt-1 whitespace-pre-wrap text-base text-zinc-700">
                 {context.lab.expectations || "Add weekly expectations in Public profile."}
               </p>
             </div>
@@ -110,7 +110,7 @@ export default async function LabOverviewPage({
 
         {context.lab.website_url ? (
           <a
-            className="mt-6 inline-flex items-center gap-1 rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-[#004c58]"
+            className="mt-6 inline-flex items-center gap-1 rounded-full bg-ll-navy px-4 py-2 text-base font-semibold text-white shadow-md transition hover:bg-[#004c58]"
             href={context.lab.website_url}
           >
             Visit lab website <span aria-hidden>↗</span>

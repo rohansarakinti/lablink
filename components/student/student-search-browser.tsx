@@ -172,7 +172,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           className="flex min-h-0 w-full max-h-[60vh] flex-col overflow-hidden max-lg:shrink-0 lg:min-w-[220px] lg:max-w-[252px] lg:max-h-none"
           style={listColStyle}
         >
-        <h2 className="mb-3 shrink-0 text-sm font-semibold uppercase tracking-wide text-zinc-500">Matched opportunities</h2>
+        <h2 className="mb-3 shrink-0 text-base font-semibold uppercase tracking-wide text-zinc-500">Matched opportunities</h2>
         <div className="min-h-0 flex-1 basis-0 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable]">
           {items.map((item) => {
             const pct = pctFromScore(item.vectorScore);
@@ -184,14 +184,14 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
                 className="group w-full border-b border-zinc-200 border-l-4 border-l-transparent p-4 pl-3 text-left transition-all duration-200 last:border-b-0 hover:border-l-ll-purple hover:bg-white hover:pl-4"
               >
                 <span
-                  className="inline-block rounded-full bg-zinc-200 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-600 group-hover:bg-ll-purple group-hover:text-white transition-colors"
+                  className="inline-block rounded-full bg-zinc-200 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-zinc-600 transition-colors group-hover:bg-ll-purple group-hover:text-white"
                 >
                   {pct}% match
                 </span>
                 <p className="mt-2 font-bold text-ll-navy leading-snug">{item.title}</p>
-                <p className="mt-1 text-xs font-semibold text-zinc-700">{item.labName}</p>
-                <p className="text-xs text-zinc-500">{item.piName}</p>
-                <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+                <p className="mt-1 text-sm font-semibold text-zinc-700">{item.labName}</p>
+                <p className="text-sm text-zinc-500">{item.piName}</p>
+                <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                   Topic: {item.topic}
                 </p>
               </button>
@@ -220,14 +220,14 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           ) : null}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/25" />
           <div className="absolute inset-0 flex flex-col justify-end p-5 pb-6 text-white md:p-7 md:pb-7">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/85">{eyebrow}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/85">{eyebrow}</p>
             <h3 className="mt-2 text-2xl font-bold leading-[1.15] tracking-tight md:text-[1.75rem]">{selected?.labName}</h3>
-            <p className="mt-2 max-w-2xl text-sm font-medium text-white/90 md:text-base">{selected?.title}</p>
+            <p className="mt-2 max-w-2xl text-base font-medium text-white/90 md:text-lg">{selected?.title}</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide backdrop-blur-sm">
+              <span className="rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide backdrop-blur-sm">
                 PI: {selected?.piName}
               </span>
-              <span className="rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide backdrop-blur-sm">
+              <span className="rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide backdrop-blur-sm">
                 {matchPct}% match score
               </span>
             </div>
@@ -237,14 +237,14 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
         <div className="flex flex-wrap items-center gap-3 border-b border-zinc-100 px-5 py-3 md:px-8">
           <Link
             href={`/postings/${selected?.postingId}`}
-            className="inline-flex items-center gap-2 rounded-xl bg-ll-navy px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-ll-navy/90 hover:shadow"
+            className="inline-flex items-center gap-2 rounded-xl bg-ll-navy px-5 py-2.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-ll-navy/90 hover:shadow"
           >
             Apply now
             <ArrowRight className="size-4" />
           </Link>
           <Link
             href={selected?.labId ? `/labs/${selected.labId}` : "#"}
-            className="inline-flex items-center gap-2 rounded-xl bg-ll-purple px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-ll-purple/90 hover:shadow"
+            className="inline-flex items-center gap-2 rounded-xl bg-ll-purple px-5 py-2.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-ll-purple/90 hover:shadow"
           >
             View lab profile
           </Link>
@@ -254,18 +254,18 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           <div className="min-h-0 border-zinc-100 bg-white px-5 py-6 md:px-8 md:py-7 lg:col-span-7 lg:h-full lg:border-r">
             <h4 className="text-2xl font-bold tracking-tight text-zinc-900">About the lab</h4>
             {paras.length > 0 ? (
-              <div className="mt-5 space-y-4 text-sm leading-relaxed text-zinc-600 md:text-[15px]">
+              <div className="mt-5 space-y-4 text-base leading-relaxed text-zinc-600 md:text-base">
                 {paras.map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
             ) : (
-              <p className="mt-5 text-sm text-zinc-500">No long description is available for this listing yet.</p>
+              <p className="mt-5 text-base text-zinc-500">No long description is available for this listing yet.</p>
             )}
 
             <div className="mt-6 rounded-2xl border border-zinc-200/80 bg-zinc-50/60 p-4 md:p-5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Why this match</p>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-700">{selected?.reason}</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Why this match</p>
+              <p className="mt-2 text-base leading-relaxed text-zinc-700">{selected?.reason}</p>
             </div>
 
             {skillGrid.length > 0 ? (
@@ -277,7 +277,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
                     return (
                       <div
                         key={skill}
-                        className="flex items-center gap-3 rounded-r-lg border-y border-r border-zinc-200/80 border-l-4 border-l-ll-purple bg-[#f3f4f6] py-2.5 pl-2 pr-3 text-sm font-semibold text-zinc-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#eef1f4]"
+                        className="flex items-center gap-3 rounded-r-lg border-y border-r border-zinc-200/80 border-l-4 border-l-ll-purple bg-[#f3f4f6] py-2.5 pl-2 pr-3 text-base font-semibold text-zinc-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#eef1f4]"
                       >
                         <span className="flex size-9 shrink-0 items-center justify-center text-ll-navy">
                           <Icon className="size-4" />
@@ -294,48 +294,48 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           <aside className="flex w-full min-h-0 flex-col border-t border-zinc-200/80 bg-zinc-100/80 px-5 py-5 md:px-6 md:py-6 lg:col-span-5 lg:h-full lg:border-l lg:border-t-0 lg:border-zinc-200/80">
             <div className="min-h-0 space-y-5 lg:space-y-6">
               <div className="rounded-2xl bg-[#1a2e35] p-4 text-white shadow-sm md:p-5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Application deadline</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400">Application deadline</p>
                 <p className="mt-1 text-2xl font-bold leading-tight tracking-tight md:text-[1.75rem]">{deadlineLines.line1}</p>
                 <p className="text-2xl font-bold leading-tight tracking-tight md:text-[1.75rem]">{deadlineLines.line2}</p>
-                <p className="mt-3 text-sm leading-relaxed text-white/75">
+                <p className="mt-3 text-base leading-relaxed text-white/75">
                   {selected != null && selected.applicantCount != null && selected.applicantCount > 0
                     ? `${selected.applicantCount} applicant${selected.applicantCount === 1 ? " has" : "s have"} already applied to this role.`
                     : "Open the full posting to apply—interest and timing can change as other students move through the process."}
                 </p>
                 {selected?.isPaid != null && selected.isPaid !== "" ? (
-                  <p className="mt-4 border-t border-white/20 pt-3 text-sm text-white/90">Compensation: {selected.isPaid}</p>
+                  <p className="mt-4 border-t border-white/20 pt-3 text-base text-white/90">Compensation: {selected.isPaid}</p>
                 ) : null}
               </div>
 
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Lab environment</h3>
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-zinc-500">Lab environment</h3>
                 <ul className="mt-3 space-y-3">
                   {envRows.map((row, i) => (
                     <li key={i}>
-                      <p className="text-sm font-bold text-zinc-900">{row.title}</p>
-                      <p className="mt-1.5 text-sm leading-relaxed text-zinc-600">{row.desc}</p>
+                      <p className="text-base font-bold text-zinc-900">{row.title}</p>
+                      <p className="mt-1.5 text-base leading-relaxed text-zinc-600">{row.desc}</p>
                     </li>
                   ))}
                 </ul>
               </div>
 
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Academic requirements</h3>
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-zinc-500">Academic requirements</h3>
                 <div className="mt-3 space-y-2.5">
                   <div className="rounded-xl border border-zinc-300/50 bg-[#c2d0d3] p-3 shadow-sm md:p-3.5">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-600">Minimum GPA</p>
+                    <p className="text-xs font-bold uppercase tracking-wide text-zinc-600">Minimum GPA</p>
                     <p className="mt-1 text-xl font-bold text-zinc-900 md:text-2xl">
                       {selected?.minGpa != null ? String(selected.minGpa) : "Not specified"}
                     </p>
                   </div>
                   <div className="rounded-xl border border-zinc-300/50 bg-[#c2d0d3] p-3 shadow-sm md:p-3.5">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-600">Student level</p>
+                    <p className="text-xs font-bold uppercase tracking-wide text-zinc-600">Student level</p>
                     <p className="mt-1 text-xl font-bold leading-tight text-zinc-900 md:text-2xl">
                       {formatYearLabel(selected?.preferredYear ?? [])}
                     </p>
                   </div>
                   <div className="rounded-xl border border-zinc-300/50 bg-[#c2d0d3] p-3 shadow-sm md:p-3.5">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-600">Weekly commitment</p>
+                    <p className="text-xs font-bold uppercase tracking-wide text-zinc-600">Weekly commitment</p>
                     <p className="mt-1 text-xl font-bold text-zinc-900 md:text-2xl">{selected?.hoursPerWeek ?? "—"}</p>
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export function StudentSearchBrowser({ items, query }: { items: StudentSearchRes
           </aside>
         </div>
 
-        <p className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-3 text-center text-[11px] text-zinc-400 md:px-8">
+        <p className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-3 text-center text-xs text-zinc-400 md:px-8">
           Results for &quot;{query}&quot; · ordered by vector similarity, then re-ranked
         </p>
       </div>

@@ -18,8 +18,8 @@ export function ProfessorSidebar({ displayName }: { displayName: string }) {
     <aside className="ll-animate-fade-up flex w-full shrink-0 self-stretch flex-col border-r border-zinc-200/80 bg-white md:w-52 lg:w-56">
       <div className="sticky top-0 z-20 flex w-full flex-col bg-white">
         <div className="border-b border-zinc-100 px-4 py-5 md:px-5">
-          <p className="text-lg font-semibold leading-tight tracking-tight text-ll-navy">{displayName}</p>
-          <p className="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-500">Professor workspace</p>
+          <p className="text-xl font-semibold leading-tight tracking-tight text-ll-navy">{displayName}</p>
+          <p className="mt-1 text-sm font-medium uppercase tracking-wide text-zinc-500">Professor workspace</p>
         </div>
         <nav className="flex flex-col gap-1 p-3" aria-label="Professor navigation">
           {nav.map(({ href, label, icon: Icon, exact }) => {
@@ -28,7 +28,7 @@ export function ProfessorSidebar({ displayName }: { displayName: string }) {
               <Link
                 key={href}
                 href={href}
-                className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-250 ${
+                className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-all duration-250 ${
                   active
                     ? "bg-ll-bg text-ll-navy shadow-sm"
                     : "text-zinc-600 hover:translate-x-0.5 hover:bg-zinc-50 hover:text-ll-navy"

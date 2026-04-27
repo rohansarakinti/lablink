@@ -115,8 +115,8 @@ export default async function StudentSearchPage({
     return (
       <div className="ll-animate-scale-in mx-auto max-w-2xl rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-6 py-16 text-center">
         <h1 className="text-2xl font-bold text-ll-navy">Search roles</h1>
-        <p className="mt-2 text-sm text-zinc-600">Enter a search in the bar above, then press Enter to find open postings.</p>
-        <p className="mt-3 text-xs text-zinc-500">We use the same vector similarity plus LLM re-ranking as your personalized matches.</p>
+        <p className="mt-2 text-base text-zinc-600">Enter a search in the bar above, then press Enter to find open postings.</p>
+        <p className="mt-3 text-sm text-zinc-500">We use the same vector similarity plus LLM re-ranking as your personalized matches.</p>
       </div>
     );
   }
@@ -128,9 +128,9 @@ export default async function StudentSearchPage({
       <div className="ll-animate-fade-up">
         <h1 className="text-2xl font-bold text-ll-navy">No matches yet</h1>
         {searchFailure ? (
-          <p className="mt-3 rounded-xl border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-900">{searchFailure}</p>
+          <p className="mt-3 rounded-xl border border-red-200 bg-red-50/90 px-4 py-3 text-base text-red-900">{searchFailure}</p>
         ) : (
-          <p className="mt-2 text-sm text-zinc-600">
+          <p className="mt-2 text-base text-zinc-600">
             Nothing turned up for &quot;{query}&quot;. Try different keywords, or make sure role postings have embeddings
             (open listings after embeddings are generated).
           </p>
@@ -242,15 +242,15 @@ export default async function StudentSearchPage({
     <div className="ll-animate-fade-up">
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-ll-navy md:text-3xl">Search</h1>
-        <p className="ll-animate-fade-up ll-delay-100 mt-1 text-sm text-zinc-600">
+        <p className="ll-animate-fade-up ll-delay-100 mt-1 text-base text-zinc-600">
           Showing {items.length} result{items.length === 1 ? "" : "s"} for &quot;{query}&quot;
         </p>
       </header>
       <SearchFilterRow query={query} selected={filters} sections={filterSections} />
       {items.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-6 py-10 text-center">
-          <p className="text-sm text-zinc-600">No opportunities match the current filter selection.</p>
-          <Link href={clearAllHref} className="mt-3 inline-block text-sm font-medium text-ll-navy hover:underline">
+          <p className="text-base text-zinc-600">No opportunities match the current filter selection.</p>
+          <Link href={clearAllHref} className="mt-3 inline-block text-base font-medium text-ll-navy hover:underline">
             Reset filters
           </Link>
         </div>

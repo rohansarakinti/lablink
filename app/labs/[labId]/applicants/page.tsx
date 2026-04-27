@@ -69,7 +69,7 @@ export default async function LabApplicantsPage({
           <a
             key={status}
             href={`/labs/${labId}/applicants?status=${status}`}
-            className={`rounded-full border px-3 py-1 text-xs font-medium uppercase ${
+            className={`rounded-full border px-3 py-1 text-sm font-medium uppercase ${
               requestedStatus === status
                 ? "border-ll-navy bg-ll-navy text-white"
                 : "border-zinc-300 bg-white text-zinc-700"
@@ -81,7 +81,7 @@ export default async function LabApplicantsPage({
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        <table className="min-w-full divide-y divide-zinc-200 text-sm">
+        <table className="min-w-full divide-y divide-zinc-200 text-base">
           <thead>
             <tr className="text-left text-zinc-500">
               <th className="py-2 pr-4 font-medium">Applicant</th>
@@ -110,7 +110,7 @@ export default async function LabApplicantsPage({
                 </td>
                 <td className="py-3 pr-4 text-zinc-600">{new Date(row.created_at).toLocaleDateString()}</td>
                 <td className="py-3">
-                  <span className="rounded-full bg-zinc-100 px-2 py-1 text-xs uppercase text-zinc-700">
+                  <span className="rounded-full bg-zinc-100 px-2 py-1 text-sm uppercase text-zinc-700">
                     {row.status}
                   </span>
                 </td>
@@ -118,12 +118,12 @@ export default async function LabApplicantsPage({
                   {row.role_postings?.id ? (
                     <Link
                       href={`/labs/${labId}/postings/${row.role_postings.id}/applicants`}
-                      className="text-xs font-medium text-ll-navy underline"
+                      className="text-sm font-medium text-ll-navy underline"
                     >
                       Open posting review
                     </Link>
                   ) : (
-                    <span className="text-xs text-zinc-500">—</span>
+                    <span className="text-sm text-zinc-500">—</span>
                   )}
                 </td>
               </tr>

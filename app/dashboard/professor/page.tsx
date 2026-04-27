@@ -179,7 +179,7 @@ export default async function ProfessorDashboardPage() {
         <ProfessorSectionCard
           title="Applicant Status"
           action={
-            <Link href="/dashboard/professor/analytics" className="text-xs font-semibold uppercase tracking-wide text-ll-purple">
+            <Link href="/dashboard/professor/analytics" className="text-sm font-semibold uppercase tracking-wide text-ll-purple">
               View analytics →
             </Link>
           }
@@ -193,16 +193,16 @@ export default async function ProfessorDashboardPage() {
 
         <ProfessorSectionCard title="Upcoming interviews">
           {interviewRows.length === 0 ? (
-            <p className="text-sm text-zinc-600">No interviews yet. Move screened candidates to interview to see them here.</p>
+            <p className="text-base text-zinc-600">No interviews yet. Move screened candidates to interview to see them here.</p>
           ) : (
             <ul className="space-y-3">
               {interviewRows.map((row) => (
                 <li key={row.id} className="flex items-center justify-between gap-3 rounded-xl border border-zinc-100 bg-zinc-50/70 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-ll-navy">{row.studentName}</p>
-                    <p className="truncate text-xs text-zinc-600">{row.postingTitle}</p>
+                    <p className="truncate text-base font-semibold text-ll-navy">{row.studentName}</p>
+                    <p className="truncate text-sm text-zinc-600">{row.postingTitle}</p>
                   </div>
-                  <p className="whitespace-nowrap text-xs font-medium text-ll-purple">
+                  <p className="whitespace-nowrap text-sm font-medium text-ll-purple">
                     {new Date(row.createdAt).toLocaleDateString()}
                   </p>
                 </li>
@@ -214,29 +214,29 @@ export default async function ProfessorDashboardPage() {
 
       <section className="ll-animate-fade-up ll-delay-300 mt-5">
         <div className="mb-3 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-ll-navy">Your postings</h2>
+          <h2 className="text-xl font-semibold text-ll-navy">Your postings</h2>
         </div>
         {postingCards.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-600">
+          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-base text-zinc-600">
             No postings yet. Create your first opportunity to begin receiving applications.
           </div>
         ) : (
           <div className="grid gap-3 md:grid-cols-3">
             {postingCards.map((posting) => (
               <article key={posting.id} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md">
-                <h3 className="line-clamp-2 text-sm font-semibold text-ll-navy">{posting.title}</h3>
+                <h3 className="line-clamp-2 text-base font-semibold text-ll-navy">{posting.title}</h3>
                 <div className="mt-3 flex items-center gap-2">
                   <ProfessorPill tone={posting.status === "open" ? "positive" : "neutral"}>{posting.status}</ProfessorPill>
                   <ProfessorPill tone="accent">{applicationCountByPosting.get(posting.id) ?? 0} applicants</ProfessorPill>
                 </div>
-                <p className="mt-3 text-xs text-zinc-600">
+                <p className="mt-3 text-sm text-zinc-600">
                   {posting.application_deadline
                     ? `Deadline: ${new Date(posting.application_deadline).toLocaleDateString()}`
                     : "No deadline set"}
                 </p>
                 <Link
                   href={`/labs/${posting.lab_id}/postings/${posting.id}/applicants`}
-                  className="mt-3 inline-block text-sm font-medium text-ll-navy underline"
+                  className="mt-3 inline-block text-base font-medium text-ll-navy underline"
                 >
                   Review applicants
                 </Link>
@@ -248,13 +248,13 @@ export default async function ProfessorDashboardPage() {
 
       <section className="ll-animate-fade-up ll-delay-300 mt-8">
         <div className="mb-3 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-ll-navy">My labs</h2>
-          <Link href="/labs/new" className="text-sm font-medium text-ll-navy underline">
+          <h2 className="text-xl font-semibold text-ll-navy">My labs</h2>
+          <Link href="/labs/new" className="text-base font-medium text-ll-navy underline">
             Create lab
           </Link>
         </div>
         {labs.length === 0 ? (
-          <p className="text-sm text-ll-gray">No labs yet.</p>
+          <p className="text-base text-ll-gray">No labs yet.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
             {labs.map((membership) =>
@@ -296,12 +296,12 @@ export default async function ProfessorDashboardPage() {
                       <p className="inline-flex self-start rounded-full bg-zinc-100 px-2 py-1 text-xs font-semibold uppercase text-zinc-700">
                         {membership.lab_role.replaceAll("_", " ")}
                       </p>
-                      <h3 className="mt-3 text-base font-semibold text-ll-navy">{membership.lab_groups.name}</h3>
-                      <p className="mt-1 text-sm text-zinc-600">{membership.lab_groups.university}</p>
+                      <h3 className="mt-3 text-lg font-semibold text-ll-navy">{membership.lab_groups.name}</h3>
+                      <p className="mt-1 text-base text-zinc-600">{membership.lab_groups.university}</p>
                       {membership.lab_groups.tagline ? (
-                        <p className="mt-2 line-clamp-2 text-sm text-ll-gray">{membership.lab_groups.tagline}</p>
+                        <p className="mt-2 line-clamp-2 text-base text-ll-gray">{membership.lab_groups.tagline}</p>
                       ) : null}
-                      <span className="mt-auto inline-block pt-4 text-sm font-medium text-ll-navy underline">
+                      <span className="mt-auto inline-block pt-4 text-base font-medium text-ll-navy underline">
                         Manage lab
                       </span>
                     </div>
@@ -315,17 +315,17 @@ export default async function ProfessorDashboardPage() {
 
       <section className="ll-animate-fade-up ll-delay-400 mt-8">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-ll-navy">Recent activity</h2>
-          <Link href="/dashboard/professor/analytics" className="text-sm font-medium text-ll-navy underline">
+          <h2 className="text-xl font-semibold text-ll-navy">Recent activity</h2>
+          <Link href="/dashboard/professor/analytics" className="text-base font-medium text-ll-navy underline">
             Open analytics
           </Link>
         </div>
         {recentActivity.length === 0 ? (
-          <p className="mt-3 text-sm text-ll-gray">No applications yet.</p>
+          <p className="mt-3 text-base text-ll-gray">No applications yet.</p>
         ) : (
           <ul className="mt-4 space-y-3">
             {recentActivity.map((activity) => (
-              <li key={activity.id} className="rounded-xl border border-zinc-200 bg-white p-4 text-sm shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+              <li key={activity.id} className="rounded-xl border border-zinc-200 bg-white p-4 text-base shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <p className="font-medium text-ll-navy">
                   {activity.role_postings?.title ?? "Role posting"} at{" "}
                   {activity.role_postings?.lab_groups?.name ?? "your lab"}

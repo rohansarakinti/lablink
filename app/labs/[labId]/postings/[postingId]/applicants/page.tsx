@@ -276,11 +276,11 @@ export default async function PostingApplicantsPage({
     <div className="space-y-6">
       <div className="overflow-hidden rounded-3xl border border-ll-purple/20 bg-white p-6 shadow-lg shadow-ll-navy/5 md:p-8">
         <div className="h-1 w-14 rounded-full bg-ll-purple" aria-hidden />
-        <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-ll-navy/80">Applicant review</p>
+        <p className="mt-3 text-sm font-bold uppercase tracking-[0.2em] text-ll-navy/80">Applicant review</p>
         <h2 className="mt-2 text-2xl font-semibold text-ll-navy md:text-3xl">{posting.title}</h2>
         <Link
           href={`/labs/${labId}/postings`}
-          className="mt-3 inline-flex w-fit items-center gap-1 rounded-full border border-ll-purple/25 bg-white/90 px-3 py-1.5 text-sm font-semibold text-ll-navy shadow-sm transition hover:border-ll-purple/40 hover:bg-ll-bg/60"
+          className="mt-3 inline-flex w-fit items-center gap-1 rounded-full border border-ll-purple/25 bg-white/90 px-3 py-1.5 text-base font-semibold text-ll-navy shadow-sm transition hover:border-ll-purple/40 hover:bg-ll-bg/60"
         >
           ← Back to postings
         </Link>
@@ -292,7 +292,7 @@ export default async function PostingApplicantsPage({
             <a
               key={status}
               href={buildApplicantListUrl(status)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide shadow-sm transition ${
+              className={`rounded-full border px-3 py-1.5 text-sm font-semibold uppercase tracking-wide shadow-sm transition ${
                 requestedStatus === status
                   ? "border-transparent bg-ll-navy text-white shadow-md shadow-ll-navy/20"
                   : "border-zinc-200 bg-white text-zinc-700 hover:border-ll-purple/25 hover:bg-ll-bg/50"
@@ -310,7 +310,7 @@ export default async function PostingApplicantsPage({
           <select
             name="skills"
             defaultValue={query.skills ?? ""}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
           >
             <option value="">Any skill</option>
             {filterOptionLists.skills.map((s) => (
@@ -322,7 +322,7 @@ export default async function PostingApplicantsPage({
           <select
             name="research_fields"
             defaultValue={query.research_fields ?? ""}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
           >
             <option value="">Any research field</option>
             {filterOptionLists.researchFields.map((s) => (
@@ -334,7 +334,7 @@ export default async function PostingApplicantsPage({
           <select
             name="major"
             defaultValue={query.major ?? ""}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
           >
             <option value="">Any major</option>
             {filterOptionLists.majors.map((s) => (
@@ -346,7 +346,7 @@ export default async function PostingApplicantsPage({
           <select
             name="prior_experience"
             defaultValue={query.prior_experience ?? ""}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
           >
             <option value="">Any prior experience</option>
             {PRIOR_EXPERIENCE_KNOWN.map((o) => (
@@ -365,7 +365,7 @@ export default async function PostingApplicantsPage({
           <select
             name="year"
             defaultValue={query.year ?? ""}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
           >
             <option value="">Any year</option>
             {YEAR_OPTIONS.map((o) => (
@@ -377,7 +377,7 @@ export default async function PostingApplicantsPage({
           <select
             name="min_gpa"
             defaultValue={query.min_gpa ?? ""}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
           >
             <option value="">Any min GPA</option>
             {MIN_GPA_OPTIONS.map((g) => (
@@ -389,7 +389,7 @@ export default async function PostingApplicantsPage({
           <select
             name="willing_to_volunteer"
             defaultValue={query.willing_to_volunteer ?? ""}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
           >
             <option value="">Volunteer (any)</option>
             <option value="true">Yes</option>
@@ -398,7 +398,7 @@ export default async function PostingApplicantsPage({
           <select
             name="paid_preference"
             defaultValue={query.paid_preference ?? ""}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
           >
             <option value="">Any paid preference</option>
             {PAID_PREFERENCE_OPTIONS.map((o) => (
@@ -415,12 +415,12 @@ export default async function PostingApplicantsPage({
               ))}
           </select>
           <div className="md:col-span-4 flex flex-wrap gap-2">
-            <button type="submit" className="rounded-full bg-ll-navy px-3 py-1 text-xs font-medium text-white">
+            <button type="submit" className="rounded-full bg-ll-navy px-3 py-1 text-sm font-medium text-white">
               Apply filters
             </button>
             <a
               href={buildApplicantListUrl(requestedStatus)}
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-700"
+              className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-sm font-medium text-zinc-700"
             >
               Clear filters
             </a>

@@ -78,8 +78,8 @@ export default async function PostingDetailPage({
   if (!posting) {
     return (
       <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-12">
-        <p className="text-sm text-zinc-600">Posting not found or no longer open.</p>
-        <Link href="/dashboard/student" className="mt-3 inline-block text-sm text-ll-navy underline">
+        <p className="text-base text-zinc-600">Posting not found or no longer open.</p>
+        <Link href="/dashboard/student" className="mt-3 inline-block text-base text-ll-navy underline">
           Back to dashboard
         </Link>
       </main>
@@ -113,17 +113,17 @@ export default async function PostingDetailPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-12">
-      <Link href="/dashboard/student" className="text-sm text-ll-navy underline">
+      <Link href="/dashboard/student" className="text-base text-ll-navy underline">
         ← Back to dashboard
       </Link>
 
       <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-6">
-        <p className="text-xs uppercase tracking-wide text-zinc-500">
+        <p className="text-sm uppercase tracking-wide text-zinc-500">
           {posting.lab_groups?.name ?? "Lab"} · {posting.lab_groups?.university ?? "University"}
         </p>
-        <h1 className="mt-2 text-2xl font-semibold text-ll-navy">{posting.title}</h1>
-        <p className="mt-3 text-sm text-zinc-700">{posting.description ?? "No description provided yet."}</p>
-        <div className="mt-4 flex flex-wrap gap-2 text-xs text-zinc-600">
+        <h1 className="mt-2 text-3xl font-semibold text-ll-navy">{posting.title}</h1>
+        <p className="mt-3 text-base text-zinc-700">{posting.description ?? "No description provided yet."}</p>
+        <div className="mt-4 flex flex-wrap gap-2 text-sm text-zinc-600">
           <span className="rounded-full bg-zinc-100 px-2 py-1">{posting.is_paid ?? "pay unspecified"}</span>
           <span className="rounded-full bg-zinc-100 px-2 py-1">{posting.hours_per_week ?? "hours tbd"}</span>
           {posting.application_deadline ? (
@@ -136,20 +136,20 @@ export default async function PostingDetailPage({
 
       {existingApplication ? (
         <section className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
-          <h2 className="text-lg font-semibold text-ll-navy">Application already submitted</h2>
-          <p className="mt-2 text-sm text-zinc-600">
+          <h2 className="text-xl font-semibold text-ll-navy">Application already submitted</h2>
+          <p className="mt-2 text-base text-zinc-600">
             Status: {existingApplication.status} · Submitted{" "}
             {new Date(existingApplication.created_at).toLocaleDateString()}
           </p>
-          <Link href="/dashboard/student/applications" className="mt-3 inline-block text-sm text-ll-navy underline">
+          <Link href="/dashboard/student/applications" className="mt-3 inline-block text-base text-ll-navy underline">
             View in applications tab
           </Link>
         </section>
       ) : (
         <section className="mt-6 rounded-2xl border border-zinc-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-ll-navy">Apply</h2>
+          <h2 className="text-xl font-semibold text-ll-navy">Apply</h2>
           {errorText ? (
-            <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-base text-red-700">
               {errorText}
             </div>
           ) : null}
@@ -158,14 +158,14 @@ export default async function PostingDetailPage({
             <input type="hidden" name="posting_id" value={posting.id} />
 
             <div className="space-y-3">
-              <p className="text-sm font-medium text-ll-navy">Resume</p>
+              <p className="text-base font-medium text-ll-navy">Resume</p>
               {studentProfile?.resume_url ? (
                 <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-                  <label className="flex items-center gap-2 text-sm text-zinc-700">
+                  <label className="flex items-center gap-2 text-base text-zinc-700">
                     <input type="radio" name="resume_source" value="profile" defaultChecked />
                     Use resume linked in your profile
                   </label>
-                  <label className="flex items-center gap-2 text-sm text-zinc-700">
+                  <label className="flex items-center gap-2 text-base text-zinc-700">
                     <input type="radio" name="resume_source" value="upload" />
                     Upload a new resume for this application
                   </label>
@@ -196,14 +196,14 @@ export default async function PostingDetailPage({
 
             {showStatement ? (
               <div className="space-y-2">
-                <label htmlFor="statement" className="text-sm font-medium text-ll-navy">
+                <label htmlFor="statement" className="text-base font-medium text-ll-navy">
                   Statement of interest
                 </label>
                 <textarea
                   id="statement"
                   name="statement"
                   rows={5}
-                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-base"
                   placeholder="Why are you a strong fit for this role?"
                 />
               </div>
@@ -212,8 +212,8 @@ export default async function PostingDetailPage({
             <CustomResponsesField questions={customQuestions} />
 
             <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-              <p className="text-xs uppercase tracking-wide text-zinc-500">Evaluation methods</p>
-              <p className="mt-2 text-sm text-zinc-700">
+              <p className="text-sm uppercase tracking-wide text-zinc-500">Evaluation methods</p>
+              <p className="mt-2 text-base text-zinc-700">
                 {(evalMethods.length ? evalMethods : ["resume"])
                   .map((method) => evalMethodLabels[method] ?? method)
                   .join(" · ")}
@@ -222,7 +222,7 @@ export default async function PostingDetailPage({
 
             <button
               type="submit"
-              className="rounded-full bg-ll-navy px-4 py-2 text-sm font-semibold text-white"
+              className="rounded-full bg-ll-navy px-4 py-2 text-base font-semibold text-white"
             >
               Submit application
             </button>
@@ -248,10 +248,10 @@ function CustomResponsesField({ questions }: { questions: CustomQuestion[] }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium text-ll-navy">Custom questions</p>
+      <p className="text-base font-medium text-ll-navy">Custom questions</p>
       {normalized.map((question) => (
         <div key={question.id} className="space-y-2">
-          <label htmlFor={`question-${question.id}`} className="text-sm text-zinc-700">
+          <label htmlFor={`question-${question.id}`} className="text-base text-zinc-700">
             {question.prompt}
           </label>
           <textarea
@@ -259,7 +259,7 @@ function CustomResponsesField({ questions }: { questions: CustomQuestion[] }) {
             name={`custom_question_${question.id}`}
             rows={3}
             required={question.required}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-base"
           />
         </div>
       ))}
