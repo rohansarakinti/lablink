@@ -45,10 +45,10 @@ export function ProfessorStatCard({
 
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{label}</p>
+      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-500">{label}</p>
       <p className="mt-1 text-3xl font-semibold tracking-tight text-ll-navy">{value}</p>
       {trend ? (
-        <p className={`mt-2 inline-flex items-center gap-1 text-sm font-medium ${trendClass}`}>
+        <p className={`mt-2 inline-flex items-center gap-1 text-base font-medium ${trendClass}`}>
           {tone === "positive" ? <ArrowUpRight className="size-3.5" aria-hidden /> : <Minus className="size-3.5" aria-hidden />}
           {trend}
         </p>
@@ -107,7 +107,7 @@ export function ProgressMetricRow({
   const width = max > 0 ? Math.max(6, Math.round((value / max) * 100)) : 0;
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-sm text-zinc-600">
+      <div className="flex items-center justify-between text-base text-zinc-600">
         <span>{label}</span>
         <span className="font-semibold text-zinc-700">{value}</span>
       </div>

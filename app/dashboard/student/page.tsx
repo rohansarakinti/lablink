@@ -400,11 +400,11 @@ export default async function StudentDashboardPage() {
 
       <div className="mb-8 grid gap-3 sm:grid-cols-2">
         <div className="ll-animate-scale-in ll-delay-100 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Applications</p>
+          <p className="text-base font-semibold uppercase tracking-wide text-zinc-500">Applications</p>
           <p className="mt-1 text-3xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{appCount}</p>
         </div>
         <div className="ll-animate-scale-in ll-delay-200 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">My labs</p>
+          <p className="text-base font-semibold uppercase tracking-wide text-zinc-500">My labs</p>
           <p className="mt-1 text-3xl font-bold text-ll-navy tabular-nums transition-colors duration-200">{labCount}</p>
         </div>
       </div>

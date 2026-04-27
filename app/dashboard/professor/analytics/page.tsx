@@ -166,7 +166,7 @@ export default async function ProfessorAnalyticsPage() {
         actions={
           <Link
             href="/dashboard/professor"
-          className="inline-flex rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-ll-navy transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-50 hover:shadow-sm"
+          className="inline-flex rounded-full border border-zinc-200 bg-white px-4 py-2 text-base font-semibold text-ll-navy transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-50 hover:shadow-sm"
           >
             Back to overview
           </Link>
@@ -183,7 +183,7 @@ export default async function ProfessorAnalyticsPage() {
       <div className="ll-animate-fade-up ll-delay-200 mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <ProfessorSectionCard title="Applications over time">
           <SimpleAreaChart points={bins} />
-          <div className="mt-2 flex justify-between text-xs text-zinc-500">
+          <div className="mt-2 flex justify-between text-sm text-zinc-500">
             <span>90 days ago</span>
             <span>Today</span>
           </div>
@@ -196,7 +196,7 @@ export default async function ProfessorAnalyticsPage() {
             ))}
           </div>
           <div className="mt-5">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">Top applicant skills (90d)</p>
+            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">Top applicant skills (90d)</p>
             {topSkills.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {topSkills.map((skill) => (
@@ -209,7 +209,7 @@ export default async function ProfessorAnalyticsPage() {
               <p className="text-sm text-zinc-600">No student skills found in recent applications.</p>
             )}
           </div>
-          <p className="mt-4 text-xs text-zinc-500">
+          <p className="mt-4 text-sm text-zinc-500">
             Followers: {followersCount ?? 0} · Active lab members: {memberCount ?? 0}
           </p>
         </ProfessorSectionCard>
